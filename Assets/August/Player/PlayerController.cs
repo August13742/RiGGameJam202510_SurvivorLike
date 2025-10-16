@@ -10,10 +10,13 @@ namespace Survivor.Control
         private InputSystem_Actions input;
         [SerializeField] Vector2 velocity;
         [SerializeField] Vector2 inputDirection;
+        private Rigidbody2D rb;
 
         private void Awake()
         {
             input = new();
+            rb = GetComponent<Rigidbody2D>();
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         }
         private void OnEnable()
         {
@@ -50,7 +53,8 @@ namespace Survivor.Control
 
             velocity = Vector2.MoveTowards(velocity, targetVelocity, dv);
 
-            transform.position += (Vector3)(velocity * Time.fixedDeltaTime);
+            //transform.position += (Vector3)(velocity * Time.fixedDeltaTime);
+            rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
         }
     }
 }

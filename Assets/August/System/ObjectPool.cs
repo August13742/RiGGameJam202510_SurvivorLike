@@ -1,24 +1,51 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Survivor.System
+namespace Survivor.Game
 {
-
-    public sealed class ObjectPool : MonoBehaviour
+    public sealed class ObjectPool
     {
-        [SerializeField] private GameObject prefab;
-        [SerializeField] private int prewarm = 16;
-        private readonly Queue<GameObject> q = new();
+        private readonly Transform _parent;
+        private readonly GameObject _prefab;
+        private readonly Stack<GameObject> _stack = new();
 
-        private void Awake()
+        public ObjectPool(GameObject prefab, int prewarm, Transform parent)
         {
-            for (int i = 0; i < prewarm; i++) { var go = Instantiate(prefab, transform); go.SetActive(false); q.Enqueue(go); }
+            _prefab = prefab; _parent = parent;
+            for (int i = 0; i < prewarm; i++)
+                _stack.Push(CreateInstance());
         }
-        public GameObject Rent(Vector3 pos, Quaternion rot)
+
+        private GameObject CreateInstance()
         {
-            var go = q.Count > 0 ? q.Dequeue() : Instantiate(prefab, transform);
-            go.transform.SetPositionAndRotation(pos, rot); go.SetActive(true); return go;
+            GameObject obj = Object.Instantiate(_prefab, _parent);
+            var stamp = obj.GetComponent<PrefabStamp>() ?? obj.AddComponent<PrefabStamp>();
+            stamp.Prefab = _prefab;
+            stamp.OwnerPool = this;
+            obj.SetActive(false);
+            return obj;
         }
-        public void Return(GameObject go) { go.SetActive(false); q.Enqueue(go); }
+
+        public GameObject Rent(Vector3 pos, Quaternion rot, Transform reparentTo = null)
+        {
+            var obj = _stack.Count > 0 ? _stack.Pop() : CreateInstance();
+            if (reparentTo && obj.transform.parent != reparentTo)
+                obj.transform.SetParent(reparentTo, worldPositionStays: false);
+            obj.transform.SetPositionAndRotation(pos, rot);
+            obj.SetActive(true);
+            if (obj.TryGetComponent<IPoolable>(out var ip)) ip.OnSpawned();
+            return obj;
+        }
+
+        public void Return(GameObject obj)
+        {
+            if (!obj) return;
+            if (obj.TryGetComponent<IPoolable>(out var ip)) ip.OnDespawned();
+            // restore static parent to avoid dangling under dynamic hierarchies
+            if (obj.transform.parent != _parent) obj.transform.SetParent(_parent, worldPositionStays: false);
+            obj.SetActive(false);
+            _stack.Push(obj);
+        }
+
     }
 }
