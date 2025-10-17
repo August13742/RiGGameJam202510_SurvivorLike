@@ -10,6 +10,7 @@ namespace Survivor.Control
         private InputSystem_Actions input;
         [SerializeField] Vector2 velocity;
         [SerializeField] Vector2 inputDirection;
+        public Vector2 InputDirection => inputDirection;
         private Rigidbody2D rb;
 
         private void Awake()

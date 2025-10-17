@@ -10,7 +10,7 @@ namespace Survivor.Weapon
         public override void Equip(WeaponContext context)
         {
             base.Equip(context); // sets ctx, cooldown, _getTarget
-            _projPool = new ObjectPool(def.ProjectilePrefab, prewarm: 32, context.PoolRoot);
+            _projPool = new ObjectPool(def.ProjectilePrefab, prewarm: 16, context.PoolRoot);
         }
 
         public override void Tick(float dt)
