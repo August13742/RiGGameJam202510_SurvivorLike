@@ -14,7 +14,7 @@ namespace Survivor.Enemy
         protected Rigidbody2D _rb;
         protected Transform _target;
         public bool IsDead => _health != null && _health.IsDead;
-        public event System.Action<EnemyBase> Despawned;
+        public System.Action<EnemyBase> Despawned;
 
         protected virtual void Awake()
         {
