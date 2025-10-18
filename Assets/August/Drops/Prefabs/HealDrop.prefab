@@ -12,8 +12,10 @@ GameObject:
   - component: {fileID: 7877228871836124092}
   - component: {fileID: 4786089981995646002}
   - component: {fileID: 942760189895497810}
+  - component: {fileID: -2300390411167695270}
+  - component: {fileID: -8818115812158931957}
   m_Layer: 10
-  m_Name: GoldDrop
+  m_Name: HealDrop
   m_TagString: Loot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,7 +83,7 @@ SpriteRenderer:
   m_SortingLayerID: -583739985
   m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: -476153826246618229, guid: e89251e72985bac4ea2627b095165294, type: 3}
+  m_Sprite: {fileID: -4456225766891094810, guid: a4163c7afff96be4eb46ab9435005ee8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -127,7 +129,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.12
+  m_Radius: 0.15
 --- !u!114 &942760189895497810
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140,3 +142,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cfdb64496ae9ca46b8b9e75892219d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.PrefabStamp
+--- !u!114 &-2300390411167695270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3830765849734340063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f5134b4b631b814cb2d268d728e8a57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Drop.HealDrop
+  amount: 20
+--- !u!114 &-8818115812158931957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3830765849734340063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cd9bdac13ad5704ba0a260b38722679, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Drop.PickupMagnet
+  startDelay: 0.12
+  speed: 12
+  snapDistance: 0.2

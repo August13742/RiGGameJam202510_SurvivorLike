@@ -59,12 +59,11 @@ namespace Survivor.Enemy
         public virtual void OnSpawned()
         {
             // Reset transient state. HP already reset by InitFrom or HealthComponent.
-            // e.g., cached Rigidbody2D.velocity = Vector2.zero;
         }
 
         public virtual void OnDespawned()
         {
-            // Clear vfx/sfx/trails here if needed
+            // Clear vfx/sfx/trails
         }
 
         // Death pipeline -> return to owning pool
@@ -75,11 +74,15 @@ namespace Survivor.Enemy
 
         protected void Die()
         {
-            // LootSystem.SpawnXP(transform.position, _def?.XPValue ?? 1);
-            Despawned?.Invoke(this); // -> lets spawner decrement alive count
-            if (_stamp?.OwnerPool != null) _stamp.OwnerPool.Return(gameObject);
+
+            if(LootManager.Instance != null) LootManager.Instance.SpawnLoot(_def, transform.position);
+
+
+            Despawned?.Invoke(this);
+            if (_stamp!=null && (_stamp.OwnerPool != null)) _stamp.OwnerPool.Return(gameObject);
             else gameObject.SetActive(false);
         }
     }
-}
+}   
+
 

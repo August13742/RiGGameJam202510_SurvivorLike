@@ -2,15 +2,14 @@ using UnityEngine;
 using Survivor.Game;
 namespace Survivor.Drop
 {
-    public sealed class ExpDrop : DropItemBase
+    public sealed class HealDrop : DropItemBase
     {
-        [SerializeField] private int ExpValue = 1;
 
         protected override void Apply(GameObject player)
         {
             if (SessionManager.Instance != null)
             {
-                SessionManager.Instance.AddExp(ExpValue * amount);
+                SessionManager.Instance.RestorePlayerHealth(amount);
             }
             // play sound, spawn tiny sparkle (pooled)
         }

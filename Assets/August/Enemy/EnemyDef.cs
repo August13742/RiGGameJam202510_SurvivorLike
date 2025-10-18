@@ -1,3 +1,4 @@
+using Survivor.Game;
 using UnityEngine;
 
 namespace Survivor.Enemy
@@ -17,6 +18,11 @@ namespace Survivor.Enemy
 
         [Header("Pooling")]
         [Min(0)] public int PrewarmCount = 8;
+
+        [Header("Drops")]
+        [Range(0f, 1f)] public float DropChance = 0.6f;  // chance that this enemy drops anything
+        public int Rolls = 1;                            // how many items to roll if it drops
+        public LootTableDef LootTable;                   // weighted item selection
 
     }
 }

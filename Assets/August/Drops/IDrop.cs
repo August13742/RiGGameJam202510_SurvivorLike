@@ -1,5 +1,5 @@
 using UnityEngine;
-namespace Survivor.Game
+namespace Survivor.Drop
 {
     public interface IDrop
     {

@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 1100702175919413644}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.2, y: 0.08, z: 0}
   m_LocalScale: {x: 7, y: 7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -177,8 +177,90 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd2fe18498aadf94da55b4cd3bab46a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.ProjectileWeapon
-  def: {fileID: 11400000, guid: 4e35ef32968c35242839648f51500f49, type: 2}
+  def: {fileID: 11400000, guid: aa9ee12cf43551c48af3a12139e7736a, type: 2}
   fireOrigin: {fileID: 5473380445118077831}
+--- !u!1 &5697354330607318812
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2694523858608040271}
+  - component: {fileID: 1188870799436704693}
+  - component: {fileID: 8636856998270990283}
+  m_Layer: 6
+  m_Name: DropMagnetArea
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2694523858608040271
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5697354330607318812}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3863936289245180800}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &1188870799436704693
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5697354330607318812}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 2
+--- !u!114 &8636856998270990283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5697354330607318812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54a1ed95f3e22444ca9003505a19f033, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Drop.PlayerMagnetZone
+  Player: {fileID: 3863936289245180800}
 --- !u!1 &5914224002963691110
 GameObject:
   m_ObjectHideFlags: 0
@@ -190,6 +272,7 @@ GameObject:
   - component: {fileID: 3863936289245180800}
   - component: {fileID: 8898621925854270114}
   - component: {fileID: 152034367600551103}
+  - component: {fileID: 4161025487633592718}
   - component: {fileID: 2560214199077104943}
   - component: {fileID: 4578546165907560104}
   - component: {fileID: 5806806840443530406}
@@ -216,6 +299,7 @@ Transform:
   - {fileID: 5473380445118077831}
   - {fileID: 7671544502081350398}
   - {fileID: 8953195062473324952}
+  - {fileID: 2694523858608040271}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &8898621925854270114
@@ -279,9 +363,21 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.155, y: -0.04}
-  m_Size: {x: 0.69, y: 1.4}
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 0.7, y: 1.4}
   m_Direction: 0
+--- !u!114 &4161025487633592718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5914224002963691110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f539a765e2d36734ea7e8ace78da2eff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.PlayerBodyTag
 --- !u!114 &2560214199077104943
 MonoBehaviour:
   m_ObjectHideFlags: 0

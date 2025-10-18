@@ -1,11 +1,12 @@
 using UnityEngine;
-
-namespace Survivor.Game { 
+using Survivor.Game;
+namespace Survivor.Drop
+{ 
     [RequireComponent(typeof(Collider2D), typeof(PrefabStamp))]
     [DisallowMultipleComponent]
     public abstract class DropItemBase : MonoBehaviour, IDrop, IPoolable
     {
-        [SerializeField, Min(1)] protected int amount = 1;
+        [SerializeField, Min(1)] public int amount = 1;
         protected PrefabStamp _stamp;
         protected Collider2D _collider;
         protected bool _picked = false;
@@ -20,7 +21,7 @@ namespace Survivor.Game {
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (!other || other.CompareTag("Player")) return;
+            if (!other || !other.CompareTag("Player")) return;
             OnPickup(other.gameObject);
         }
 

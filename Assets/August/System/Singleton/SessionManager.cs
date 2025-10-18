@@ -11,6 +11,7 @@ namespace Survivor.Game
         private int currentExp = 0;
         private int currentExpReq = 5;
         public int ExpGrowthPerLevel = 5;
+        private GameObject Player;
 
         public Action<int> GoldChanged;
         public Action LevelUp;
@@ -24,6 +25,20 @@ namespace Survivor.Game
             Instance = this;
             DontDestroyOnLoad(this);
         }
+        public GameObject GetPlayerReference()
+        {
+            if(Player == null)
+            {
+                Player = GameObject.FindGameObjectWithTag("Player");
+            }
+            return Player;
+        }
+        public void RestorePlayerHealth(int amount)
+        {
+            if (Player == null) GetPlayerReference();
+            Player.GetComponent<HealthComponent>().Heal(amount);
+        }
+
         public void AddGold(int amount)
         {
             if (amount < 0) return;
