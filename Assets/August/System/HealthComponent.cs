@@ -14,8 +14,8 @@ namespace Survivor.Game
         public int Current => current;
         public bool IsDead => current <= 0;
 
-        // Consider Action<int,int> (old,new) if you want richer info.
-        public event Action<int> HealthChanged;
+
+        public event Action<int, int> HealthChanged;
         public event Action Died;
 
         private void Awake()
@@ -76,8 +76,9 @@ namespace Survivor.Game
         {
             value = Mathf.Clamp(value, 0, maxHP);
             if (value == current) return;
+            int previous = current;
             current = value;
-            if (raiseEvent) HealthChanged?.Invoke(current);
+            if (raiseEvent) HealthChanged?.Invoke(current, previous);
         }
     }
 }

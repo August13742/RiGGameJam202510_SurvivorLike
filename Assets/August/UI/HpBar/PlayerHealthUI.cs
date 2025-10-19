@@ -17,7 +17,7 @@ public class PlayerHealthUI : MonoBehaviour
         else Debug.LogError("Could not locate player HealthComponent");
     }
 
-    private void OnPlayerHealthChanged(int value)
+    private void OnPlayerHealthChanged(int current, int _prev)
     {
         hpFill.transform.localScale = new Vector3(playerHealthComponent.GetCurrentPercent(),1,1);
     }
