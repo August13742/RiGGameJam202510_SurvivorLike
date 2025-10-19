@@ -6,77 +6,78 @@ namespace Survivor.Game
     [DisallowMultipleComponent]
     public sealed class HealthComponent : MonoBehaviour
     {
-        [SerializeField] private int maxHP = 100;
+        [SerializeField, Min(1)] private int maxHP = 100;
         [SerializeField] private int current;
-
         [SerializeField] private bool resetToFullOnEnable = true;
 
         public int Max => maxHP;
         public int Current => current;
         public bool IsDead => current <= 0;
 
-        public event Action Died;
+        // Consider Action<int,int> (old,new) if you want richer info.
         public event Action<int> HealthChanged;
+        public event Action Died;
 
         private void Awake()
         {
-            // Initialise once; don't invoke events in Awake (listeners may not be attached yet).
-            current = Mathf.Max(1, maxHP);
+            current = Mathf.Max(1, maxHP); // authoring-safe
         }
 
         private void OnEnable()
         {
             if (resetToFullOnEnable)
-            {
-                ResetFull(raiseEvent: true);
-            }
+                SetCurrent(maxHP, raiseEvent: true); // one path, one invoke
         }
 
-        /// <summary>Setter for external systems (e.g., spawner) to define per-spawn HP cap.</summary>
+        // POLICY: emulate auto-disconnect (listeners must rewire on enable / player swap)
+        private void OnDisable()
+        {
+            HealthChanged = null;
+            Died = null;
+        }
+
         public void SetMaxHP(int hp, bool resetCurrent = true, bool raiseEvent = true)
         {
             maxHP = Mathf.Max(1, hp);
-            if (resetCurrent) ResetFull(raiseEvent);
+            if (resetCurrent)
+                SetCurrent(maxHP, raiseEvent);
+            else
+                SetCurrent(Mathf.Clamp(current, 0, maxHP), raiseEvent);
         }
 
-        public void ResetFull(bool raiseEvent = true)
-        {
-            current = Mathf.Max(1, maxHP);
-            if (raiseEvent) HealthChanged?.Invoke(current);
-        }
+        public void ResetFull(bool raiseEvent = true) => SetCurrent(maxHP, raiseEvent);
 
-        public float GetCurrentPercent()
-        {
-            if (maxHP <= 0) return 0f;
-            return Mathf.Clamp01((float)current / maxHP);
-        }
+        public float GetCurrentPercent() => maxHP <= 0 ? 0f : Mathf.Clamp01((float)current / maxHP);
 
         public void Damage(int amount)
         {
             if (amount <= 0 || IsDead) return;
-
-            current -= amount;
-            if (current <= 0)
-            {
-                current = 0;
-                HealthChanged?.Invoke(current);
-                Died?.Invoke();
-                return;
-            }
-
-            HealthChanged?.Invoke(current);
+            int next = Mathf.Max(0, current - amount);
+            if (next == current) return;
+            SetCurrent(next, raiseEvent: true);
+            if (next == 0) Died?.Invoke();
         }
 
         public void Heal(int amount)
         {
             if (amount <= 0 || IsDead) return;
+            int next = Mathf.Min(maxHP, current + amount);
+            if (next != current) SetCurrent(next, raiseEvent: true);
+        }
 
-            int newVal = Mathf.Min(current + amount, maxHP);
-            if (newVal != current)
-            {
-                current = newVal;
-                HealthChanged?.Invoke(current);
-            }
+        public void Kill()
+        {
+            if (IsDead) return;
+            SetCurrent(0, raiseEvent: true);
+            Died?.Invoke();
+        }
+
+        private void SetCurrent(int value, bool raiseEvent)
+        {
+            value = Mathf.Clamp(value, 0, maxHP);
+            if (value == current) return;
+            current = value;
+            if (raiseEvent) HealthChanged?.Invoke(current);
         }
     }
 }

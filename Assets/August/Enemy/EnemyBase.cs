@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Survivor.Enemy
 {
     [RequireComponent(typeof(PrefabStamp), typeof(HealthComponent), typeof(Rigidbody2D))]
+    [RequireComponent(typeof(Collider2D))]
     [DisallowMultipleComponent]
     public abstract class EnemyBase : MonoBehaviour, IPoolable
     {
@@ -13,6 +14,7 @@ namespace Survivor.Enemy
         protected Vector2 _velocity = Vector2.zero;
         protected Rigidbody2D _rb;
         protected Transform _target;
+        [SerializeField] protected LayerMask hitMask;
         public bool IsDead => _health != null && _health.IsDead;
         public System.Action<EnemyBase> Despawned;
 
@@ -33,6 +35,18 @@ namespace Survivor.Enemy
         {
             if (_health != null) _health.Died -= OnDied;
         }
+
+        private void OnTriggerEnter2D(Collider2D col)
+        {
+            // Layer mask filter
+            if ((hitMask.value & (1 << col.gameObject.layer)) == 0) return;
+
+            if (!col.TryGetComponent<HealthComponent>(out var target)) return;
+
+            target.Damage(_def.ContactDamage);
+
+        }
+
         protected void Move()
         {
             if (!_target || IsDead) { _velocity = Vector2.zero; return; }

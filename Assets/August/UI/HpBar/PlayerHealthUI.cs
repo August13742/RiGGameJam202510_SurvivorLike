@@ -1,0 +1,25 @@
+using Survivor.Game;
+using UnityEngine;
+
+public class PlayerHealthUI : MonoBehaviour
+{
+    [SerializeField] private GameObject hpFill;
+    private HealthComponent playerHealthComponent;
+
+    private void Start()
+    {
+        playerHealthComponent = SessionManager.Instance.GetPlayerReference().GetComponent<HealthComponent>();
+        if (playerHealthComponent != null)
+        {
+            playerHealthComponent.HealthChanged += OnPlayerHealthChanged;
+            
+        }
+        else Debug.LogError("Could not locate player HealthComponent");
+    }
+
+    private void OnPlayerHealthChanged(int value)
+    {
+        hpFill.transform.localScale = new Vector3(playerHealthComponent.GetCurrentPercent(),1,1);
+    }
+
+}
