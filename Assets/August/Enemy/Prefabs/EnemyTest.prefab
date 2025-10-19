@@ -180,6 +180,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8b72664230471148a639e822fcef46c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleChaseAI
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &4430005986827990580
 MonoBehaviour:
   m_ObjectHideFlags: 0
