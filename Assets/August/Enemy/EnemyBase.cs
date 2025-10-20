@@ -1,6 +1,6 @@
 using Survivor.Game;
 using UnityEngine;
-
+using Survivor.UI;
 namespace Survivor.Enemy
 {
     [RequireComponent(typeof(PrefabStamp), typeof(HealthComponent), typeof(Rigidbody2D))]
@@ -29,13 +29,19 @@ namespace Survivor.Enemy
         protected virtual void OnEnable()
         {
             if (_health != null) _health.Died += OnDied;
+            if (_health != null) _health.Damaged += OnDamaged;
         }
 
         protected virtual void OnDisable()
         {
             if (_health != null) _health.Died -= OnDied;
+            if (_health != null) _health.Damaged -= OnDamaged;
         }
-
+        protected virtual void OnDamaged(int amt, Vector3 pos, bool crit)
+        {
+            if (crit) DamageTextManager.Instance.ShowCrit(pos, amt);
+            else DamageTextManager.Instance.ShowNormal(pos, amt);
+        }
         private void OnTriggerEnter2D(Collider2D col)
         {
             // Layer mask filter
