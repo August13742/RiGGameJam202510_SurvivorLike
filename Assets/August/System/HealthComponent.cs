@@ -15,8 +15,9 @@ namespace Survivor.Game
         public bool IsDead => current <= 0;
 
 
-        public event Action<int, int> HealthChanged;
-        public event Action Died;
+        public Action<int, int> HealthChanged;
+        public Action Died;
+        public Action<int, Vector3, bool> Damaged; //amount, worldPos, crit?
 
         private void Awake()
         {
@@ -34,6 +35,7 @@ namespace Survivor.Game
         {
             HealthChanged = null;
             Died = null;
+            Damaged = null;
         }
 
         public void SetMaxHP(int hp, bool resetCurrent = true, bool raiseEvent = true)
@@ -54,6 +56,8 @@ namespace Survivor.Game
             if (amount <= 0 || IsDead) return;
             int next = Mathf.Max(0, current - amount);
             if (next == current) return;
+            Damaged?.Invoke(amount, transform.position, false);
+
             SetCurrent(next, raiseEvent: true);
             if (next == 0) Died?.Invoke();
         }

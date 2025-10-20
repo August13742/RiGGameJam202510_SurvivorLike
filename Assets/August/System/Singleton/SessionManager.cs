@@ -6,15 +6,17 @@ namespace Survivor.Game
     public class SessionManager : MonoBehaviour
     {
         // Manages Session Progression(Timer, Dynamic Difficulty, etc.) Level
+        private GameObject Player;
         public int Gold { get; private set; } = 0;
         public int PlayerLevel { get; private set; } = 0;
+
         private int currentExp = 0;
         private int currentExpReq = 5;
         public int ExpGrowthPerLevel = 5;
-        private GameObject Player;
+        public Action LevelUp;
+
 
         public Action<int> GoldChanged;
-        public Action LevelUp;
         public static SessionManager Instance { get; private set; }
         void Awake()
         {
