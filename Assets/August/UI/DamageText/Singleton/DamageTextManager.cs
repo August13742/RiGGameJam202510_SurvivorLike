@@ -25,23 +25,23 @@ namespace Survivor.UI
 
         public void ShowNormal(Vector3 worldPos, int amount)
         {
-            var go = _pool.Rent(worldPos, Quaternion.identity);
-            var dn = go.GetComponent<DamageText>();
-            dn.ShowNormal(worldPos, amount);
+            GameObject go = _pool.Rent(worldPos, Quaternion.identity);
+            DamageText text = go.GetComponent<DamageText>();
+            text.ShowNormal(worldPos, amount); 
         }
 
         public void ShowCrit(Vector3 worldPos, int amount)
         {
-            var go = _pool.Rent(worldPos, Quaternion.identity);
-            var dn = go.GetComponent<DamageText>();
-            dn.ShowCrit(worldPos, amount);
+            GameObject go = _pool.Rent(worldPos, Quaternion.identity);
+            DamageText text = go.GetComponent<DamageText>();
+            text.ShowCrit(worldPos, amount);
         }
 
         public void ShowHeal(Vector3 worldPos, int amount)
         {
-            var go = _pool.Rent(worldPos, Quaternion.identity);
-            var dn = go.GetComponent<DamageText>();
-            dn.ShowHeal(worldPos, amount);
+            GameObject go = _pool.Rent(worldPos, Quaternion.identity);
+            DamageText text = go.GetComponent<DamageText>();
+            text.ShowHeal(worldPos, amount);
         }
     }
 }
