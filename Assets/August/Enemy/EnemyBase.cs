@@ -1,9 +1,10 @@
 using Survivor.Game;
 using UnityEngine;
-
+using Survivor.UI;
 namespace Survivor.Enemy
 {
     [RequireComponent(typeof(PrefabStamp), typeof(HealthComponent), typeof(Rigidbody2D))]
+    [RequireComponent(typeof(Collider2D))]
     [DisallowMultipleComponent]
     public abstract class EnemyBase : MonoBehaviour, IPoolable
     {
@@ -13,8 +14,9 @@ namespace Survivor.Enemy
         protected Vector2 _velocity = Vector2.zero;
         protected Rigidbody2D _rb;
         protected Transform _target;
+        [SerializeField] protected LayerMask hitMask;
         public bool IsDead => _health != null && _health.IsDead;
-        public event System.Action<EnemyBase> Despawned;
+        public System.Action<EnemyBase> Despawned;
 
         protected virtual void Awake()
         {
@@ -27,12 +29,30 @@ namespace Survivor.Enemy
         protected virtual void OnEnable()
         {
             if (_health != null) _health.Died += OnDied;
+            if (_health != null) _health.Damaged += OnDamaged;
         }
 
         protected virtual void OnDisable()
         {
             if (_health != null) _health.Died -= OnDied;
+            if (_health != null) _health.Damaged -= OnDamaged;
         }
+        protected virtual void OnDamaged(int amt, Vector3 pos, bool crit)
+        {
+            if (crit) DamageTextManager.Instance.ShowCrit(pos, amt);
+            else DamageTextManager.Instance.ShowNormal(pos, amt);
+        }
+        private void OnTriggerEnter2D(Collider2D col)
+        {
+            // Layer mask filter
+            if ((hitMask.value & (1 << col.gameObject.layer)) == 0) return;
+
+            if (!col.TryGetComponent<HealthComponent>(out var target)) return;
+
+            target.Damage(_def.ContactDamage);
+
+        }
+
         protected void Move()
         {
             if (!_target || IsDead) { _velocity = Vector2.zero; return; }
@@ -59,12 +79,11 @@ namespace Survivor.Enemy
         public virtual void OnSpawned()
         {
             // Reset transient state. HP already reset by InitFrom or HealthComponent.
-            // e.g., cached Rigidbody2D.velocity = Vector2.zero;
         }
 
         public virtual void OnDespawned()
         {
-            // Clear vfx/sfx/trails here if needed
+            // Clear vfx/sfx/trails
         }
 
         // Death pipeline -> return to owning pool
@@ -75,11 +94,15 @@ namespace Survivor.Enemy
 
         protected void Die()
         {
-            // LootSystem.SpawnXP(transform.position, _def?.XPValue ?? 1);
-            Despawned?.Invoke(this); // -> lets spawner decrement alive count
-            if (_stamp?.OwnerPool != null) _stamp.OwnerPool.Return(gameObject);
+
+            if(LootManager.Instance != null) LootManager.Instance.SpawnLoot(_def, transform.position);
+
+
+            Despawned?.Invoke(this);
+            if (_stamp!=null && (_stamp.OwnerPool != null)) _stamp.OwnerPool.Return(gameObject);
             else gameObject.SetActive(false);
         }
     }
-}
+}   
+
 
