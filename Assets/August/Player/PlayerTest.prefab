@@ -133,52 +133,6 @@ MonoBehaviour:
   pLastX: LastMoveX
   pLastY: LastMoveY
   damp: 0.01
---- !u!1 &5091496595731955619
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7671544502081350398}
-  - component: {fileID: 4506561432539590250}
-  m_Layer: 0
-  m_Name: ProjectileWeapon
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7671544502081350398
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5091496595731955619}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3863936289245180800}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4506561432539590250
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5091496595731955619}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd2fe18498aadf94da55b4cd3bab46a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.ProjectileWeapon
-  def: {fileID: 11400000, guid: aa9ee12cf43551c48af3a12139e7736a, type: 2}
-  fireOrigin: {fileID: 5473380445118077831}
 --- !u!1 &5697354330607318812
 GameObject:
   m_ObjectHideFlags: 0
@@ -297,7 +251,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5473380445118077831}
-  - {fileID: 7671544502081350398}
   - {fileID: 8953195062473324952}
   - {fileID: 2694523858608040271}
   m_Father: {fileID: 0}

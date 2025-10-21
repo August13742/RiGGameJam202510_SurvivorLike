@@ -52,11 +52,11 @@ TagManager:
   - name: World
     uniqueID: 3711227311
     locked: 0
-  - name: Characters
-    uniqueID: 2734020487
-    locked: 0
   - name: Projectiles
     uniqueID: 3051454509
+    locked: 0
+  - name: Characters
+    uniqueID: 2734020487
     locked: 0
   - name: FX
     uniqueID: 77542161

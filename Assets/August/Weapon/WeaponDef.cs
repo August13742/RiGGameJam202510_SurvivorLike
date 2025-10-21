@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Survivor.Weapon
 {
-    public enum TargetMode { Nearest, RandomK }
+    public enum TargetMode { SelfCentered, Nearest, RandomK }
     public abstract class WeaponDef : ScriptableObject
     {
         

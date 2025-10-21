@@ -16,8 +16,8 @@ MonoBehaviour:
   Icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   BaseDamage: 5
   BaseCooldown: 0.2
-  TargetingMode: 0
-  AreaScale: 2
+  TargetingMode: 1
+  AreaScale: 1
   Projectiles: 3
   RandomPickK: 3
   ProjectilePrefab: {fileID: 2056179235282298931, guid: d959ca6def84dbe41bc4669fcaa4f67a, type: 3}

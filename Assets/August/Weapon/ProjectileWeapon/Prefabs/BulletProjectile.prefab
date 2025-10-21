@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7773698741058526254}
   - component: {fileID: 4397794084699417633}
   - component: {fileID: 2047761880723466136}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: BulletProjectile
   m_TagString: PlayerProjectile
   m_Icon: {fileID: 0}
@@ -104,9 +104,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d688292ddc1f8d4980886b9c0269527, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.Projectile
-  hitMask:
-    serializedVersion: 2
-    m_Bits: 256
   forwardAxis: 1
 --- !u!70 &2047761880723466136
 CapsuleCollider2D:
