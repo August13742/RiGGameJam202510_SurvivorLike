@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c876ea561d4c3424988a04ad5493498e, type: 3}
+  m_Name: CommonLoot
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.LootTableDef
+  Entries:
+  - Item: {fileID: 11400000, guid: 5e41e1d6835992e4dbb5e57db22eedb6, type: 2}
+    Weight: 75
+  - Item: {fileID: 11400000, guid: 5e4fd295f608a104aa8f5ec809e1768f, type: 2}
+    Weight: 20
+  - Item: {fileID: 11400000, guid: 5506206c8164f6248867cc3756c5b333, type: 2}
+    Weight: 5

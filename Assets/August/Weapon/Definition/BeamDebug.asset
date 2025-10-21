@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60ad1763d69af7345b516ff5e92cb4ec, type: 3}
+  m_Name: BeamDebug
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.BeamWeaponDef
+  Id: beam
+  Icon: {fileID: -4542404649790094876, guid: 5620f5e7dbe43da4f89e420358c0852a, type: 3}
+  BaseDamage: 20
+  BaseCooldown: 2
+  TargetingMode: 1
+  AreaScale: 1
+  Projectiles: 3
+  RandomPickK: 3
+  BeamPrefab: {fileID: 4645090832089952007, guid: a1a7f1ec0d959dc4f93eafbd1e6a1db5, type: 3}
+  BeamLength: 10
+  BeamWidth: 0.5
+  Duration: 0.15
+  TicksPerSecond: 1
+  BeamMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+  UVScrollRate: 6
+  AlphaOverLife:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SpreadDeg: 10
+  FollowOrigion: 0
+  FollowDirection: 0
