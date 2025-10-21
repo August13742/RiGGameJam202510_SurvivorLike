@@ -26,15 +26,18 @@ namespace Survivor.Weapon
 
             System.Func<Transform> nearest = () => Targeting.NearestEnemy(fireOrigin, searchRadius, _enemyFilter);
             System.Func<int, Transform> randK = (k) => Targeting.RandomK(k, fireOrigin, searchRadius, _enemyFilter);
+            System.Func<Transform> selfCentered = () => Targeting.SelfCentered(fireOrigin);
 
             _ctx = new WeaponContext
             {
+                Team = Team.Player,
                 FireOrigin = fireOrigin,
                 Owner = transform,
                 PoolRoot = poolRoot,
                 Stats = new WeaponStats(),
                 Nearest = nearest,
                 RandomInRange = randK,
+                SelfCentered = selfCentered
 
             };
 

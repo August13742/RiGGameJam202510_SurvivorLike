@@ -9,8 +9,6 @@ namespace Survivor.Weapon
         public float Speed { get; private set; }
         public int Pierce { get; private set; }
 
-        [Header("Collision")]
-        [SerializeField] private LayerMask hitMask = ~0;
 
 
         [SerializeField] private ForwardAxis forwardAxis = ForwardAxis.Right;
@@ -51,9 +49,6 @@ namespace Survivor.Weapon
 
         private void OnTriggerEnter2D(Collider2D col)
         {
-            // Layer mask filter
-            if ((hitMask.value & (1 << col.gameObject.layer)) == 0) return;
-
             if (!col.TryGetComponent<HealthComponent>(out var target)) return;
 
             target.Damage(Damage);

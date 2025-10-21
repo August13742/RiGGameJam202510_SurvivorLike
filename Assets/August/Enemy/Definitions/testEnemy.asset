@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: testEnemy
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Enemy.EnemyDef
   Prefab: {fileID: 220892323894252418, guid: 208b1c5aa42dc7040a1ad34584c0f4a9, type: 3}
-  BaseHP: 20
-  MoveSpeed: 1.5
+  BaseHP: 15
+  MoveSpeed: 2
   Acceleration: 50
   ContactDamage: 5
   XPValue: 1
   PrewarmCount: 8
+  DropChance: 0.6
+  Rolls: 1
+  LootTable: {fileID: 11400000, guid: be5f8603e81dd7441a552ec478915411, type: 2}

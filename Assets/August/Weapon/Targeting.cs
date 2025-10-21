@@ -8,6 +8,7 @@ public static class Targeting
     private static readonly List<Collider2D> _overlap = new(32);
     private static readonly List<Transform> _valid = new(32);
 
+    public static Transform SelfCentered(Transform origin) {  return origin; }
     public static Transform NearestEnemy(Transform origin, float radius, ContactFilter2D filter)
     {
         if (!origin || radius <= 0f) return null;

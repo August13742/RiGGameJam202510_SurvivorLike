@@ -16,7 +16,6 @@ namespace Survivor.Weapon
         public override void Tick(float dt)
         {
             if (!Ready(dt)) return;
-
             Transform t = _getTarget?.Invoke();
             if (!t) return;
 
@@ -33,8 +32,15 @@ namespace Survivor.Weapon
                                           baseDir.x * sa + baseDir.y * ca);
 
                 GameObject go = _projPool.Rent(fireOrigin.position, Quaternion.identity);
+
+                // Layer per team (matrix does the filtering)
+                go.layer = (ctx.Team == Team.Player)
+                    ? LayerMask.NameToLayer("PlayerProjectile")
+                    : LayerMask.NameToLayer("EnemyProjectile");
+
                 var p = go.GetComponent<Projectile>();
                 p.SetPool(_projPool);
+
 
                 int dmg = ScaledDamage();
                 int pierce = def.Pierce + (ctx?.Stats?.PierceAdd ?? 0);
