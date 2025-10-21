@@ -2,9 +2,10 @@ using UnityEngine;
 
 namespace Survivor.Weapon
 {
-
+    public enum Team { Player, Enemy }
     public abstract class WeaponBase<TDef> : MonoBehaviour, IWeapon where TDef : WeaponDef
     {
+        
         [SerializeField] protected TDef def;
         [SerializeField] protected Transform fireOrigin;
 
@@ -19,6 +20,7 @@ namespace Survivor.Weapon
 
             _getTarget = def.TargetingMode switch
             {
+                TargetMode.SelfCentered => ctx.SelfCentered ?? ctx.Target,
                 TargetMode.Nearest => ctx.Nearest ?? ctx.Target,                    // fallback
                 TargetMode.RandomK => () => ctx.RandomInRange?.Invoke(def.RandomPickK) ?? ctx.Target?.Invoke(),
                 _ => ctx.Nearest ?? ctx.Target
