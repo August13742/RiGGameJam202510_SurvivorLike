@@ -12,7 +12,7 @@ namespace Survivor.Weapon
 
         [Header("Lifecycle")]
         [Min(0.05f)] public float Duration = 1f;
-        [Min(1)] public int TicksPerSecond = 5;   // ticks per second
+        [Min(1)] public int TicksPerSecond = 5;
 
         [Header("Visuals")]
         public Material BeamMaterial;           // tileable texture, unlit/emissive
@@ -22,6 +22,5 @@ namespace Survivor.Weapon
         public float SpreadDeg = 5f;
 
         public bool FollowOrigion = false;
-        public bool FollowDirection = false;
     }
 }
