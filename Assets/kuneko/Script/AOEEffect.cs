@@ -10,6 +10,7 @@ public class AOEEffect : MonoBehaviour
     [SerializeField] private float panelFadeDuration;
 
     [SerializeField] private Transform player;
+    [SerializeField] private AllEnemyAttack allEnemyAttack;
 
     private SpriteRenderer allOfEnemyEffectRenderer;
     private Color allOfEnemyEffectColor;
@@ -71,6 +72,7 @@ public class AOEEffect : MonoBehaviour
                 panelFadeIn = true;
                 panelFadeInCount = 0;
                 Debug.Log("panelFadeIn");
+                allEnemyAttack.LayerEnemyAttack();
                 timeElapsed = 0;
             }
         }

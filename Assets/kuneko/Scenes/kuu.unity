@@ -648,6 +648,7 @@ GameObject:
   - component: {fileID: 1682332204}
   - component: {fileID: 1682332203}
   - component: {fileID: 1682332202}
+  - component: {fileID: 1682332205}
   m_Layer: 0
   m_Name: AOEEffect
   m_TagString: Untagged
@@ -744,6 +745,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1682332205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1682332201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19c87600c2e399841b270efc9612c606, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AllEnemyAttack
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  size: {x: 0, y: 0}
+  damage: 0
 --- !u!1001 &1724456000
 PrefabInstance:
   m_ObjectHideFlags: 0
