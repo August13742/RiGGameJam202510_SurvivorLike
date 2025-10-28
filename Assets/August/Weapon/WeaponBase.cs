@@ -22,7 +22,7 @@ namespace Survivor.Weapon
             {
                 TargetMode.SelfCentered => ctx.SelfCentered ?? ctx.Target,
                 TargetMode.Nearest => ctx.Nearest ?? ctx.Target,                    // fallback
-                TargetMode.RandomK => () => ctx.RandomInRange?.Invoke(def.RandomPickK) ?? ctx.Target?.Invoke(),
+                TargetMode.RandomK => () => ctx.RandomInRange?.Invoke(def.Projectiles) ?? ctx.Target?.Invoke(),
                 _ => ctx.Nearest ?? ctx.Target
             };
         }

@@ -15,12 +15,13 @@ namespace Survivor.Weapon
         private float _length;
         private float _width;
         private float _duration;
+        private int _desiredDamageTicks;
         private float _tickInterval;
         private int _damagePerTick;
 
         // State
         private float _tLeft;
-        private float _tickAcc;
+        private int _tickFired = 0;
         private ObjectPool _pool;
         private readonly Collider2D[] _hits = new Collider2D[64]; // NonAlloc buffer
         private HashSet<HealthComponent> _seen = new HashSet<HealthComponent>(32);
@@ -34,11 +35,12 @@ namespace Survivor.Weapon
 
         // Tracking options
         private bool _followOrigin;       // live start point vs snapshot
-        private bool _followDirection;    // live direction vs snapshot
+
 
         // Snapshots taken at Configure()
         private Vector2 _startSnapshot;
         private Vector2 _dirSnapshot;
+        private Vector2 _targetPosSnapshot;
 
         private void Awake()
         {
@@ -62,9 +64,9 @@ namespace Survivor.Weapon
 
         public void Configure(
             Transform origin, Vector2 dir, float length, float width,
-            float duration, float tickInterval, int damagePerTick,
+            float duration, int desiredTicks, float tickInterval, int damagePerTick,
             Material sourceMat, float uvScrollRate, AnimationCurve alphaOverLife,
-            bool followOrigin = true, bool followDirection = false,
+            bool followOrigin = true,
             Collider2D ownerToIgnore = null)
         {
             _origin = origin;
@@ -72,21 +74,27 @@ namespace Survivor.Weapon
             _length = Mathf.Max(0.01f, length);
             _width = Mathf.Max(0.01f, width);
             _duration = Mathf.Max(0.01f, duration);
-            _tickInterval = Mathf.Max(0.01f, tickInterval);
+
+            // Treat desiredTicks as "total ticks over lifetime".
+            _desiredDamageTicks = Mathf.Max(1, desiredTicks);
+            _tickInterval = _duration / _desiredDamageTicks;
+
             _damagePerTick = Mathf.Max(0, damagePerTick);
             _alphaCurve = alphaOverLife ?? AnimationCurve.Linear(0, 1, 1, 1);
             _tLeft = _duration;
-            _tickAcc = _tickInterval; // START AT FULL so first tick fires immediately
+            _tickFired = 0;
             _uvOffset = 0f;
             _uvScrollRate = uvScrollRate;
 
             // Tracking mode
             _followOrigin = followOrigin;
-            _followDirection = followDirection;
 
-            // Take snapshots at configure time
+            // Snapshots
             _startSnapshot = origin ? (Vector2)origin.position : (Vector2)transform.position;
             _dirSnapshot = _dir;
+
+            // Snapshot the intended target world position for locked direction mode
+            _targetPosSnapshot = _startSnapshot + (_dir * _length);
 
             // material instance to scroll UV independently per-beam
             if (_matInstance == null)
@@ -105,7 +113,6 @@ namespace Survivor.Weapon
 
         private void OnEnable()
         {
-            // if spawned via pool, ensure lr on
             if (_lr) _lr.enabled = true;
         }
 
@@ -120,13 +127,15 @@ namespace Survivor.Weapon
             _tLeft -= dt;
             if (_tLeft <= 0f) { Despawn(); return; }
 
-            // Tick damage over time
-            _tickAcc += dt;
-            while (_tickAcc >= _tickInterval)
-            {
-                _tickAcc -= _tickInterval;
+            // Evenly-spaced tick schedule across lifetime, including an immediate tick on first step.
+            float elapsed = _duration - _tLeft;
+            int ticksShouldHaveFired = Mathf.Min(
+                _desiredDamageTicks,
+                Mathf.FloorToInt(elapsed / _tickInterval) + 1 // +1 for immediate tick around t≈0
+            );
+
+            while (_tickFired < ticksShouldHaveFired)
                 DoDamageTick();
-            }
 
             // Animate + keep endpoints glued to origin/dir
             UpdateVisual(dt, _alphaCurve.Evaluate(1f - (_tLeft / _duration)));
@@ -134,18 +143,24 @@ namespace Survivor.Weapon
 
         private Vector2 GetCurrentDirection()
         {
-            if (_followDirection && _origin)
+
+            // Locked direction: aim at the frozen world-space target, regardless of origin movement.
+            if (_followOrigin && _origin)
             {
-                float angle = _origin.eulerAngles.z * Mathf.Deg2Rad;
-                return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                Vector2 toTarget = _targetPosSnapshot - (Vector2)_origin.position;
+                return toTarget.sqrMagnitude > 1e-8f ? toTarget.normalized : _dirSnapshot;
             }
+
+            // Fully static (both position and direction frozen)
             return _dirSnapshot;
         }
 
         private void DoDamageTick()
         {
+            _tickFired++;
+
             // Use live or snapshot position/direction based on tracking mode
-            Vector2 start = _followOrigin 
+            Vector2 start = _followOrigin
                 ? (_origin ? (Vector2)_origin.position : (Vector2)transform.position)
                 : _startSnapshot;
 
@@ -180,7 +195,7 @@ namespace Survivor.Weapon
         private void UpdateVisual(float dt, float alpha)
         {
             // Use live or snapshot position/direction based on tracking mode
-            Vector3 a = _followOrigin 
+            Vector3 a = _followOrigin
                 ? (_origin ? _origin.position : transform.position)
                 : (Vector3)_startSnapshot;
 
@@ -223,6 +238,5 @@ namespace Survivor.Weapon
         {
             // Clear vfx/sfx/trails
         }
-
     }
 }

@@ -13,7 +13,6 @@ namespace Survivor.Weapon
         public TargetMode TargetingMode;
         public float AreaScale = 1f;          // used by melee/beam
         public int Projectiles = 1;           // used by projectile/summon
-        public int RandomPickK = 3;
     }
 
 }
