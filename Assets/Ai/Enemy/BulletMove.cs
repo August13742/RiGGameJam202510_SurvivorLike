@@ -5,7 +5,7 @@ public class BulletMove : MonoBehaviour
 {
 
     private float _speed = 3f;
-    private float _lifeTime = 5f;
+    //private float _lifeTime = 5f;
 
     private Rigidbody2D _rb;
     Vector2 _direction;
