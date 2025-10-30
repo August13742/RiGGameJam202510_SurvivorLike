@@ -4,52 +4,65 @@ using Survivor.Game;
 
 namespace Survivor.Weapon
 {
-    
+    [RequireComponent(typeof(PrefabStamp), typeof(Collider2D), typeof(Renderer))]
     [DisallowMultipleComponent]
     public sealed class RotatingOrbitOrb : MonoBehaviour, IPoolable
     {
-        [SerializeField] private Collider2D _col;         // isTrigger = true
-        [SerializeField] private Renderer _renderer;      // visual
+        [SerializeField] private Collider2D _col;        // isTrigger = true
+        [SerializeField] private Renderer _renderer;     // visuals root
+        [SerializeField] private Transform _visualRoot;  // optional: scale visuals separately (falls back to this.transform)
 
         // Runtime
         private Transform _pivot;
+        private Vector2 _center0;            // frozen center if FollowOrigin == false
         private float _radius;
-        private float _angRad;            // current angle (radians)
-        private float _angVelRad;         // rad/sec
-        private float _tLeft;
+        private float _startAngRad;
+        private float _totalAngleRad;        // can be negative for clockwise
+        private float _lifetime;
+        private float _t;                    // 0..lifetime
         private bool _followOrigin;
         private int _damage;
         private Team _team;
         private ObjectPool _pool;
         private int _maxHitsPerTarget;
-
-        // Optional per-life hit tracking
         private HashSet<HealthComponent> _hitSet;
+
+        private AnimationCurve _motionCurve; // progress -> [0..1]
 
         public void SetPool(ObjectPool p) => _pool = p;
 
         public void Arm(
-            Transform pivot, float radius, float startAngleRad,
-            float angVelRad, float lifetime,
-            int damage, Team team, bool followOrigin,
-            bool toggleVis, int maxHitsPerTarget)
+            Transform pivot,
+            float radius,
+            float startAngleRad,
+            float totalAngleRad,
+            float lifetime,
+            int damage,
+            Team team,
+            bool followOrigin,
+            bool toggleVis,
+            int maxHitsPerTarget,
+            float orbVisualScale = 1f,
+            AnimationCurve motionCurve = null
+        )
         {
             _pivot = pivot;
-            _radius = radius;
-            _angRad = startAngleRad;
-            _angVelRad = angVelRad;
-            _tLeft = lifetime;
+            _radius = Mathf.Max(0.001f, radius);
+            _startAngRad = startAngleRad;
+            _totalAngleRad = totalAngleRad;
+            _lifetime = Mathf.Max(0.01f, lifetime);
+            _t = 0f;
             _damage = damage;
             _team = team;
             _followOrigin = followOrigin;
             _maxHitsPerTarget = maxHitsPerTarget;
+            _motionCurve = motionCurve;
 
             if (_maxHitsPerTarget > 0)
                 (_hitSet ??= new HashSet<HealthComponent>()).Clear();
             else
                 _hitSet?.Clear();
 
-            // Team layer selection
             gameObject.layer = (_team == Team.Player)
                 ? LayerMask.NameToLayer("PlayerProjectile")
                 : LayerMask.NameToLayer("EnemyProjectile");
@@ -60,32 +73,53 @@ namespace Survivor.Weapon
                 if (_renderer) _renderer.enabled = true;
             }
 
-            // Snap immediately to start position
-            if (_pivot)
-            {
-                Vector2 offset = new(Mathf.Cos(_angRad) * _radius, Mathf.Sin(_angRad) * _radius);
-                transform.position = (Vector2)_pivot.position + offset;
-            }
+            // scale visuals
+            Transform s = _visualRoot ? _visualRoot : transform;
+            s.localScale = Vector3.one * Mathf.Max(0.01f, orbVisualScale);
+
+            // center
+            _center0 = _pivot ? (Vector2)_pivot.position : (Vector2)transform.position;
+
+            // snap to start
+            Vector2 pos = CurrentCenter() + Polar(_startAngRad) * _radius;
+            transform.position = pos;
         }
 
         private void Update()
         {
-            float dt = Time.deltaTime;
-            _tLeft -= dt;
-            if (_tLeft <= 0f || !_pivot)
+            _t += Time.deltaTime;
+            if (_t >= _lifetime || !_pivot && _followOrigin)
             {
                 Despawn();
                 return;
             }
 
-            _angRad += _angVelRad * dt; // positive = CCW
-            Vector2 center = _followOrigin && _pivot ? (Vector2)_pivot.position : (Vector2)transform.position - new Vector2(Mathf.Cos(_angRad) * _radius, Mathf.Sin(_angRad) * _radius);
-            // compute new position from current center
-            Vector2 newPos = (_followOrigin && _pivot)
-                ? (Vector2)_pivot.position + new Vector2(Mathf.Cos(_angRad) * _radius, Mathf.Sin(_angRad) * _radius)
-                : (Vector2)transform.position; // fallback if pivot missing (already handled above)
-            transform.position = newPos;
+            float u = Mathf.Clamp01(_t / _lifetime);   // progress 0..1
+            float k = EvaluateMotion(u);                // 0..1
+            float ang = _startAngRad + _totalAngleRad * k;
+
+            Vector2 pos = CurrentCenter() + Polar(ang) * _radius;
+            transform.position = pos;
         }
+
+        private Vector2 CurrentCenter()
+        {
+            return _followOrigin && _pivot ? (Vector2)_pivot.position : _center0;
+        }
+
+        private static Vector2 Polar(float ang)
+        {
+            return new Vector2(Mathf.Cos(ang), Mathf.Sin(ang));
+        }
+
+        private float EvaluateMotion(float u01)
+        {
+            if (_motionCurve != null)
+                return Mathf.Clamp01(_motionCurve.Evaluate(u01));
+
+            return CurveUtility.EaseInOutQuint(u01);
+        }
+
 
         private void OnTriggerEnter2D(Collider2D other)
         {
@@ -108,18 +142,12 @@ namespace Survivor.Weapon
             else gameObject.SetActive(false);
         }
 
-        public void OnSpawned()
-        {
-            // no-op
-        }
-
+        public void OnSpawned() { }
         public void OnDespawned()
         {
-            // Vis off to avoid stray hits while pooled
             if (_col) _col.enabled = false;
             if (_renderer) _renderer.enabled = false;
             _pivot = null;
         }
-
     }
 }

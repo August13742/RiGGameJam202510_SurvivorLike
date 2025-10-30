@@ -107,7 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.RotatingOrbitOrb
   _col: {fileID: 6778156018616286603}
   _renderer: {fileID: 8196363388754163136}
-  _debugGizmoSize: 0.1
+  _visualRoot: {fileID: 1142063301068374444}
 --- !u!58 &6778156018616286603
 CircleCollider2D:
   m_ObjectHideFlags: 0
