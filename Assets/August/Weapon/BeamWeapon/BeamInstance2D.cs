@@ -23,24 +23,27 @@ namespace Survivor.Weapon
         private float _tLeft;
         private int _tickFired = 0;
         private ObjectPool _pool;
-        private readonly Collider2D[] _hits = new Collider2D[64]; // NonAlloc buffer
-        private HashSet<HealthComponent> _seen = new HashSet<HealthComponent>(32);
+        private readonly Collider2D[] _hits = new Collider2D[64];
+        private readonly HashSet<HealthComponent> _seen = new(32);
 
-        // Cached for visuals
+        // VFX
         private Material _matInstance;
         private float _uvOffset;
         private float _uvScrollRate;
         private AnimationCurve _alphaCurve;
         private int _colorPropID;
 
-        // Tracking options
-        private bool _followOrigin;       // live start point vs snapshot
-
-
-        // Snapshots taken at Configure()
+        // Tracking
+        private bool _followOrigin;
         private Vector2 _startSnapshot;
         private Vector2 _dirSnapshot;
         private Vector2 _targetPosSnapshot;
+
+        private IHitEventSink _sink;
+        private float _critChance = 0f;
+        private float _critMul = 1f;
+        private bool _critPerTick = true;
+        private ContactFilter2D _filter;
 
         private void Awake()
         {
@@ -57,10 +60,26 @@ namespace Survivor.Weapon
                 _lr.generateLightingData = false;
                 _lr.sortingLayerName = "Projectiles";
             }
-            _colorPropID = Shader.PropertyToID("_Color"); // standard unlit or URP unlit
+            _colorPropID = Shader.PropertyToID("_Color");
         }
 
         public void SetPool(ObjectPool pool) => _pool = pool;
+
+        public void SetHitSink(IHitEventSink sink) => _sink = sink;
+
+        public void ConfigureCrit(float chance, float mul, bool perTick)
+        {
+            _critChance = Mathf.Clamp01(chance);
+            _critMul = Mathf.Max(1f, mul);
+            _critPerTick = perTick;
+        }
+
+        /// <summary>Call this once from the weapon so beam hits the correct target layers.</summary>
+        public void SetTargetMask(LayerMask mask)
+        {
+            _filter = new ContactFilter2D { useTriggers = true };
+            _filter.SetLayerMask(mask);
+        }
 
         public void Configure(
             Transform origin, Vector2 dir, float length, float width,
@@ -75,7 +94,6 @@ namespace Survivor.Weapon
             _width = Mathf.Max(0.01f, width);
             _duration = Mathf.Max(0.01f, duration);
 
-            // Treat desiredTicks as "total ticks over lifetime".
             _desiredDamageTicks = Mathf.Max(1, desiredTicks);
             _tickInterval = _duration / _desiredDamageTicks;
 
@@ -86,40 +104,24 @@ namespace Survivor.Weapon
             _uvOffset = 0f;
             _uvScrollRate = uvScrollRate;
 
-            // Tracking mode
             _followOrigin = followOrigin;
 
-            // Snapshots
             _startSnapshot = origin ? (Vector2)origin.position : (Vector2)transform.position;
             _dirSnapshot = _dir;
-
-            // Snapshot the intended target world position for locked direction mode
             _targetPosSnapshot = _startSnapshot + (_dir * _length);
 
-            // material instance to scroll UV independently per-beam
-            if (_matInstance == null)
-                _matInstance = new Material(sourceMat);
-            else
-                _matInstance.CopyPropertiesFromMaterial(sourceMat);
+            if (_matInstance == null) _matInstance = new Material(sourceMat);
+            else _matInstance.CopyPropertiesFromMaterial(sourceMat);
 
             _lr.material = _matInstance;
-            // Match visual width
             _lr.startWidth = _width;
             _lr.endWidth = _width;
 
-            // initial update (position + color)
             UpdateVisual(0f, 1f);
         }
 
-        private void OnEnable()
-        {
-            if (_lr) _lr.enabled = true;
-        }
-
-        private void OnDisable()
-        {
-            if (_lr) _lr.enabled = false;
-        }
+        private void OnEnable() { if (_lr) _lr.enabled = true; }
+        private void OnDisable() { if (_lr) _lr.enabled = false; }
 
         private void FixedUpdate()
         {
@@ -127,31 +129,25 @@ namespace Survivor.Weapon
             _tLeft -= dt;
             if (_tLeft <= 0f) { Despawn(); return; }
 
-            // Evenly-spaced tick schedule across lifetime, including an immediate tick on first step.
             float elapsed = _duration - _tLeft;
             int ticksShouldHaveFired = Mathf.Min(
                 _desiredDamageTicks,
-                Mathf.FloorToInt(elapsed / _tickInterval) + 1 // +1 for immediate tick around t≈0
+                Mathf.FloorToInt(elapsed / _tickInterval) + 1
             );
 
             while (_tickFired < ticksShouldHaveFired)
                 DoDamageTick();
 
-            // Animate + keep endpoints glued to origin/dir
             UpdateVisual(dt, _alphaCurve.Evaluate(1f - (_tLeft / _duration)));
         }
 
         private Vector2 GetCurrentDirection()
         {
-
-            // Locked direction: aim at the frozen world-space target, regardless of origin movement.
             if (_followOrigin && _origin)
             {
                 Vector2 toTarget = _targetPosSnapshot - (Vector2)_origin.position;
                 return toTarget.sqrMagnitude > 1e-8f ? toTarget.normalized : _dirSnapshot;
             }
-
-            // Fully static (both position and direction frozen)
             return _dirSnapshot;
         }
 
@@ -159,7 +155,6 @@ namespace Survivor.Weapon
         {
             _tickFired++;
 
-            // Use live or snapshot position/direction based on tracking mode
             Vector2 start = _followOrigin
                 ? (_origin ? (Vector2)_origin.position : (Vector2)transform.position)
                 : _startSnapshot;
@@ -167,17 +162,12 @@ namespace Survivor.Weapon
             Vector2 currentDir = GetCurrentDirection();
 
             Vector2 mid = start + currentDir * (_length * 0.5f);
-            ContactFilter2D filter = new()
-            {
-                useTriggers = true
-            };
-            filter.SetLayerMask(LayerMask.GetMask("Enemy"));
 
             int count = Physics2D.OverlapBox(
                 point: mid,
                 size: new Vector2(_length, _width),
                 angle: Mathf.Atan2(currentDir.y, currentDir.x) * Mathf.Rad2Deg,
-                contactFilter: filter,
+                contactFilter: _filter,
                 results: _hits);
 
             _seen.Clear();
@@ -185,16 +175,25 @@ namespace Survivor.Weapon
             {
                 var c = _hits[i];
                 if (!c.TryGetComponent<HealthComponent>(out var hp)) continue;
+                if (!_seen.Add(hp)) continue; // prevent duplicate per tick
 
-                // Prevent double-hitting same target in a single tick (multiple colliders)
-                if (_seen.Add(hp))
-                    hp.Damage(_damagePerTick);
+                float dealt = _damagePerTick;
+                bool crit = false;
+                if (_critPerTick)
+                {
+                    crit = (Random.value < _critChance);
+                    if (crit) dealt = Mathf.Round(dealt * _critMul * 10f) / 10f;
+                }
+
+                hp.Damage(dealt,crit);
+
+                _sink?.OnHit(dealt, c.transform.position, crit);
+                if (hp.IsDead) _sink?.OnKill(c.transform.position);
             }
         }
 
         private void UpdateVisual(float dt, float alpha)
         {
-            // Use live or snapshot position/direction based on tracking mode
             Vector3 a = _followOrigin
                 ? (_origin ? _origin.position : transform.position)
                 : (Vector3)_startSnapshot;
@@ -205,13 +204,11 @@ namespace Survivor.Weapon
             _lr.SetPosition(0, a);
             _lr.SetPosition(1, b);
 
-            // UV scroll: assumes material uses mainTex with Tiling.x mapped to length
             if (_matInstance)
             {
                 _uvOffset += _uvScrollRate * dt;
                 _matInstance.mainTextureOffset = new Vector2(_uvOffset, 0f);
 
-                // Alpha over life (works for Unlit with _Color or URP Unlit Color)
                 if (_matInstance.HasProperty(_colorPropID))
                 {
                     Color c = _matInstance.GetColor(_colorPropID);
@@ -228,15 +225,7 @@ namespace Survivor.Weapon
             else gameObject.SetActive(false);
         }
 
-        // --- IPoolable ---
-        public void OnSpawned()
-        {
-            // Reset transient state
-        }
-
-        public void OnDespawned()
-        {
-            // Clear vfx/sfx/trails
-        }
+        public void OnSpawned() { }
+        public void OnDespawned() { }
     }
 }

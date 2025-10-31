@@ -3,7 +3,6 @@ using Survivor.Game;
 
 namespace Survivor.Weapon
 {
-    
     [DisallowMultipleComponent]
     public sealed class RotatingOrbitWeapon : WeaponBase<RotatingOrbitWeaponDef>
     {
@@ -17,7 +16,8 @@ namespace Survivor.Weapon
 
         public override void Tick(float dt)
         {
-            if (!Ready(dt)) return;
+            // Unified prelude: resets dynamic mods, applies mods.OnTick, then cooldown gate.
+            if (!BeginTickAndGate(dt)) return;
 
             Transform pivot = _getTarget?.Invoke();
             if (!pivot) pivot = ctx.Owner ? ctx.Owner : fireOrigin;
@@ -25,15 +25,13 @@ namespace Survivor.Weapon
 
             int count = Shots();
 
-            // --- Area split ---
-            float Aeff = Mathf.Max(0.0001f, def.AreaScale * (ctx?.Stats?.AreaMul ?? 1f));
+            // --- Area split (use ScaledArea) ---
+            float Aeff = Mathf.Max(0.0001f, ScaledArea());
 
-            // Orb visual size (dominant, linear) ¨ clamp
             float orbScale = Mathf.Clamp(
                 Mathf.Lerp(1f, Aeff, def.OrbAreaBias),
                 def.OrbScaleClamp.x, def.OrbScaleClamp.y);
 
-            // Orbit radius (tamed, sqrt) ¨ clamp
             float radiusMul = Mathf.Clamp(
                 Mathf.Lerp(1f, Mathf.Sqrt(Aeff), def.RadiusAreaBias),
                 def.RadiusMulClamp.x, def.RadiusMulClamp.y);
@@ -46,15 +44,15 @@ namespace Survivor.Weapon
             float lifetime = revs * revTime;
             float totalAngle = revs * (2f * Mathf.PI) * (def.Clockwise ? -1f : 1f);
 
-            // Even angular spacing
             float step = (count > 0) ? (2f * Mathf.PI / count) : 0f;
+
+            int baseDamage = ScaledDamage();
 
             for (int i = 0; i < count; i++)
             {
                 float startAng = step * i;
 
                 GameObject go = _orbPool.Rent(pivot.position, Quaternion.identity);
-
                 go.layer = (ctx.Team == Team.Player)
                     ? LayerMask.NameToLayer("PlayerProjectile")
                     : LayerMask.NameToLayer("EnemyProjectile");
@@ -62,7 +60,9 @@ namespace Survivor.Weapon
                 var orb = go.GetComponent<RotatingOrbitOrb>();
                 orb.SetPool(_orbPool);
 
-                int dmg = ScaledDamage();
+
+                orb.SetHitSink(this);
+                orb.ConfigureCrit(GetEffectiveCritChance(), GetEffectiveCritMultiplier(), perHit: true);
 
                 orb.Arm(
                     pivot: pivot,
@@ -70,7 +70,7 @@ namespace Survivor.Weapon
                     startAngleRad: startAng,
                     totalAngleRad: totalAngle,
                     lifetime: lifetime,
-                    damage: dmg,
+                    damage: baseDamage,
                     team: ctx.Team,
                     followOrigin: def.FollowOrigin,
                     toggleVis: def.ToggleRendererAndCollider,

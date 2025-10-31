@@ -66,6 +66,8 @@ namespace Survivor.UI
             Color c = _baseColor; c.a *= a;
             label.alpha = c.a;
             float scale = _baseScale * s;
+            label.color = c;
+
             transform.localScale = Vector3.one * scale;
         }
 
@@ -90,11 +92,11 @@ namespace Survivor.UI
         }
 
         // Convenience presets
-        public void ShowNormal(Vector3 pos, int amount)
+        public void ShowNormal(Vector3 pos, float amount)
         {
             var s = style;
             Show(pos,
-                 amount.ToString(),
+                 amount.ToString("F1"),
                  s ? s.normalColor : Color.white,
                  s ? s.normalScale : 1f,
                  s ? s.lifetime : 0.7f,
@@ -102,11 +104,11 @@ namespace Survivor.UI
                  s ? s.riseSpeed : 2f);
         }
 
-        public void ShowCrit(Vector3 pos, int amount)
+        public void ShowCrit(Vector3 pos, float amount)
         {
             var s = style;
             Show(pos,
-                 amount.ToString(),
+                 $"{amount:F1}!",
                  s ? s.critColor : new Color(1f, 0.85f, 0.2f),
                  s ? s.critScale : 1.3f,
                  s ? s.lifetime : 0.7f,
@@ -114,11 +116,11 @@ namespace Survivor.UI
                  s ? s.riseSpeed : 2f);
         }
 
-        public void ShowHeal(Vector3 pos, int amount)
+        public void ShowHeal(Vector3 pos, float amount)
         {
             var s = style;
             Show(pos,
-                 $"+{amount}",
+                 $"+{amount:F1}",
                  s ? s.healColor : new Color(0.2f, 1f, 0.2f),
                  s ? s.healScale : 1.0f,
                  s ? s.lifetime : 0.7f,
