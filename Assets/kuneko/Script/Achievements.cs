@@ -35,7 +35,6 @@ public class Achievements : MonoBehaviour
     private void Start()
     {
         achievement.transform.localPosition = defaultPos;
-        AddEnemyCount(100);
     }
 
     /// <summary>
