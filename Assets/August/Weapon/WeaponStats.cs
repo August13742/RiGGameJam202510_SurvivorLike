@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace Survivor.Weapon
 {
     public sealed class WeaponStats
@@ -10,6 +8,10 @@ namespace Survivor.Weapon
         public int ProjectilesAdd = 0;
         public int PierceAdd = 0;
         public float SpeedMul = 1f;
+
+        public float CritChance = 0f;       // 0..1
+        public float CritMultiplier = 1.5f; // 1.0 = no extra; 1.5 = +50%
+
     }
 
 }

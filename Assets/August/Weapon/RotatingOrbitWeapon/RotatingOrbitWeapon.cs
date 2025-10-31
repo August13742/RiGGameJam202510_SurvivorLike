@@ -3,20 +3,34 @@ using Survivor.Game;
 
 namespace Survivor.Weapon
 {
-    
     [DisallowMultipleComponent]
     public sealed class RotatingOrbitWeapon : WeaponBase<RotatingOrbitWeaponDef>
     {
+        [SerializeField] private WeaponModDef[] mods;
         private ObjectPool _orbPool;
 
         public override void Equip(WeaponContext context)
         {
             base.Equip(context);
             _orbPool = new ObjectPool(def.OrbPrefab, prewarm: 8, context.PoolRoot);
+
+            if (mods != null)
+            {
+                for (int i = 0; i < mods.Length; i++)
+                    if (mods[i]) mods[i].OnEquip(this);
+            }
         }
 
         public override void Tick(float dt)
         {
+            // Per-tick dynamic modifiers: reset â†’ apply â†’ then gate with Ready()
+            ResetDynamicMods();
+            if (mods != null)
+            {
+                for (int i = 0; i < mods.Length; i++)
+                    if (mods[i]) mods[i].OnTick(this, dt);
+            }
+
             if (!Ready(dt)) return;
 
             Transform pivot = _getTarget?.Invoke();
@@ -25,15 +39,15 @@ namespace Survivor.Weapon
 
             int count = Shots();
 
-            // --- Area split ---
-            float Aeff = Mathf.Max(0.0001f, def.AreaScale * (ctx?.Stats?.AreaMul ?? 1f));
+            // --- Area split (use ScaledArea) ---
+            float Aeff = Mathf.Max(0.0001f, ScaledArea());
 
-            // Orb visual size (dominant, linear) ¨ clamp
+            // Orb visual size (dominant, linear) â†’ clamp
             float orbScale = Mathf.Clamp(
                 Mathf.Lerp(1f, Aeff, def.OrbAreaBias),
                 def.OrbScaleClamp.x, def.OrbScaleClamp.y);
 
-            // Orbit radius (tamed, sqrt) ¨ clamp
+            // Orbit radius (tamed, sqrt) â†’ clamp
             float radiusMul = Mathf.Clamp(
                 Mathf.Lerp(1f, Mathf.Sqrt(Aeff), def.RadiusAreaBias),
                 def.RadiusMulClamp.x, def.RadiusMulClamp.y);
@@ -46,7 +60,6 @@ namespace Survivor.Weapon
             float lifetime = revs * revTime;
             float totalAngle = revs * (2f * Mathf.PI) * (def.Clockwise ? -1f : 1f);
 
-            // Even angular spacing
             float step = (count > 0) ? (2f * Mathf.PI / count) : 0f;
 
             for (int i = 0; i < count; i++)
@@ -54,7 +67,6 @@ namespace Survivor.Weapon
                 float startAng = step * i;
 
                 GameObject go = _orbPool.Rent(pivot.position, Quaternion.identity);
-
                 go.layer = (ctx.Team == Team.Player)
                     ? LayerMask.NameToLayer("PlayerProjectile")
                     : LayerMask.NameToLayer("EnemyProjectile");
