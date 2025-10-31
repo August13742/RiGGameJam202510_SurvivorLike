@@ -5,11 +5,9 @@ namespace Survivor.Weapon
 {
     public sealed class Projectile : MonoBehaviour
     {
-        public int Damage { get; private set; }
+        public float Damage { get; private set; }
         public float Speed { get; private set; }
         public int Pierce { get; private set; }
-
-
 
         [SerializeField] private ForwardAxis forwardAxis = ForwardAxis.Right;
 
@@ -17,11 +15,23 @@ namespace Survivor.Weapon
         private float _lifeTime;
         private ObjectPool _pool;
 
+        private IHitEventSink _sink;
+        private float _critChance = 0f;
+        private float _critMul = 1f;
+        private bool _critPerHit = true;
+
         private enum ForwardAxis { Right, Up }
 
         public void SetPool(ObjectPool pool) { _pool = pool; }
+        public void SetHitSink(IHitEventSink sink) { _sink = sink; }
+        public void ConfigureCrit(float chance, float mul, bool perHit)
+        {
+            _critChance = Mathf.Clamp01(chance);
+            _critMul = Mathf.Max(1f, mul);
+            _critPerHit = perHit;
+        }
 
-        public void Fire(Vector2 p, Vector2 direction, float speed, int dmg, int pierce, float time)
+        public void Fire(Vector2 p, Vector2 direction, float speed, float dmg, int pierce, float time)
         {
             transform.position = p;
             _dir = direction.sqrMagnitude > 0f ? direction.normalized : Vector2.right;
@@ -30,13 +40,11 @@ namespace Survivor.Weapon
             Pierce = pierce;
             _lifeTime = time;
 
-            // Rotate sprite to face travel direction
             float ang = Mathf.Atan2(_dir.y, _dir.x) * Mathf.Rad2Deg;
-            if (forwardAxis == ForwardAxis.Right)
-                transform.rotation = Quaternion.AngleAxis(ang, Vector3.forward);
-            else // Up
-                transform.rotation = Quaternion.AngleAxis(ang - 90f, Vector3.forward);
-
+            transform.rotation = Quaternion.AngleAxis(
+                (forwardAxis == ForwardAxis.Right) ? ang : (ang - 90f),
+                Vector3.forward
+            );
         }
 
         private void FixedUpdate()
@@ -50,10 +58,23 @@ namespace Survivor.Weapon
         private void OnTriggerEnter2D(Collider2D col)
         {
             if (!col.TryGetComponent<HealthComponent>(out var target)) return;
+            if (target.IsDead) return;
 
-            target.Damage(Damage);
-            if (Pierce > 0) { Pierce--; }
-            else { Despawn(); }
+            float dealt = Damage;
+            bool crit = false;
+
+            if (_critPerHit)
+            {
+                crit = (Random.value < _critChance);
+                if (crit) dealt = Mathf.Round(dealt * _critMul * 10f) / 10f;
+            }
+
+            target.Damage(dealt,crit);
+
+            _sink?.OnHit(dealt, transform.position, crit);
+            if (target.IsDead) _sink?.OnKill(transform.position);
+
+            if (Pierce > 0) { Pierce--; } else { Despawn(); }
         }
 
         private void Despawn()

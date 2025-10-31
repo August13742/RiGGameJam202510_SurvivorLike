@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acfceea6d633bc547943d5f25287ab10, type: 3}
+  m_Name: New Crit Haste Stacks Mod
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.CritHasteStacksMod
+  Id: crit_haste
+  Title: crit_haste
+  Description: 
+  Icon: {fileID: 0}
+  AttackSpeedPerStack: 0.5
+  MaxStacks: 12
+  Duration: 6

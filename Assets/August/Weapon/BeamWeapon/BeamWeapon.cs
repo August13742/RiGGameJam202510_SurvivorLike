@@ -1,8 +1,7 @@
 using Survivor.Game;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.UI.Image;
+
 
 namespace Survivor.Weapon
 {
@@ -14,13 +13,13 @@ namespace Survivor.Weapon
         {
             base.Equip(context);
             _beamPool = new ObjectPool(def.BeamPrefab, prewarm: 8, context.PoolRoot);
+
         }
 
         public override void Tick(float dt)
         {
-            if (!Ready(dt)) return;
+            if (!BeginTickAndGate(dt)) return;
 
-            // Get aim(s)
             var aims = GatherAimDirections();
             if (aims.Count == 0) return;
 
@@ -31,51 +30,75 @@ namespace Survivor.Weapon
         private List<Vector2> GatherAimDirections()
         {
             var res = new List<Vector2>(Shots());
+            int shots = Shots();
+
             switch (def.TargetingMode)
             {
                 case TargetMode.Nearest:
                     {
                         Transform t = _getTarget?.Invoke();
                         if (t)
-                            res.Add(((Vector2)t.position - (Vector2)fireOrigin.position).normalized);
+                        {
+                            Vector2 baseDir = ((Vector2)t.position - (Vector2)fireOrigin.position).normalized;
+                            // Apply spread if multishot
+                            if (shots > 1 && def.SpreadDeg > 0f)
+                            {
+                                res.AddRange(ApplySpread(baseDir, shots));
+                            }
+                            else
+                            {
+                                for (int i = 0; i < shots; i++)
+                                    res.Add(baseDir);
+                            }
+                        }
                         break;
                     }
                 case TargetMode.RandomK:
                     {
-                        // Pick K random targets and aim each beam at one
-                        int k = Mathf.Max(1, def.RandomPickK);
-                        for (int i = 0; i < Mathf.Min(k, Shots()); i++)
+                        // Pick one random target per beam (K = shots)
+                        for (int i = 0; i < shots; i++)
                         {
-                            Transform t = _getTarget?.Invoke();
-                            if (t) res.Add(((Vector2)t.position - (Vector2)fireOrigin.position).normalized);
+                            Transform t = ctx.RandomInRange?.Invoke(1);
+                            if (t)
+                                res.Add(((Vector2)t.position - (Vector2)fireOrigin.position).normalized);
                         }
                         break;
                     }
                 case TargetMode.SelfCentered:
                 default:
                     {
-                        // Point forward if have a facing; else 0 deg (right)
-                        Vector2 dir = fireOrigin ? (Vector2)fireOrigin.right : Vector2.right;
-                        for (int i = 0; i < Shots(); i++) res.Add(dir);
+                        Vector2 baseDir = fireOrigin ? (Vector2)fireOrigin.right : Vector2.right;
+                        // Apply spread if multishot
+                        if (shots > 1 && def.SpreadDeg > 0f)
+                        {
+                            res.AddRange(ApplySpread(baseDir, shots));
+                        }
+                        else
+                        {
+                            for (int i = 0; i < shots; i++)
+                                res.Add(baseDir);
+                        }
                         break;
                     }
             }
-            // small spread fan for multishot visual variety when same target
-            if (res.Count >= 2 && def.SpreadDeg > 0f)
-            {
-                float spread = def.SpreadDeg * Mathf.Deg2Rad;
-                float start = -spread * (res.Count - 1) * 0.5f;
-                Vector2 baseDir = res[0];
-                res.Clear();
-                for (int i = 0; i < Shots(); i++)
-                {
-                    float ang = start + spread * i;
-                    float ca = Mathf.Cos(ang), sa = Mathf.Sin(ang);
-                    res.Add(new Vector2(baseDir.x * ca - baseDir.y * sa,
-                                        baseDir.x * sa + baseDir.y * ca));
-                }
-            }
+
             return res;
+        }
+
+        private IEnumerable<Vector2> ApplySpread(Vector2 baseDir, int count)
+        {
+            float spread = def.SpreadDeg * Mathf.Deg2Rad;
+            float start = -spread * (count - 1) * 0.5f;
+
+            for (int i = 0; i < count; i++)
+            {
+                float ang = start + spread * i;
+                float ca = Mathf.Cos(ang), sa = Mathf.Sin(ang);
+                yield return new Vector2(
+                    baseDir.x * ca - baseDir.y * sa,
+                    baseDir.x * sa + baseDir.y * ca
+                );
+            }
         }
 
         private void SpawnBeam(Vector2 dir)
@@ -88,25 +111,33 @@ namespace Survivor.Weapon
                 ? LayerMask.NameToLayer("PlayerProjectile")
                 : LayerMask.NameToLayer("EnemyProjectile");
 
-            // Damage per tick: distribute base damage over second -> per tick
-            float ticksPerSec = Mathf.Max(0.01f, def.TicksPerSecond);
-            int dpt = Mathf.Max(1, Mathf.RoundToInt((def.BaseDamage * (ctx?.Stats?.DamageMul ?? 1f)) / ticksPerSec));
+            beam.SetHitSink(this);
+            beam.ConfigureCrit(GetEffectiveCritChance(), GetEffectiveCritMultiplier(), perTick: true);
 
+            var targetMask = (ctx.Team == Team.Player) ? LayerMask.GetMask("Enemy") : LayerMask.GetMask("Player");
+            beam.SetTargetMask(targetMask);
+
+            int totalTicks = Mathf.Max(1, def.TicksPerSecond);
+            int damage = ScaledDamage();
+            float area = ScaledArea();
+            int dpt = Mathf.Max(1, Mathf.RoundToInt(damage / totalTicks));
 
             beam.Configure(
                 origin: fireOrigin,
                 dir: dir,
-                length: def.BeamLength * def.AreaScale,
-                width: def.BeamWidth * def.AreaScale,
+                length: def.BeamLength * area,
+                width: def.BeamWidth * area,
                 duration: def.Duration,
-                tickInterval: 1f / def.TicksPerSecond,
+                desiredTicks: totalTicks,
+                tickInterval: def.Duration / totalTicks,
                 damagePerTick: dpt,
                 sourceMat: def.BeamMaterial,
                 uvScrollRate: def.UVScrollRate,
                 alphaOverLife: def.AlphaOverLife,
-
-                followOrigin: def.FollowOrigion, followDirection: def.FollowDirection
+                followOrigin: def.FollowOrigion
             );
         }
+
     }
 }
+

@@ -9,7 +9,7 @@ namespace Survivor.UI
         public static DamageTextManager Instance { get; private set; }
 
         [SerializeField] private GameObject textPrefab; // prefab with DamageNumber + PrefabStamp + TMP
-        [SerializeField] private int prewarm = 96;
+        [SerializeField] private int prewarm = 128;
         [SerializeField] private Transform poolRoot;
 
         private ObjectPool _pool;
@@ -23,21 +23,21 @@ namespace Survivor.UI
             _pool = new ObjectPool(textPrefab, prewarm, poolRoot);
         }
 
-        public void ShowNormal(Vector3 worldPos, int amount)
+        public void ShowNormal(Vector3 worldPos, float amount)
         {
             GameObject go = _pool.Rent(worldPos, Quaternion.identity);
             DamageText text = go.GetComponent<DamageText>();
             text.ShowNormal(worldPos, amount); 
         }
 
-        public void ShowCrit(Vector3 worldPos, int amount)
+        public void ShowCrit(Vector3 worldPos, float amount)
         {
             GameObject go = _pool.Rent(worldPos, Quaternion.identity);
             DamageText text = go.GetComponent<DamageText>();
             text.ShowCrit(worldPos, amount);
         }
 
-        public void ShowHeal(Vector3 worldPos, int amount)
+        public void ShowHeal(Vector3 worldPos, float amount)
         {
             GameObject go = _pool.Rent(worldPos, Quaternion.identity);
             DamageText text = go.GetComponent<DamageText>();

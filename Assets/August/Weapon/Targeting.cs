@@ -9,6 +9,7 @@ public static class Targeting
     private static readonly List<Transform> _valid = new(32);
 
     public static Transform SelfCentered(Transform origin) {  return origin; }
+    
     public static Transform NearestEnemy(Transform origin, float radius, ContactFilter2D filter)
     {
         if (!origin || radius <= 0f) return null;
@@ -49,22 +50,22 @@ public static class Targeting
         int hitCount = Physics2D.OverlapCircle((Vector2)origin.position, radius, filter, _overlap);
         if (hitCount <= 0) return null;
 
+        // Use HashSet to deduplicate enemies with multiple colliders
+        var seenHealthComponents = new HashSet<HealthComponent>();
         for (int i = 0; i < hitCount; i++)
         {
             var c = _overlap[i];
             if (!c) continue;
             if (c.TryGetComponent<HealthComponent>(out var hp) && !hp.IsDead)
-                _valid.Add(c.transform);
+            {
+                if (seenHealthComponents.Add(hp))
+                    _valid.Add(hp.transform);
+            }
         }
         if (_valid.Count == 0) return null;
 
-        int k = Mathf.Min(amount, _valid.Count);
-        // Partial Fisher–Yates on first k
-        for (int i = 0; i < k; i++)
-        {
-            int j = Random.Range(i, _valid.Count);
-            (_valid[i], _valid[j]) = (_valid[j], _valid[i]);
-        }
-        return _valid[Random.Range(0, k)];
+        // Pick one random target from the unique list
+        int randomIndex = Random.Range(0, _valid.Count);
+        return _valid[randomIndex];
     }
 }

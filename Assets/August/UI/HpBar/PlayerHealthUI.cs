@@ -18,7 +18,7 @@ namespace Survivor.UI {
             else Debug.LogError("Could not locate player HealthComponent");
         }
 
-        private void OnPlayerHealthChanged(int current, int _prev)
+        private void OnPlayerHealthChanged(float current, float _prev)
         {
             hpFill.transform.localScale = new Vector3(playerHealthComponent.GetCurrentPercent(),1,1);
         }

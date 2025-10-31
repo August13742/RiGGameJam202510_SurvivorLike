@@ -12,19 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ad1763d69af7345b516ff5e92cb4ec, type: 3}
   m_Name: BeamDebug
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.BeamWeaponDef
+  RuntimePrefab: {fileID: 5321779039240465208, guid: b64475fc4db138849b8891fbf66fca03, type: 3}
   Id: beam
   Icon: {fileID: -4542404649790094876, guid: 5620f5e7dbe43da4f89e420358c0852a, type: 3}
-  BaseDamage: 20
-  BaseCooldown: 2
-  TargetingMode: 1
+  BaseDamage: 25
+  BaseCooldown: 3
+  TargetingMode: 2
   AreaScale: 1
-  Projectiles: 3
-  RandomPickK: 3
+  Projectiles: 5
   BeamPrefab: {fileID: 4645090832089952007, guid: a1a7f1ec0d959dc4f93eafbd1e6a1db5, type: 3}
   BeamLength: 10
   BeamWidth: 0.5
-  Duration: 0.15
-  TicksPerSecond: 1
+  Duration: 1
+  TicksPerSecond: 6
   BeamMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   UVScrollRate: 6
   AlphaOverLife:
@@ -52,5 +52,4 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   SpreadDeg: 10
-  FollowOrigion: 0
-  FollowDirection: 0
+  FollowOrigion: 1
