@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edead2a498c033843b33c3ff32a786e3, type: 3}
   m_Name: OrbitOrbDebug
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.RotatingOrbitWeaponDef
+  RuntimePrefab: {fileID: 8060733332101865006, guid: 27a58cb41e9f09a4fadd7ea8fa3ce47f, type: 3}
   Id: orb
   Icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   BaseDamage: 5

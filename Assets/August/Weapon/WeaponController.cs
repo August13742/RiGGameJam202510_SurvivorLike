@@ -5,6 +5,7 @@ namespace Survivor.Weapon
 {
     public sealed class WeaponController : MonoBehaviour
     {
+
         [SerializeField] private int maxSlots = 4;
         [SerializeField] private Transform fireOrigin;
         [SerializeField] private Transform poolRoot;
@@ -132,22 +133,24 @@ namespace Survivor.Weapon
             return null;
         }
 
-        private IWeapon InstantiateWeapon(WeaponDef def, GameObject target)
+        private IWeapon InstantiateWeapon(WeaponDef def, GameObject host)
         {
-            // You'll need to implement this based on your weapon type system
-            // Example placeholder:
-            switch (def)
+            if (!def.RuntimePrefab)
             {
-                // case MeleeWeaponDef meleeDef:
-                //     return target.AddComponent<MeleeWeapon>();
-                // case BeamWeaponDef beamDef:
-                //     return target.AddComponent<BeamWeapon>();
-                // case SummonWeaponDef summonDef:
-                //     return target.AddComponent<SummonWeapon>();
-                default:
-                    Debug.LogWarning($"Unknown weapon def type: {def.GetType()}");
-                    return null;
+                Debug.LogWarning($"[{def.name}] has no RuntimePrefab assigned.");
+                return null;
             }
+
+            var go = Instantiate(def.RuntimePrefab, host.transform);
+            go.name = $"Weapon_{def.Id}";
+            var weapon = go.GetComponent<IWeapon>();
+            if (weapon == null)
+            {
+                Debug.LogError($"[{def.name}] prefab lacks an IWeapon component.");
+                Destroy(go);
+                return null;
+            }
+            return weapon;
         }
     }
 

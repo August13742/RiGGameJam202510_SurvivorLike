@@ -79,7 +79,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1560946809
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -4542404649790094876, guid: 5620f5e7dbe43da4f89e420358c0852a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -226,7 +226,6 @@ GameObject:
   - component: {fileID: 3863936289245180800}
   - component: {fileID: 8898621925854270114}
   - component: {fileID: 152034367600551103}
-  - component: {fileID: 4161025487633592718}
   - component: {fileID: 2560214199077104943}
   - component: {fileID: 4578546165907560104}
   - component: {fileID: 5806806840443530406}
@@ -246,7 +245,7 @@ Transform:
   m_GameObject: {fileID: 5914224002963691110}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.6237397, y: -2.47984, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -319,18 +318,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.7, y: 1.4}
   m_Direction: 0
---- !u!114 &4161025487633592718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5914224002963691110}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f539a765e2d36734ea7e8ace78da2eff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.PlayerBodyTag
 --- !u!114 &2560214199077104943
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -375,6 +362,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 358611acb2bc0b344a6b74872af6a15c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.WeaponController
+  maxSlots: 4
   fireOrigin: {fileID: 5473380445118077831}
   poolRoot: {fileID: 0}
   enemyMask:

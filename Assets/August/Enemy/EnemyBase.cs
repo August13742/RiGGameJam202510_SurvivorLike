@@ -37,7 +37,7 @@ namespace Survivor.Enemy
             if (_health != null) _health.Died -= OnDied;
             if (_health != null) _health.Damaged -= OnDamaged;
         }
-        protected virtual void OnDamaged(int amt, Vector3 pos, bool crit)
+        protected virtual void OnDamaged(float amt, Vector3 pos, bool crit)
         {
             if (crit) DamageTextManager.Instance.ShowCrit(pos, amt);
             else DamageTextManager.Instance.ShowNormal(pos, amt);
@@ -71,8 +71,8 @@ namespace Survivor.Enemy
             _health.SetMaxHP(Mathf.Max(1, def.BaseHP), resetCurrent: true, raiseEvent: true);
         }
 
-        public void Damage(int amount) => _health.Damage(amount);
-        public void Heal(int amount) => _health.Heal(amount);
+        public void Damage(float amount) => _health.Damage(amount);
+        public void Heal(float amount) => _health.Heal(amount);
         public float HealthPercent() => _health.GetCurrentPercent();
 
         // --- IPoolable ---

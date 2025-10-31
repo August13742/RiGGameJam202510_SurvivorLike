@@ -2,27 +2,20 @@ using UnityEngine;
 
 namespace Survivor.Weapon { 
 
-    public interface IHitEvents
-    {
-        void OnHit(int dmg, Vector2 pos, bool crit);
-        void OnKill(Vector2 pos);
-    }
-
     public enum Team{Player,Enemy}
-    public abstract class WeaponBase<TDef> : MonoBehaviour, IUpgradeableWeapon, IHitEvents where TDef : WeaponDef
+    public abstract class WeaponBase<TDef> : MonoBehaviour, IUpgradeableWeapon, IHitEventSink, IModTarget where TDef : WeaponDef
     {
         [SerializeField] protected TDef def;
         [SerializeField] protected Transform fireOrigin;
 
-        // NEW: Mods live in base so every weapon gets them.
         [SerializeField] protected WeaponModDef[] mods;
 
         protected WeaponContext ctx;
         protected float cooldown;
         protected System.Func<Transform> _getTarget;
 
-        protected WeaponStats weaponStats = new WeaponStats(); // permanent
-        protected WeaponStats dynamicMods = new WeaponStats(); // per-tick, reset every Tick
+        protected WeaponStats weaponStats = new (); // permanent
+        protected WeaponStats dynamicMods = new (); // per-tick, reset every Tick
 
         public WeaponContext GetContext() => ctx;
         public TDef GetDef() => def;
@@ -31,6 +24,10 @@ namespace Survivor.Weapon {
         {
             ctx = context;
             cooldown = 0f;
+
+            // Initialize weapon stats from def
+            weaponStats.CritChance = def.BaseCritChance;
+            weaponStats.CritMultiplier = def.BaseCritMultiplier;
 
             _getTarget = def.TargetingMode switch
             {
@@ -50,7 +47,7 @@ namespace Survivor.Weapon {
 
         // --- Tick scaffolding shared by all weapons -------------------------
 
-        /// Call this at the very start of your Tick.
+        /// Call this at the very start of Tick.
         protected bool BeginTickAndGate(float dt)
         {
             // 1) reset per-tick
@@ -63,8 +60,14 @@ namespace Survivor.Weapon {
                     if (mods[i]) mods[i].OnTick(this, dt);
             }
 
-            // 3) cooldown gate AFTER dynamic mods updated
-            return Ready(dt);
+            // 3) cooldown decrement with current effective multiplier
+            cooldown -= dt;
+            if (cooldown > 0f) return false;
+            
+            // 4) Fire allowed - set new cooldown using effective multiplier
+            float cd = def.BaseCooldown * GetEffectiveCooldownMul();
+            cooldown = Mathf.Max(0.01f, cd);
+            return true;
         }
 
         protected bool Ready(float dt)
@@ -90,7 +93,7 @@ namespace Survivor.Weapon {
         }
 
         // --- Mod event fan-out ----------------------------------------------
-        public void OnHit(int damage, Vector2 pos, bool crit)
+        public void OnHit(float damage, Vector2 pos, bool crit)
         {
             if (mods == null) return;
             for (int i = 0; i < mods.Length; i++)
@@ -109,7 +112,7 @@ namespace Survivor.Weapon {
                 if (mods[i]) mods[i].OnKill(this, pos);
         }
 
-        // --- Effective stats (unchanged) ------------------------------------
+        // --- Effective stats ------------------------------------
         protected int ScaledDamage() => Mathf.Max(1, Mathf.RoundToInt(def.BaseDamage * GetEffectiveDamageMul()));
         protected float ScaledArea() => def.AreaScale * GetEffectiveAreaMul();
         protected int Shots() => Mathf.Max(1, def.Projectiles + GetEffectiveProjectilesAdd());
@@ -127,8 +130,13 @@ namespace Survivor.Weapon {
 
         public void SetDynamicMods(WeaponStats modsStats) { if (modsStats != null) dynamicMods = modsStats; }
         public void ResetDynamicMods() { dynamicMods = new WeaponStats(); }
+        public WeaponStats GetAndMutateDynamicMods(System.Action<WeaponStats> mut = null)
+        {
+            mut?.Invoke(dynamicMods);
+            return dynamicMods;
+        }
 
-        // IUpgradeableWeapon (unchanged)
+        // IUpgradeableWeapon
         public bool Owns(WeaponDef otherDef) => def == otherDef;
         public void ApplyUpgrade(WeaponStats delta)
         {

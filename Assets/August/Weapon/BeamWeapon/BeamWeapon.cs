@@ -7,27 +7,19 @@ namespace Survivor.Weapon
 {
     public sealed class BeamWeapon : WeaponBase<BeamWeaponDef>
     {
-        [SerializeField] private WeaponModDef[] mods;
         private ObjectPool _beamPool;
 
         public override void Equip(WeaponContext context)
         {
             base.Equip(context);
             _beamPool = new ObjectPool(def.BeamPrefab, prewarm: 8, context.PoolRoot);
-            if (mods != null)
-            {
-                for (int i = 0; i < mods.Length; i++)
-                {
-                    if (mods[i]) mods[i].OnEquip(this);
-                }
-            }
+
         }
 
         public override void Tick(float dt)
         {
-            if (!Ready(dt)) return;
+            if (!BeginTickAndGate(dt)) return;
 
-            // Get aim(s)
             var aims = GatherAimDirections();
             if (aims.Count == 0) return;
 
@@ -119,10 +111,13 @@ namespace Survivor.Weapon
                 ? LayerMask.NameToLayer("PlayerProjectile")
                 : LayerMask.NameToLayer("EnemyProjectile");
 
-            // Treat TicksPerSecond in the def as TOTAL TICKS over the beam's lifetime.
-            int totalTicks = Mathf.Max(1, def.TicksPerSecond);
+            beam.SetHitSink(this);
+            beam.ConfigureCrit(GetEffectiveCritChance(), GetEffectiveCritMultiplier(), perTick: true);
 
-            // Distribute base damage across the beam lifetime (not per-second).
+            var targetMask = (ctx.Team == Team.Player) ? LayerMask.GetMask("Enemy") : LayerMask.GetMask("Player");
+            beam.SetTargetMask(targetMask);
+
+            int totalTicks = Mathf.Max(1, def.TicksPerSecond);
             int damage = ScaledDamage();
             float area = ScaledArea();
             int dpt = Mathf.Max(1, Mathf.RoundToInt(damage / totalTicks));
@@ -141,22 +136,8 @@ namespace Survivor.Weapon
                 alphaOverLife: def.AlphaOverLife,
                 followOrigin: def.FollowOrigion
             );
-
-            if (mods != null)
-            {
-                bool crit = Random.value < GetEffectiveCritChance();
-                if (crit) damage = Mathf.RoundToInt(damage * GetEffectiveCritMultiplier());
-
-                for (int i = 0; i < mods.Length; i++)
-                {
-                    if (mods[i])
-                    {
-                        mods[i].OnHit(this, damage, fireOrigin.position, crit);
-                        if (crit) mods[i].OnCrit(this, fireOrigin.position);
-                    }
-                }
-            }
         }
+
     }
 }
 

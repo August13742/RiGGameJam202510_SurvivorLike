@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0eba1c4734aa4104894bb072713edb09, type: 3}
   m_Name: AugustSandboxWeapon
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.ProjectileWeaponDef
+  RuntimePrefab: {fileID: 217942150539425492, guid: da0644ea70a928649a25d0290542bd94, type: 3}
   Id: test
   Icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   BaseDamage: 5
-  BaseCooldown: 0.2
+  BaseCooldown: 1
   TargetingMode: 1
   AreaScale: 1
-  Projectiles: 3
-  RandomPickK: 3
+  Projectiles: 1
+  BaseCritChance: 0.5
+  BaseCritMultiplier: 1.5
   ProjectilePrefab: {fileID: 2056179235282298931, guid: d959ca6def84dbe41bc4669fcaa4f67a, type: 3}
   ProjectileSpeed: 8
   Pierce: 1

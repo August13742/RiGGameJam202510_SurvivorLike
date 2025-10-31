@@ -24,8 +24,11 @@ namespace Survivor.Weapon
             // Clamp to MaxStacks by checking current stacks
             float current = bm.Sum(KEY);
             int currStacks = Mathf.RoundToInt(current / AttackSpeedPerStack);
+
             if (currStacks < MaxStacks)
+            {
                 bm.AddTimedStack(KEY, AttackSpeedPerStack, Duration);
+            }
         }
 
         public override void OnTick(IWeapon weapon, float dt)
@@ -35,16 +38,13 @@ namespace Survivor.Weapon
 
             float bonus = bm.Sum(KEY); // 0..(MaxStacks*AttackSpeedPerStack)
 
-            // Apply dynamic attack speed modifier to this weapon instance
-            if (weapon is WeaponBase<WeaponDef> wb)
+            // Only apply if we have stacks
+            if (bonus > 0f && weapon is IModTarget wt)
             {
-                // Create dynamic mods for this tick
-                var dynamicMods = new WeaponStats();
-
-                // Attack speed bonus reduces cooldown (1 + 0.5 = 1.5x faster = 0.667x cooldown)
-                dynamicMods.CooldownMul = 1f / (1f + bonus);
-
-                wb.SetDynamicMods(dynamicMods);
+                wt.GetAndMutateDynamicMods(dyn =>
+                {
+                    dyn.CooldownMul = 1f / (1f + bonus);
+                });
             }
         }
 
