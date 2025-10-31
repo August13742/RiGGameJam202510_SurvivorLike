@@ -25,6 +25,7 @@ public class AllEnemyAttack : MonoBehaviour
 
     public void LayerEnemyAttack()
     {
+        //filter2dで得られたコライダーをcolsに格納　返り値は得られたコライダーの個数
         int hitCount = Physics2D.OverlapBox(transform.position, size, 0f, filter2d, cols);
         if (hitCount <= 0) return;
 
