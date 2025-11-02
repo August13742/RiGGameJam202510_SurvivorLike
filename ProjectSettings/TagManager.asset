@@ -9,6 +9,7 @@ TagManager:
   - EnemyProjectile
   - PoolRoot
   - Loot
+  - WorldBound
   layers:
   - Default
   - TransparentFX
@@ -21,8 +22,8 @@ TagManager:
   - Enemy
   - EnemyProjectile
   - Loot
-  - 
-  - 
+  - WorldProps
+  - WorldBound
   - 
   - 
   - 
