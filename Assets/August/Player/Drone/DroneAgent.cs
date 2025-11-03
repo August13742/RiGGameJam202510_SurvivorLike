@@ -17,6 +17,7 @@ public sealed class DroneAgent : MonoBehaviour
 
     private Vector2 _vel = Vector2.zero;
     private Vector2 _target = Vector2.zero;
+    public WeaponController WeaponController => weaponController;
 
     // Called by FormationManager every frame
     public Vector2 CalculateSteeringVelocity(in Vector2 worldTarget, in List<DroneAgent> neighbors, float dt)

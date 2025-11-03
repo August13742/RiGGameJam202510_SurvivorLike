@@ -5,18 +5,18 @@ namespace Survivor.Weapon
 {
     public sealed class WeaponController : MonoBehaviour
     {
-        [SerializeField] private int maxSlots = 4;
+        //[SerializeField] private int maxSlots = 4;
         [SerializeField] private Transform fireOrigin;
         [SerializeField] private Transform poolRoot;
         [SerializeField] private LayerMask enemyMask = ~0;
         [SerializeField] private float searchRadius = 12f;
 
         private WeaponContext _ctx;
-        private readonly List<IWeapon> _weapons = new List<IWeapon>();
+        private readonly List<IWeapon> _weapons = new(1);
         private ContactFilter2D _enemyFilter;
         private bool _initialized = false;
 
-        public bool HasEmptySlot => _weapons.Count < maxSlots;
+        public bool HasEmptySlot => _weapons.Count == 0;
         public int WeaponCount => _weapons.Count;
 
         private void Awake()
@@ -58,14 +58,14 @@ namespace Survivor.Weapon
             };
 
             // Equip any weapons already present as child components
-            var existingWeapons = GetComponentsInChildren<IWeapon>(includeInactive: false);
+            var existingWeapon = GetComponentInChildren<IWeapon>(includeInactive: false);
             _weapons.Clear();
-            for (int i = 0; i < existingWeapons.Length && i < maxSlots; i++)
+            if(existingWeapon!= null)
             {
-                _weapons.Add(existingWeapons[i]);
-                existingWeapons[i].Equip(_ctx);
+                _weapons.Add(existingWeapon);
+                existingWeapon.Equip(_ctx);
             }
-
+                
             _initialized = true;
         }
 
@@ -93,11 +93,12 @@ namespace Survivor.Weapon
                 SelfCentered = selfCent
             };
 
-            var existingWeapons = GetComponentsInChildren<IWeapon>(includeInactive: false);
-            for (int i = 0; i < existingWeapons.Length && i < maxSlots; i++)
+            var existingWeapon = GetComponentInChildren<IWeapon>(includeInactive: false);
+            _weapons.Clear();
+            if (existingWeapon != null)
             {
-                _weapons.Add(existingWeapons[i]);
-                existingWeapons[i].Equip(_ctx);
+                _weapons.Add(existingWeapon);
+                existingWeapon.Equip(_ctx);
             }
             _initialized = true;
         }
@@ -125,14 +126,9 @@ namespace Survivor.Weapon
         {
             if (!HasEmptySlot || !def) return false;
 
-            GameObject weaponGO = new GameObject($"Weapon_{def.Id}");
-            weaponGO.transform.SetParent(transform);
-            weaponGO.transform.localPosition = Vector3.zero;
-
-            IWeapon weapon = InstantiateWeapon(def, weaponGO);
+            IWeapon weapon = InstantiateWeapon(def);
             if (weapon == null)
             {
-                Destroy(weaponGO);
                 return false;
             }
 
@@ -166,7 +162,7 @@ namespace Survivor.Weapon
             return null;
         }
 
-        private IWeapon InstantiateWeapon(WeaponDef def, GameObject host)
+        private IWeapon InstantiateWeapon(WeaponDef def)
         {
             if (!def.RuntimePrefab)
             {
@@ -174,8 +170,10 @@ namespace Survivor.Weapon
                 return null;
             }
 
-            var go = Instantiate(def.RuntimePrefab, host.transform);
+            // Instantiate the prefab directly as a child of THIS transform (the WeaponController's transform).
+            GameObject go = Instantiate(def.RuntimePrefab, transform);
             go.name = $"Weapon_{def.Id}";
+
             var weapon = go.GetComponent<IWeapon>();
             if (weapon == null)
             {
