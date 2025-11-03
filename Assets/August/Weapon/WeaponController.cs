@@ -5,7 +5,6 @@ namespace Survivor.Weapon
 {
     public sealed class WeaponController : MonoBehaviour
     {
-
         [SerializeField] private int maxSlots = 4;
         [SerializeField] private Transform fireOrigin;
         [SerializeField] private Transform poolRoot;
@@ -15,6 +14,7 @@ namespace Survivor.Weapon
         private WeaponContext _ctx;
         private readonly List<IWeapon> _weapons = new List<IWeapon>();
         private ContactFilter2D _enemyFilter;
+        private bool _initialized = false;
 
         public bool HasEmptySlot => _weapons.Count < maxSlots;
         public int WeaponCount => _weapons.Count;
@@ -25,14 +25,62 @@ namespace Survivor.Weapon
             _enemyFilter.SetLayerMask(enemyMask);
         }
 
+        // NEW: explicit initializer so drones (or player) can inject context.
+        public void InitialiseFromHost(Transform owner, Transform fire, Transform pool, LayerMask mask, float radius, Team team = Team.Player)
+        {
+            // capture
+            fireOrigin = fire;
+            poolRoot = pool;
+            enemyMask = mask;
+            searchRadius = radius;
+
+            _enemyFilter = new ContactFilter2D { useTriggers = true, useDepth = false };
+            _enemyFilter.SetLayerMask(enemyMask);
+
+            // lazily create a pool root if not provided
+            if (!poolRoot)
+                poolRoot = GameObject.FindWithTag("PoolRoot")?.transform ?? new GameObject("Pools").transform;
+
+            // targeting closures bound to THIS host
+            System.Func<Transform> nearest = () => Targeting.NearestEnemy(fireOrigin, searchRadius, _enemyFilter);
+            System.Func<int, Transform> randK = (k) => Targeting.RandomK(k, fireOrigin, searchRadius, _enemyFilter);
+            System.Func<Transform> selfCent = () => Targeting.SelfCentered(fireOrigin);
+
+            _ctx = new WeaponContext
+            {
+                Team = team,
+                FireOrigin = fireOrigin,
+                Owner = owner,     // <-- host = drone transform (or player)
+                PoolRoot = poolRoot,
+                Nearest = nearest,
+                RandomInRange = randK,
+                SelfCentered = selfCent
+            };
+
+            // Equip any weapons already present as child components
+            var existingWeapons = GetComponentsInChildren<IWeapon>(includeInactive: false);
+            _weapons.Clear();
+            for (int i = 0; i < existingWeapons.Length && i < maxSlots; i++)
+            {
+                _weapons.Add(existingWeapons[i]);
+                existingWeapons[i].Equip(_ctx);
+            }
+
+            _initialized = true;
+        }
+
         private void Start()
         {
+            // Back-compat path: if not explicitly initialized (e.g., player-mounted use),
+            // do the old Start() setup using serialized fields.
+            if (_initialized) return;
+
             if (!poolRoot)
                 poolRoot = GameObject.FindWithTag("PoolRoot")?.transform ?? new GameObject("Pools").transform;
 
             System.Func<Transform> nearest = () => Targeting.NearestEnemy(fireOrigin, searchRadius, _enemyFilter);
             System.Func<int, Transform> randK = (k) => Targeting.RandomK(k, fireOrigin, searchRadius, _enemyFilter);
-            System.Func<Transform> selfCentered = () => Targeting.SelfCentered(fireOrigin);
+            System.Func<Transform> selfCent = () => Targeting.SelfCentered(fireOrigin);
 
             _ctx = new WeaponContext
             {
@@ -42,31 +90,29 @@ namespace Survivor.Weapon
                 PoolRoot = poolRoot,
                 Nearest = nearest,
                 RandomInRange = randK,
-                SelfCentered = selfCentered
+                SelfCentered = selfCent
             };
 
-            // Equip any weapons already present as child components
             var existingWeapons = GetComponentsInChildren<IWeapon>(includeInactive: false);
             for (int i = 0; i < existingWeapons.Length && i < maxSlots; i++)
             {
                 _weapons.Add(existingWeapons[i]);
                 existingWeapons[i].Equip(_ctx);
             }
+            _initialized = true;
         }
 
         private void FixedUpdate()
         {
+            if (!_initialized) return;
+            float dt = Time.fixedDeltaTime;
             for (int i = 0; i < _weapons.Count; i++)
-                _weapons[i].Tick(Time.fixedDeltaTime);
+                _weapons[i].Tick(dt);
         }
 
-        /// <summary>
-        /// Checks if a weapon of the specified type is already equipped.
-        /// </summary>
         public bool HasWeapon(WeaponDef def)
         {
             if (!def) return false;
-
             for (int i = 0; i < _weapons.Count; i++)
             {
                 if (_weapons[i] is IUpgradeableWeapon upgradeable && upgradeable.Owns(def))
@@ -75,15 +121,10 @@ namespace Survivor.Weapon
             return false;
         }
 
-        /// <summary>
-        /// Attempts to equip a new weapon from a definition.
-        /// Returns true if successful, false if no slots available.
-        /// </summary>
         public bool TryEquip(WeaponDef def)
         {
             if (!HasEmptySlot || !def) return false;
 
-            // Create weapon instance as child GameObject
             GameObject weaponGO = new GameObject($"Weapon_{def.Id}");
             weaponGO.transform.SetParent(transform);
             weaponGO.transform.localPosition = Vector3.zero;
@@ -96,17 +137,13 @@ namespace Survivor.Weapon
             }
 
             _weapons.Add(weapon);
-            weapon.Equip(_ctx);
+            weapon.Equip(_ctx); // <-- uses injected context
             return true;
         }
 
-        /// <summary>
-        /// Applies stat modifiers to a specific weapon (for leveling up individual weapons).
-        /// </summary>
         public bool ApplyUpgrade(WeaponDef def, WeaponStats delta)
         {
             if (!def || delta == null) return false;
-
             for (int i = 0; i < _weapons.Count; i++)
             {
                 if (_weapons[i] is IUpgradeableWeapon upgradeable && upgradeable.Owns(def))
@@ -118,13 +155,9 @@ namespace Survivor.Weapon
             return false;
         }
 
-        /// <summary>
-        /// Gets the current stats for a specific weapon.
-        /// </summary>
         public WeaponStats GetWeaponStats(WeaponDef def)
         {
             if (!def) return null;
-
             for (int i = 0; i < _weapons.Count; i++)
             {
                 if (_weapons[i] is IUpgradeableWeapon upgradeable && upgradeable.Owns(def))
@@ -153,6 +186,4 @@ namespace Survivor.Weapon
             return weapon;
         }
     }
-
-
 }

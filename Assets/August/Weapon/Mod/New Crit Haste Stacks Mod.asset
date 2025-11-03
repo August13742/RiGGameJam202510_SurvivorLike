@@ -16,6 +16,6 @@ MonoBehaviour:
   Title: crit_haste
   Description: 
   Icon: {fileID: 0}
-  AttackSpeedPerStack: 0.5
+  AttackSpeedPerStack: 1
   MaxStacks: 12
   Duration: 6

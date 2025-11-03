@@ -11,6 +11,8 @@ namespace Survivor.Control
         [SerializeField] Vector2 velocity;
         [SerializeField] Vector2 inputDirection;
         public Vector2 InputDirection => inputDirection;
+        public Vector2 CurrentVelocity => velocity;
+
         private Rigidbody2D rb;
         private KinematicMotor2D motor;
 
@@ -45,7 +47,7 @@ namespace Survivor.Control
             inputDirection = Vector2.zero;
         }
 
-
+        
         private void FixedUpdate()
         {
             Vector2 targetVelocity = inputDirection.sqrMagnitude > 0f
