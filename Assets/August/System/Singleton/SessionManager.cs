@@ -27,6 +27,13 @@ namespace Survivor.Game
             Instance = this;
             DontDestroyOnLoad(this);
         }
+        private void Start()
+        {
+            // Trigger the first level up immediately for the initial weapon unlock.
+            // A small delay ensures other scripts have time to run their Awake() and OnEnable().
+            Invoke(nameof(TriggerLevelUp), 0.1f);
+        }
+
         public GameObject GetPlayerReference()
         {
             if(Player == null)
@@ -65,10 +72,11 @@ namespace Survivor.Game
 
             }
         }
-        private void TriggerLevelUp()
+        public void TriggerLevelUp()
         {
             PlayerLevel += 1;
             currentExpReq += ExpGrowthPerLevel;
+            Debug.Log($"<color=orange>LEVEL UP! Now Level {PlayerLevel}.</color>");
             LevelUp?.Invoke();
         }
     }

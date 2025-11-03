@@ -24,7 +24,7 @@ namespace Survivor.Progression
 
         [Header("Weights")]
         public float BaseWeight = 1f;
-        public WeightRule[] Rules;
+        public Rule.WeightRule[] Rules;
 
         public virtual bool IsAvailable(ProgressionContext ctx) => !ctx.History.IsCapped(Id);
         public float ComputeWeight(ProgressionContext ctx)

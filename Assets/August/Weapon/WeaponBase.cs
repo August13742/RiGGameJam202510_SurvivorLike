@@ -23,6 +23,7 @@ namespace Survivor.Weapon {
         public virtual void Equip(WeaponContext context)
         {
             ctx = context;
+            fireOrigin = context.FireOrigin;
             cooldown = 0f;
 
             // Initialize weapon stats from def

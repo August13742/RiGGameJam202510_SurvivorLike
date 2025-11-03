@@ -11,7 +11,8 @@ public sealed class WeaponLevelUpgradeDef : UpgradeDef
 
     public override bool IsAvailable(ProgressionContext ctx)
     {
-        if (!ctx.WeaponController || !ctx.WeaponController.HasWeapon(WeaponDef)) return false;
+        if (!ctx.DroneManager || !ctx.DroneManager.OwnsWeapon(WeaponDef)) return false;
+
         int n = ctx.History.Count(Id);
         return !ctx.History.IsCapped(Id) && n < MaxLevel;
     }
@@ -19,10 +20,15 @@ public sealed class WeaponLevelUpgradeDef : UpgradeDef
     public override ChangeSet Apply(ProgressionContext ctx)
     {
         var cs = new ChangeSet();
-        if (ctx.WeaponController && WeaponDef)
+        if (ctx.DroneManager && WeaponDef)
         {
-            ctx.WeaponController.ApplyUpgrade(WeaponDef, Delta);
-            cs.Add($"{WeaponDef.name}: +level modifiers");
+            WeaponController targetController = ctx.DroneManager.GetControllerForWeapon(WeaponDef);
+            if (targetController != null)
+            {
+                targetController.ApplyUpgrade(WeaponDef, Delta);
+                cs.Add($"{WeaponDef.name}: +level modifiers");
+            }
+            
         }
         int after = ctx.History.Count(Id) + 1;
         if (after >= MaxLevel) ctx.History.MarkCapped(Id);

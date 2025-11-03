@@ -95,7 +95,7 @@ namespace Survivor.Weapon
             _duration = Mathf.Max(0.01f, duration);
 
             _desiredDamageTicks = Mathf.Max(1, desiredTicks);
-            _tickInterval = _duration / _desiredDamageTicks;
+            _tickInterval = tickInterval;
 
             _damagePerTick = Mathf.Max(0, damagePerTick);
             _alphaCurve = alphaOverLife ?? AnimationCurve.Linear(0, 1, 1, 1);
