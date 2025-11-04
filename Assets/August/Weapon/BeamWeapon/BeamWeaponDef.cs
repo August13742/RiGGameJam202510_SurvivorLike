@@ -16,7 +16,7 @@ namespace Survivor.Weapon
 
         [Header("Visuals")]
         public Material BeamMaterial;           // tileable texture, unlit/emissive
-        [Min(0f)] public float UVScrollRate = 6f; // units/sec along beam
+        public float UVScrollRate = 6f; // units/sec along beam
         public AnimationCurve AlphaOverLife = AnimationCurve.EaseInOut(0, 1, 1, 0);
 
         public float SpreadDeg = 5f;

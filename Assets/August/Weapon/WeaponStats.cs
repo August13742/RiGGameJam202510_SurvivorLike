@@ -1,5 +1,6 @@
 namespace Survivor.Weapon
 {
+    [System.Serializable]
     public sealed class WeaponStats
     {
         public float CooldownMul = 1f;   // e.g., 0.85 after upgrades

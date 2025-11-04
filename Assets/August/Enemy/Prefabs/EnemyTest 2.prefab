@@ -197,9 +197,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.System.HealthComponent
   maxHP: 100
   current: 0
-  resetToFullOnEnable: 0
   triggerHitstopOnDamaged: 1
-  hitstopDurationSec: 0.1
+  hitstopDurationSec: 0.05
   useIframe: 0
   iframeDuration: 0.05
 --- !u!114 &2650506820563219090
