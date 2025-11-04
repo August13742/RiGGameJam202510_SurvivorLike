@@ -8,11 +8,11 @@ namespace Survivor.Game
     {
         [SerializeField, Min(1)] private float maxHP = 100f;
         [SerializeField] private float current;
-        [SerializeField] private bool resetToFullOnEnable = true;
+        //[SerializeField] private bool resetToFullOnEnable = true;
         [SerializeField] private bool triggerHitstopOnDamaged = true;
-        [SerializeField] private float hitstopDurationSec = 0.15f;
+        [SerializeField,Min(0.01f)] private float hitstopDurationSec = 0.15f;
         [SerializeField] private bool useIframe = false;
-        [SerializeField] private float iframeDuration = 0.05f;
+        [SerializeField, Min(0.01f)] private float iframeDuration = 0.05f;
         public float Max => maxHP;
         public float Current => current;
         public bool IsDead => current <= 0;
@@ -26,16 +26,11 @@ namespace Survivor.Game
         private void Awake()
         {
             current = Mathf.Max(1, maxHP); // authoring-safe
+            ResetFull();
         }
 
-        private void OnEnable()
-        {
-            if (resetToFullOnEnable)
-                SetCurrent(maxHP, raiseEvent: true); // one path, one invoke
-        }
 
-        // POLICY: emulate auto-disconnect (listeners must rewire on enable / player swap)
-        private void OnDisable()
+        public void DisconnectAllSignals()
         {
             HealthChanged = null;
             Died = null;

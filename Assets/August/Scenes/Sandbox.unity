@@ -31460,6 +31460,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.SessionManager
   ExpGrowthPerLevel: 5
+  enemyDowned: 0
+  damageDealt: 0
+  healCount: 0
+  damageTaken: 0
+  goldCollected: 0
+  experienceCollected: 0
 --- !u!4 &1328501868
 Transform:
   m_ObjectHideFlags: 0
@@ -32001,6 +32007,10 @@ PrefabInstance:
     - target: {fileID: 2560214199077104943, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       propertyPath: hitstopDurationSec
       value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2560214199077104943, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      propertyPath: resetToFullOnEnable
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3366415871892552821, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       propertyPath: forwardLerp
