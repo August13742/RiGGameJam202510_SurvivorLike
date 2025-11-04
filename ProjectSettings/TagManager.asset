@@ -10,6 +10,7 @@ TagManager:
   - PoolRoot
   - Loot
   - WorldBound
+  - HitstopImmune
   layers:
   - Default
   - TransparentFX

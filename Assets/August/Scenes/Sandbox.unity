@@ -31624,6 +31624,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1636565945
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1636565947}
+  - component: {fileID: 1636565946}
+  m_Layer: 0
+  m_Name: HitstopManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!114 &1636565946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1636565945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ffe4fdbe3fd75742a5769d556e861fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitstopManager
+  exemptTag: HitstopImmune
+--- !u!4 &1636565947
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1636565945}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &1651739401 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7268529566321461634, guid: 24aec0cd666cfc94e80cba8ba3e59f00, type: 3}
@@ -31945,6 +31990,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 714303197}
     m_Modifications:
+    - target: {fileID: 2560214199077104943, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      propertyPath: useIframe
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2560214199077104943, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      propertyPath: iframeDuration
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 2560214199077104943, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      propertyPath: hitstopDurationSec
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 3366415871892552821, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       propertyPath: forwardLerp
       value: 0.25
@@ -32021,3 +32078,4 @@ SceneRoots:
   - {fileID: 1823177355}
   - {fileID: 1569298593}
   - {fileID: 1328501868}
+  - {fileID: 1636565947}

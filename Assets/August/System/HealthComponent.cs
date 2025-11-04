@@ -9,7 +9,10 @@ namespace Survivor.Game
         [SerializeField, Min(1)] private float maxHP = 100f;
         [SerializeField] private float current;
         [SerializeField] private bool resetToFullOnEnable = true;
-
+        [SerializeField] private bool triggerHitstopOnDamaged = true;
+        [SerializeField] private float hitstopDurationSec = 0.15f;
+        [SerializeField] private bool useIframe = false;
+        [SerializeField] private float iframeDuration = 0.05f;
         public float Max => maxHP;
         public float Current => current;
         public bool IsDead => current <= 0;
@@ -19,6 +22,7 @@ namespace Survivor.Game
         public Action Died;
         public Action<float, Vector3, bool> Damaged; //amount, worldPos, crit?
 
+        private float iframeTimer = 0f;
         private void Awake()
         {
             current = Mathf.Max(1, maxHP); // authoring-safe
@@ -37,6 +41,13 @@ namespace Survivor.Game
             Died = null;
             Damaged = null;
         }
+        private void Update()
+        {
+            if (!useIframe) return;
+            if (iframeTimer >= 0) iframeTimer -= Time.deltaTime;
+            iframeTimer = Mathf.Max(0f,iframeTimer);
+
+        }
 
         public void SetMaxHP(float hp, bool resetCurrent = true, bool raiseEvent = true)
         {
@@ -54,12 +65,17 @@ namespace Survivor.Game
         public void Damage(float amount, bool crit = false)
         {
             if (amount <= 0 || IsDead) return;
+            if (useIframe && (iframeTimer > 0)) return;
+
             float next = Mathf.Max(0, current - amount);
             if (next == current) return;
             Damaged?.Invoke(amount, transform.position, crit);
-
             SetCurrent(next, raiseEvent: true);
+
             if (next == 0) Died?.Invoke();
+
+            if (triggerHitstopOnDamaged && (HitstopManager.Instance != null)) HitstopManager.Instance.Request(hitstopDurationSec, gameObject);
+            if (useIframe) iframeTimer = iframeDuration;
         }
 
         public void Heal(float amount)
