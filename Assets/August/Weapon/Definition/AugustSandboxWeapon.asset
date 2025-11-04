@@ -20,7 +20,7 @@ MonoBehaviour:
   TargetingMode: 1
   AreaScale: 1
   Projectiles: 1
-  BaseCritChance: 0.5
+  BaseCritChance: 0.05
   BaseCritMultiplier: 1.5
   ProjectilePrefab: {fileID: 2056179235282298931, guid: d959ca6def84dbe41bc4669fcaa4f67a, type: 3}
   ProjectileSpeed: 8

@@ -31430,6 +31430,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1328501866
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1328501868}
+  - component: {fileID: 1328501867}
+  m_Layer: 0
+  m_Name: SessionManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!114 &1328501867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1328501866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc4fb011827f8964ea63251465909be4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.SessionManager
+  ExpGrowthPerLevel: 5
+--- !u!4 &1328501868
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1328501866}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1554075408
 GameObject:
   m_ObjectHideFlags: 0
@@ -31644,6 +31689,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68663c721d8e2874ba050f175645e281, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.EnemySpawner
+  Enabled: 1
   weightTable: {fileID: 11400000, guid: 9fcbfe7f5f67d514488937d112e7f3ac, type: 2}
   player: {fileID: 1087677166}
   ringRadiusMin: 12
@@ -31676,27 +31722,15 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1823177355}
-  - component: {fileID: 1823177354}
+  - component: {fileID: 1823177356}
+  - component: {fileID: 1823177357}
   m_Layer: 0
-  m_Name: SessionManager
+  m_Name: ProgressionManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
   m_IsActive: 1
---- !u!114 &1823177354
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1823177353}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc4fb011827f8964ea63251465909be4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.SessionManager
-  ExpGrowthPerLevel: 5
 --- !u!4 &1823177355
 Transform:
   m_ObjectHideFlags: 0
@@ -31712,6 +31746,39 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1823177356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1823177353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8bede06ea8ca454f84a8dfb0927ca8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.ProgressionManager
+  isDebugAutoPick: 0
+  cardsPerLevel: 3
+  UpgradePool:
+  - {fileID: 11400000, guid: b4f3e659e09d9ac4aae21d05fdfc0871, type: 2}
+  - {fileID: 11400000, guid: d3dd76f0fc736e944aedbccd1382acb2, type: 2}
+  - {fileID: 11400000, guid: b796cc7053f7bea4ea9f9e7fd0644473, type: 2}
+--- !u!114 &1823177357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1823177353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23b121bd9f053f84ca54db8f9b99ec9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.UI.ProgressionUIBridge
+  progression: {fileID: 1823177356}
+  menu: {fileID: 0}
+  menuPrefab: {fileID: 7220090452295562062, guid: eb6f7429076dfcb4aafe8992f5df2313, type: 3}
 --- !u!1 &1891806700
 GameObject:
   m_ObjectHideFlags: 0
@@ -31878,6 +31945,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 714303197}
     m_Modifications:
+    - target: {fileID: 3366415871892552821, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      propertyPath: forwardLerp
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3366415871892552821, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      propertyPath: sharedPoolRoot
+      value: 
+      objectReference: {fileID: 1738727418}
     - target: {fileID: 3863936289245180800, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -31945,3 +32020,4 @@ SceneRoots:
   - {fileID: 1554075412}
   - {fileID: 1823177355}
   - {fileID: 1569298593}
+  - {fileID: 1328501868}

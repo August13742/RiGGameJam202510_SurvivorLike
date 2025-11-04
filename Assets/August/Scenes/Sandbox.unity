@@ -31946,6 +31946,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 714303197}
     m_Modifications:
     - target: {fileID: 3366415871892552821, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      propertyPath: forwardLerp
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3366415871892552821, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       propertyPath: sharedPoolRoot
       value: 
       objectReference: {fileID: 1738727418}
