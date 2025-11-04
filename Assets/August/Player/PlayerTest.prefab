@@ -79,7 +79,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1560946809
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -4542404649790094876, guid: 5620f5e7dbe43da4f89e420358c0852a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -126,7 +126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19d6546ff2279c74894e77c0d2130a64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDownAnimDriver2D
-  controller: {fileID: 0}
+  controller: {fileID: 4578546165907560104}
   pMoveX: MoveX
   pMoveY: MoveY
   pSpeed: MoveSpeed
@@ -196,7 +196,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -225,11 +225,12 @@ GameObject:
   m_Component:
   - component: {fileID: 3863936289245180800}
   - component: {fileID: 8898621925854270114}
+  - component: {fileID: 3021951177167311224}
   - component: {fileID: 152034367600551103}
-  - component: {fileID: 4161025487633592718}
   - component: {fileID: 2560214199077104943}
   - component: {fileID: 4578546165907560104}
   - component: {fileID: 5806806840443530406}
+  - component: {fileID: 3366415871892552821}
   m_Layer: 6
   m_Name: PlayerTest
   m_TagString: Player
@@ -246,7 +247,7 @@ Transform:
   m_GameObject: {fileID: 5914224002963691110}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.6237397, y: -2.47984, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -282,6 +283,23 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &3021951177167311224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5914224002963691110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c1c57ef45c20b147890807740cd53e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KinematicMotor2D
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 6144
+  skin: 0.05
+  maxCasts: 2
 --- !u!70 &152034367600551103
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -312,25 +330,13 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.7, y: 1.4}
   m_Direction: 0
---- !u!114 &4161025487633592718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5914224002963691110}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f539a765e2d36734ea7e8ace78da2eff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.PlayerBodyTag
 --- !u!114 &2560214199077104943
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -381,6 +387,35 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   searchRadius: 12
+--- !u!114 &3366415871892552821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5914224002963691110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9255a9b815065e140a590dabffb06303, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DroneFormationManager
+  player: {fileID: 3863936289245180800}
+  playerController: {fileID: 0}
+  playerWeaponController: {fileID: 0}
+  dronePrefab: {fileID: 2105961958307006955, guid: 1c81bdeea35f66945839177223ebb9c9, type: 3}
+  maxDrones: 4
+  sharedPoolRoot: {fileID: 0}
+  enemyMask:
+    serializedVersion: 2
+    m_Bits: 256
+  searchRadius: 48
+  behindDistance: 0.5
+  forwardLerp: 0.75
+  arcHalfAngleDeg: 70
+  ellipseA: 1.2
+  ellipseB: 0.7
+  spacingScale: 1
+  reassignGain: 1.15
 --- !u!1 &6236897456521426334
 GameObject:
   m_ObjectHideFlags: 0
@@ -406,7 +441,7 @@ Transform:
   m_GameObject: {fileID: 6236897456521426334}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.45, y: -0.25, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -12,13 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ad1763d69af7345b516ff5e92cb4ec, type: 3}
   m_Name: BeamDebug
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.BeamWeaponDef
+  RuntimePrefab: {fileID: 5321779039240465208, guid: b64475fc4db138849b8891fbf66fca03, type: 3}
   Id: beam
   Icon: {fileID: -4542404649790094876, guid: 5620f5e7dbe43da4f89e420358c0852a, type: 3}
   BaseDamage: 25
   BaseCooldown: 3
   TargetingMode: 2
   AreaScale: 1
-  Projectiles: 5
+  Projectiles: 1
+  BaseCritChance: 0.05
+  BaseCritMultiplier: 1.5
   BeamPrefab: {fileID: 4645090832089952007, guid: a1a7f1ec0d959dc4f93eafbd1e6a1db5, type: 3}
   BeamLength: 10
   BeamWidth: 0.5

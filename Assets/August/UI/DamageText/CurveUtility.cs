@@ -41,4 +41,23 @@ public static class CurveUtility
         float t = 1f - x;
         return 1f - t * t * t;
     }
+    public static float EaseInOutCirc(float x)
+    {
+        return x < 0.5f
+          ? (1 - Mathf.Sqrt(1 - Mathf.Pow(2 * x, 2))) / 2
+          : (Mathf.Sqrt(1 - Mathf.Pow(-2 * x + 2, 2)) + 1) / 2;
+    }
+    public static float EaseInOutBack(float x)
+    {
+        const float c1 = 1.70158f;
+        const float c2 = c1 * 1.525f;
+
+        return x < 0.5
+          ? (Mathf.Pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
+          : (Mathf.Pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2;
+    }
+    public static float EaseInOutQuint(float x) {
+
+        return x< 0.5 ? 16 * x* x* x* x* x : 1 - Mathf.Pow(-2 * x + 2, 5) / 2;
+    }
 }

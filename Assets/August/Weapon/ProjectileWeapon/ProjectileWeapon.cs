@@ -10,12 +10,13 @@ namespace Survivor.Weapon
         public override void Equip(WeaponContext context)
         {
             base.Equip(context); // sets ctx, cooldown, _getTarget
-            _projPool = new ObjectPool(def.ProjectilePrefab, prewarm: 16, context.PoolRoot);
+            _projPool = new ObjectPool(def.ProjectilePrefab, prewarm: 32, context.PoolRoot);
         }
 
         public override void Tick(float dt)
         {
-            if (!Ready(dt)) return;
+            if (!BeginTickAndGate(dt)) return;
+
             Transform t = _getTarget?.Invoke();
             if (!t) return;
 
@@ -24,29 +25,29 @@ namespace Survivor.Weapon
             float spread = def.SpreadDeg * Mathf.Deg2Rad;
             float start = -spread * (count - 1) * 0.5f;
 
+            // Base damage roll is *not* crit yet; crit is per-hit inside Projectile.
+            int baseDamage = ScaledDamage();
+
             for (int i = 0; i < count; i++)
             {
                 float ang = start + spread * i;
                 float ca = Mathf.Cos(ang), sa = Mathf.Sin(ang);
-                Vector2 dir = new Vector2(baseDir.x * ca - baseDir.y * sa,
-                                          baseDir.x * sa + baseDir.y * ca);
+                Vector2 dir = new(baseDir.x * ca - baseDir.y * sa, baseDir.x * sa + baseDir.y * ca);
 
                 GameObject go = _projPool.Rent(fireOrigin.position, Quaternion.identity);
-
-                // Layer per team (matrix does the filtering)
-                go.layer = (ctx.Team == Team.Player)
-                    ? LayerMask.NameToLayer("PlayerProjectile")
-                    : LayerMask.NameToLayer("EnemyProjectile");
+                go.layer = (ctx.Team == Team.Player) ? LayerMask.NameToLayer("PlayerProjectile") : LayerMask.NameToLayer("EnemyProjectile");
 
                 var p = go.GetComponent<Projectile>();
                 p.SetPool(_projPool);
+                p.SetHitSink(this);
 
+                int pierceFinal = def.Pierce + Pierce();
+                float speedFinal = def.ProjectileSpeed * Speed();
 
-                int dmg = ScaledDamage();
-                int pierce = def.Pierce + (ctx?.Stats?.PierceAdd ?? 0);
-                float speed = def.ProjectileSpeed * (ctx?.Stats?.SpeedMul ?? 1f);
+                // Let projectile do per-hit crits with current effective chance/mul.
+                p.ConfigureCrit(GetEffectiveCritChance(), GetEffectiveCritMultiplier(), perHit: true);
 
-                p.Fire(fireOrigin.position, dir, speed, dmg, pierce, def.Lifetime);
+                p.Fire(fireOrigin.position, dir, speedFinal, baseDamage, pierceFinal, def.Lifetime);
             }
         }
     }

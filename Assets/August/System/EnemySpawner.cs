@@ -6,6 +6,7 @@ namespace Survivor.Game
 {
     public sealed class EnemySpawner : MonoBehaviour
     {
+        public bool Enabled = true;
         [Header("Sources")]
         [SerializeField] private EnemyWeightTable weightTable;
         [SerializeField] private Transform player;
@@ -35,6 +36,7 @@ namespace Survivor.Game
 
         private void Update()
         {
+            if (!Enabled) return;
             if (!player || !weightTable) return;
 
             _spawnAcc += spawnsPerSecond * Time.deltaTime;

@@ -9,6 +9,8 @@ TagManager:
   - EnemyProjectile
   - PoolRoot
   - Loot
+  - WorldBound
+  - HitstopImmune
   layers:
   - Default
   - TransparentFX
@@ -21,8 +23,8 @@ TagManager:
   - Enemy
   - EnemyProjectile
   - Loot
-  - 
-  - 
+  - WorldProps
+  - WorldBound
   - 
   - 
   - 

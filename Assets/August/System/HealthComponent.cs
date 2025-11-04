@@ -6,39 +6,45 @@ namespace Survivor.Game
     [DisallowMultipleComponent]
     public sealed class HealthComponent : MonoBehaviour
     {
-        [SerializeField, Min(1)] private int maxHP = 100;
-        [SerializeField] private int current;
-        [SerializeField] private bool resetToFullOnEnable = true;
-
-        public int Max => maxHP;
-        public int Current => current;
+        [SerializeField, Min(1)] private float maxHP = 100f;
+        [SerializeField] private float current;
+        //[SerializeField] private bool resetToFullOnEnable = true;
+        [SerializeField] private bool triggerHitstopOnDamaged = true;
+        [SerializeField,Min(0.01f)] private float hitstopDurationSec = 0.15f;
+        [SerializeField] private bool useIframe = false;
+        [SerializeField, Min(0.01f)] private float iframeDuration = 0.05f;
+        public float Max => maxHP;
+        public float Current => current;
         public bool IsDead => current <= 0;
 
 
-        public Action<int, int> HealthChanged;
+        public Action<float, float> HealthChanged;
         public Action Died;
-        public Action<int, Vector3, bool> Damaged; //amount, worldPos, crit?
+        public Action<float, Vector3, bool> Damaged; //amount, worldPos, crit?
 
+        private float iframeTimer = 0f;
         private void Awake()
         {
             current = Mathf.Max(1, maxHP); // authoring-safe
+            ResetFull();
         }
 
-        private void OnEnable()
-        {
-            if (resetToFullOnEnable)
-                SetCurrent(maxHP, raiseEvent: true); // one path, one invoke
-        }
 
-        // POLICY: emulate auto-disconnect (listeners must rewire on enable / player swap)
-        private void OnDisable()
+        public void DisconnectAllSignals()
         {
             HealthChanged = null;
             Died = null;
             Damaged = null;
         }
+        private void Update()
+        {
+            if (!useIframe) return;
+            if (iframeTimer >= 0) iframeTimer -= Time.deltaTime;
+            iframeTimer = Mathf.Max(0f,iframeTimer);
 
-        public void SetMaxHP(int hp, bool resetCurrent = true, bool raiseEvent = true)
+        }
+
+        public void SetMaxHP(float hp, bool resetCurrent = true, bool raiseEvent = true)
         {
             maxHP = Mathf.Max(1, hp);
             if (resetCurrent)
@@ -51,21 +57,26 @@ namespace Survivor.Game
 
         public float GetCurrentPercent() => maxHP <= 0 ? 0f : Mathf.Clamp01((float)current / maxHP);
 
-        public void Damage(int amount)
+        public void Damage(float amount, bool crit = false)
         {
             if (amount <= 0 || IsDead) return;
-            int next = Mathf.Max(0, current - amount);
-            if (next == current) return;
-            Damaged?.Invoke(amount, transform.position, false);
+            if (useIframe && (iframeTimer > 0)) return;
 
+            float next = Mathf.Max(0, current - amount);
+            if (next == current) return;
+            Damaged?.Invoke(amount, transform.position, crit);
             SetCurrent(next, raiseEvent: true);
+
             if (next == 0) Died?.Invoke();
+
+            if (triggerHitstopOnDamaged && (HitstopManager.Instance != null)) HitstopManager.Instance.Request(hitstopDurationSec, gameObject);
+            if (useIframe) iframeTimer = iframeDuration;
         }
 
-        public void Heal(int amount)
+        public void Heal(float amount)
         {
             if (amount <= 0 || IsDead) return;
-            int next = Mathf.Min(maxHP, current + amount);
+            float next = Mathf.Min(maxHP, current + amount);
             if (next != current) SetCurrent(next, raiseEvent: true);
         }
 
@@ -76,11 +87,11 @@ namespace Survivor.Game
             Died?.Invoke();
         }
 
-        private void SetCurrent(int value, bool raiseEvent)
+        private void SetCurrent(float value, bool raiseEvent)
         {
             value = Mathf.Clamp(value, 0, maxHP);
             if (value == current) return;
-            int previous = current;
+            float previous = current;
             current = value;
             if (raiseEvent) HealthChanged?.Invoke(current, previous);
         }

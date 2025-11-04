@@ -82,7 +82,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1560946809
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
   m_Color: {r: 0.8382749, g: 0.23837733, b: 0.23837733, a: 1}
@@ -197,7 +197,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.System.HealthComponent
   maxHP: 100
   current: 0
-  resetToFullOnEnable: 1
+  resetToFullOnEnable: 0
+  triggerHitstopOnDamaged: 1
+  hitstopDurationSec: 0.1
+  useIframe: 0
+  iframeDuration: 0.05
 --- !u!114 &2650506820563219090
 MonoBehaviour:
   m_ObjectHideFlags: 0

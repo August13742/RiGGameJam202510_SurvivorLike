@@ -13,13 +13,13 @@ namespace Survivor.Weapon
         {
             base.Equip(context);
             _beamPool = new ObjectPool(def.BeamPrefab, prewarm: 8, context.PoolRoot);
+
         }
 
         public override void Tick(float dt)
         {
-            if (!Ready(dt)) return;
+            if (!BeginTickAndGate(dt)) return;
 
-            // Get aim(s)
             var aims = GatherAimDirections();
             if (aims.Count == 0) return;
 
@@ -109,29 +109,35 @@ namespace Survivor.Weapon
 
             go.layer = (ctx.Team == Team.Player)
                 ? LayerMask.NameToLayer("PlayerProjectile")
-                : LayerMask.NameToLayer("EnemyProjectile"); 
+                : LayerMask.NameToLayer("EnemyProjectile");
 
-            // Treat TicksPerSecond in the def as TOTAL TICKS over the beam's lifetime.
+            beam.SetHitSink(this);
+            beam.ConfigureCrit(GetEffectiveCritChance(), GetEffectiveCritMultiplier(), perTick: true);
+
+            var targetMask = (ctx.Team == Team.Player) ? LayerMask.GetMask("Enemy") : LayerMask.GetMask("Player");
+            beam.SetTargetMask(targetMask);
+
             int totalTicks = Mathf.Max(1, def.TicksPerSecond);
-
-            // Distribute base damage across the beam lifetime (not per-second).
-            float dmgMul = ctx?.Stats?.DamageMul ?? 1f;
-            int dpt = Mathf.Max(1, Mathf.RoundToInt((def.BaseDamage * dmgMul) / totalTicks));
+            int damage = ScaledDamage();
+            float area = ScaledArea();
+            int dpt = Mathf.Max(1, Mathf.RoundToInt(damage / totalTicks));
 
             beam.Configure(
                 origin: fireOrigin,
                 dir: dir,
-                length: def.BeamLength * def.AreaScale,
-                width: def.BeamWidth * def.AreaScale,
+                length: def.BeamLength * area,
+                width: def.BeamWidth * area,
                 duration: def.Duration,
                 desiredTicks: totalTicks,
                 tickInterval: def.Duration / totalTicks,
                 damagePerTick: dpt,
                 sourceMat: def.BeamMaterial,
-                uvScrollRate: def.UVScrollRate, 
+                uvScrollRate: def.UVScrollRate,
                 alphaOverLife: def.AlphaOverLife,
                 followOrigin: def.FollowOrigion
             );
         }
+
     }
 }
+
