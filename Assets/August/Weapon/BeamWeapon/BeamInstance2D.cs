@@ -85,8 +85,7 @@ namespace Survivor.Weapon
             Transform origin, Vector2 dir, float length, float width,
             float duration, int desiredTicks, float tickInterval, int damagePerTick,
             Material sourceMat, float uvScrollRate, AnimationCurve alphaOverLife,
-            bool followOrigin = true,
-            Collider2D ownerToIgnore = null)
+            bool followOrigin = true)
         {
             _origin = origin;
             _dir = dir.sqrMagnitude > 0 ? dir.normalized : Vector2.right;

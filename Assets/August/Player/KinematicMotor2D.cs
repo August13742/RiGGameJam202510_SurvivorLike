@@ -49,7 +49,7 @@ public sealed class KinematicMotor2D : MonoBehaviour
 
             for (int i = 0; i < count; i++)
             {
-                // subtract skin so we donft touch-run into continuous correction
+                // subtract skin so we donï¿½ft touch-run into continuous correction
                 float permit = Mathf.Max(0f, hits[i].distance - skin);
                 if (permit < allowed)
                 {
