@@ -1,77 +1,65 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Survivor.Progression
 {
     public sealed class OfferBuilder
     {
-        public UpgradeDef[] LastDefs { get; private set; } = System.Array.Empty<UpgradeDef>();
+        // Store the last offered defs so Pick() can find them.
+        public UpgradeDef[] LastDefs { get; private set; }
 
-        public UpgradeCardVM[] BuildOffer(ProgressionContext ctx, UpgradeDef[] pool, int n)
+        private readonly List<UpgradeDef> _choices = new ();
+
+        public UpgradeCardVM[] BuildOffer(ProgressionContext ctx, UpgradeDef[] pool, int count)
         {
-            var candidates = new List<(UpgradeDef def, float w)>(pool.Length);
+            _choices.Clear();
+
+            float totalWeight = 0f;
+            var weightedPool = new List<(UpgradeDef def, float weight)>();
+
+            // 1. Calculate weights for all available upgrades in the pool
             foreach (var def in pool)
             {
-                if (!def) continue;
-                float w = def.ComputeWeight(ctx);
-                if (w > 0f) candidates.Add((def, w));
-            }
-
-            // If everything finite is exhausted, auto-include infinite PlayerStat options.
-            if (candidates.Count == 0)
-            {
-                foreach (var def in pool)
-                    if (def && def.IsInfinite) candidates.Add((def, Mathf.Max(0.01f, def.BaseWeight)));
-            }
-
-            var picks = WeightedSampleWithoutReplacement(candidates, n);
-            LastDefs = picks.ToArray();
-
-            var outCards = new UpgradeCardVM[picks.Count];
-            for (int i = 0; i < picks.Count; i++)
-                outCards[i] = ToVM(ctx, picks[i]);
-            return outCards;
-        }
-
-        private static List<UpgradeDef> WeightedSampleWithoutReplacement(List<(UpgradeDef def, float w)> src, int count)
-        {
-            var list = new List<(UpgradeDef def, float w)>(src);
-            var rng = Random.value;
-            var picks = new List<UpgradeDef>(count);
-
-            for (int k = 0; k < count && list.Count > 0; k++)
-            {
-                float total = 0f; foreach (var t in list) total += t.w;
-                float pick = Random.Range(0f, total);
-                float acc = 0f;
-                int idx = 0;
-                for (; idx < list.Count; idx++)
+                float weight = def.ComputeWeight(ctx);
+                if (weight > 0)
                 {
-                    acc += list[idx].w;
-                    if (acc >= pick) break;
+                    weightedPool.Add((def, weight));
+                    totalWeight += weight;
                 }
-                picks.Add(list[idx].def);
-                list.RemoveAt(idx);
             }
-            return picks;
-        }
 
-        private static UpgradeCardVM ToVM(ProgressionContext ctx, UpgradeDef def)
-        {
-            // Dry-run Apply() is expensive/mutative; instead, each def’s Description should already summarize.
-            // You can add an optional Preview() API if you want exact numbers.
-            return new UpgradeCardVM
+            // 2. Perform weighted random selection without replacement
+            for (int i = 0; i < count && weightedPool.Count > 0; i++)
+            {
+                float pick = Random.Range(0, totalWeight);
+                float current = 0f;
+                for (int j = 0; j < weightedPool.Count; j++)
+                {
+                    current += weightedPool[j].weight;
+                    if (current >= pick)
+                    {
+                        var selected = weightedPool[j];
+                        _choices.Add(selected.def);
+                        totalWeight -= selected.weight;
+                        weightedPool.RemoveAt(j);
+                        break;
+                    }
+                }
+            }
+
+            LastDefs = _choices.ToArray();
+
+            // 3. Convert the chosen UpgradeDefs into ViewModels for the (future) UI
+            return LastDefs.Select(def => new UpgradeCardVM
             {
                 Id = def.Id,
                 Title = def.Title,
-                Subtitle = def.Kind.ToString(),
                 Description = def.Description,
                 Icon = def.Icon,
                 Rarity = def.Rarity,
-                PreviewLines = System.Array.Empty<string>(),
-                IsDisabled = !def.IsAvailable(ctx),
-                DisabledReason = !def.IsAvailable(ctx) ? "Unavailable" : null
-            };
+                PreviewLines = def.GetPreviewLines(ctx)
+            }).ToArray();
         }
     }
 }

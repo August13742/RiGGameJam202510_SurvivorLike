@@ -8,14 +8,14 @@ namespace Survivor.Progression
     {
         public readonly SessionManager Session;
         public readonly GameObject PlayerGO;
-        public readonly WeaponController WeaponController;
+        public readonly DroneManager DroneManager;
         public readonly SelectionHistory History;
 
-        public ProgressionContext(SessionManager s, GameObject p, WeaponController wc, SelectionHistory h)
+        public ProgressionContext(SessionManager s, GameObject p, DroneManager dm, SelectionHistory h)
         {
-            Session = s; PlayerGO = p; WeaponController = wc; History = h;
+            Session = s; PlayerGO = p; DroneManager = dm; History = h;
         }
-        public bool HasEmptyWeaponSlot => WeaponController != null && WeaponController.HasEmptySlot;
+        public bool HasEmptyWeaponSlot => DroneManager != null && DroneManager.HasEmptyWeaponSlot();
         public int PlayerLevel => Session?.PlayerLevel ?? 0;
     }
 }

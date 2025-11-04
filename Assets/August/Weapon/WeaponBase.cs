@@ -23,6 +23,7 @@ namespace Survivor.Weapon {
         public virtual void Equip(WeaponContext context)
         {
             ctx = context;
+            fireOrigin = context.FireOrigin;
             cooldown = 0f;
 
             // Initialize weapon stats from def
@@ -98,10 +99,10 @@ namespace Survivor.Weapon {
             if (mods == null) return;
             for (int i = 0; i < mods.Length; i++)
             {
-                var m = mods[i];
-                if (!m) continue;
-                m.OnHit(this, damage, pos, crit);
-                if (crit) m.OnCrit(this, pos);
+                var mod = mods[i];
+                if (!mod) continue;
+                mod.OnHit(this, damage, pos, crit);
+                if (crit) mod.OnCrit(this, pos);
             }
         }
 

@@ -11,13 +11,17 @@ namespace Survivor.Control
         [SerializeField] Vector2 velocity;
         [SerializeField] Vector2 inputDirection;
         public Vector2 InputDirection => inputDirection;
+        public Vector2 CurrentVelocity => velocity;
+
         private Rigidbody2D rb;
+        private KinematicMotor2D motor;
 
         private void Awake()
         {
             input = new();
             rb = GetComponent<Rigidbody2D>();
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+            motor = GetComponent<KinematicMotor2D>();
         }
         private void OnEnable()
         {
@@ -43,7 +47,7 @@ namespace Survivor.Control
             inputDirection = Vector2.zero;
         }
 
-
+        
         private void FixedUpdate()
         {
             Vector2 targetVelocity = inputDirection.sqrMagnitude > 0f
@@ -54,8 +58,9 @@ namespace Survivor.Control
 
             velocity = Vector2.MoveTowards(velocity, targetVelocity, dv);
 
+            motor.Move(velocity * Time.fixedDeltaTime);
             //transform.position += (Vector3)(velocity * Time.fixedDeltaTime);
-            rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
+            //rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
         }
     }
 }
