@@ -214,4 +214,4 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   BulletPrefab: {fileID: 5289430583379552253, guid: 047d12e4408afbf489a2ff09e3cefddc, type: 3}
-  _def: {fileID: 11400000, guid: 6c884ee5906be3a40a3657d194e20770, type: 2}
+  def: {fileID: 11400000, guid: 6c884ee5906be3a40a3657d194e20770, type: 2}

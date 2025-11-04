@@ -1,4 +1,3 @@
-using Survivor.Game;
 using Survivor.Weapon;
 using UnityEngine;
 namespace Survivor.Enemy
@@ -7,13 +6,12 @@ namespace Survivor.Enemy
     public class BulletEnemy : EnemyBase
     {
         [SerializeField] private GameObject BulletPrefab;
-        [SerializeField] private new ShooterEnemyDef _def;
+        [SerializeField] private ShooterEnemyDef def;
         private float _shootTimer = 0f;
 
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
-            _target = SessionManager.Instance.GetPlayerReference().transform;
+            _target = Game.SessionManager.Instance.GetPlayerReference().transform;
             _shootTimer = 0;
         }
 
@@ -22,15 +20,15 @@ namespace Survivor.Enemy
             if (!_target || IsDead) return;
 
             Move(out bool CanShoot,
-                preferredDistance:_def.PreferredDistance, 
-                unsafeDistance:_def.UnsafeDistance);
+                preferredDistance: def.PreferredDistance, 
+                unsafeDistance:def.UnsafeDistance);
 
             _shootTimer -= Time.fixedDeltaTime;
 
             if(_shootTimer <= 0f && CanShoot)
             {
                 ShootPlayer();
-                _shootTimer = _def.ShootIntervalSec;
+                _shootTimer = def.ShootIntervalSec;
 
             }
         }
@@ -44,7 +42,7 @@ namespace Survivor.Enemy
             go.layer = LayerMask.NameToLayer("EnemyProjectile");
 
             var projectile = go.GetComponent<EnemyProjectile>();
-            projectile.Fire(transform.position, dir, _def.ProjectileSpeed, _def.ProjectileDamage, _def.ProjectileLifeTimeSec);
+            projectile.Fire(transform.position, dir, def.ProjectileSpeed, def.ProjectileDamage, def.ProjectileLifeTimeSec);
 
         }
     }
