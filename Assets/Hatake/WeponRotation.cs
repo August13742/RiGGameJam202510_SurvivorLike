@@ -2,7 +2,7 @@ using UnityEngine;
 using DG.Tweening;
 using Survivor.Game;
 
-public class WeponRotation : MonoBehaviour
+public class WeaponRotation : MonoBehaviour
 {
     private Transform playerTransform;
 
@@ -12,13 +12,13 @@ public class WeponRotation : MonoBehaviour
 
     private Tween rotationTween;
 
-    private Collider2D RotationWeponCollider;
-    private Renderer RotationWeponRenderer;
+    private Collider2D RotationWeaponCollider;
+    private Renderer RotationWeaponRenderer;
 
     void Start()
     {
-        RotationWeponCollider = GetComponent<Collider2D>();
-        RotationWeponRenderer = GetComponent<Renderer>();
+        RotationWeaponCollider = GetComponent<Collider2D>();
+        RotationWeaponRenderer = GetComponent<Renderer>();
 
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null)
@@ -30,13 +30,13 @@ public class WeponRotation : MonoBehaviour
 
     void StartRotation()
     {
-        if (RotationWeponCollider != null)
+        if (RotationWeaponCollider != null)
         {
-            RotationWeponCollider.enabled = true;
+            RotationWeaponCollider.enabled = true;
         }
-        if (RotationWeponRenderer != null)
+        if (RotationWeaponRenderer != null)
         {
-            RotationWeponRenderer.enabled = true;
+            RotationWeaponRenderer.enabled = true;
         }
 
         rotationTween = DOVirtual.Float(360f, 0f, rotationTime, (angle) =>
@@ -66,13 +66,13 @@ public class WeponRotation : MonoBehaviour
 
     private void RotationStop()
     {
-        if (RotationWeponCollider != null)
+        if (RotationWeaponCollider != null)
         {
-            RotationWeponCollider.enabled = false;
+            RotationWeaponCollider.enabled = false;
         }
-        if (RotationWeponRenderer != null)
+        if (RotationWeaponRenderer != null)
         {
-            RotationWeponRenderer.enabled = false;
+            RotationWeaponRenderer.enabled = false;
         }
 
         rotationTween = DOVirtual.DelayedCall(cooldownTime, StartRotation);
