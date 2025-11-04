@@ -31723,6 +31723,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1823177355}
   - component: {fileID: 1823177356}
+  - component: {fileID: 1823177357}
   m_Layer: 0
   m_Name: ProgressionManager
   m_TagString: Untagged
@@ -31757,11 +31758,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8bede06ea8ca454f84a8dfb0927ca8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.ProgressionManager
-  isDebugAutoPick: 1
+  isDebugAutoPick: 0
   cardsPerLevel: 3
   UpgradePool:
   - {fileID: 11400000, guid: b4f3e659e09d9ac4aae21d05fdfc0871, type: 2}
   - {fileID: 11400000, guid: d3dd76f0fc736e944aedbccd1382acb2, type: 2}
+  - {fileID: 11400000, guid: b796cc7053f7bea4ea9f9e7fd0644473, type: 2}
+--- !u!114 &1823177357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1823177353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23b121bd9f053f84ca54db8f9b99ec9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.UI.ProgressionUIBridge
+  progression: {fileID: 1823177356}
+  menu: {fileID: 0}
+  menuPrefab: {fileID: 7220090452295562062, guid: eb6f7429076dfcb4aafe8992f5df2313, type: 3}
 --- !u!1 &1891806700
 GameObject:
   m_ObjectHideFlags: 0
@@ -31928,6 +31945,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 714303197}
     m_Modifications:
+    - target: {fileID: 3366415871892552821, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      propertyPath: forwardLerp
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3366415871892552821, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      propertyPath: sharedPoolRoot
+      value: 
+      objectReference: {fileID: 1738727418}
     - target: {fileID: 3863936289245180800, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -31968,10 +31993,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4724759515897094335, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
-      propertyPath: controller
-      value: 
-      objectReference: {fileID: 6532379212128414384}
     - target: {fileID: 5806806840443530406, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       propertyPath: poolRoot
       value: 
@@ -31981,59 +32002,10 @@ PrefabInstance:
       value: PlayerTest
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 4168829088022937688, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5914224002963691110, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6532379212128414383}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
---- !u!1 &6532379212128414381 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5914224002963691110, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
-  m_PrefabInstance: {fileID: 6532379212128414380}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &6532379212128414383
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6532379212128414381}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9255a9b815065e140a590dabffb06303, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DroneFormationManager
-  player: {fileID: 1087677166}
-  playerController: {fileID: 0}
-  playerWeaponController: {fileID: 0}
-  dronePrefab: {fileID: 2105961958307006955, guid: 1c81bdeea35f66945839177223ebb9c9, type: 3}
-  maxDrones: 4
-  sharedPoolRoot: {fileID: 1738727418}
-  enemyMask:
-    serializedVersion: 2
-    m_Bits: 256
-  searchRadius: 48
-  behindDistance: 0.5
-  forwardLerp: 0.75
-  arcHalfAngleDeg: 70
-  ellipseA: 1.2
-  ellipseB: 0.7
-  spacingScale: 1
-  reassignGain: 1.15
---- !u!114 &6532379212128414384 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4578546165907560104, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
-  m_PrefabInstance: {fileID: 6532379212128414380}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6532379212128414381}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1669688571a3c67409d407901e79cb26, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Control.PlayerController
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

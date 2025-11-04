@@ -129,7 +129,7 @@ public sealed class DroneManager : MonoBehaviour
         drone.transform.rotation = Quaternion.identity;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (player == null) return;
 

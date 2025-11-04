@@ -174,8 +174,7 @@ namespace Survivor.Weapon
             GameObject go = Instantiate(def.RuntimePrefab, transform);
             go.name = $"Weapon_{def.Id}";
 
-            var weapon = go.GetComponent<IWeapon>();
-            if (weapon == null)
+            if (!go.TryGetComponent<IWeapon>(out var weapon))
             {
                 Debug.LogError($"[{def.name}] prefab lacks an IWeapon component.");
                 Destroy(go);

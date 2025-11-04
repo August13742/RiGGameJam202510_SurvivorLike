@@ -10,6 +10,22 @@ namespace Survivor.Progression
         public float PickupRadiusMul = 1f;
         public int MaxHPAdd = 0;
 
+        public override string[] GetPreviewLines(ProgressionContext ctx)
+        {
+            var lines = new System.Collections.Generic.List<string>();
+            
+            if (MoveSpeedMul != 1f)
+                lines.Add($"Move Speed ×{MoveSpeedMul:0.##}");
+            
+            if (PickupRadiusMul != 1f)
+                lines.Add($"Pickup Radius ×{PickupRadiusMul:0.##}");
+            
+            if (MaxHPAdd != 0)
+                lines.Add($"+{MaxHPAdd} Max HP");
+            
+            return lines.ToArray();
+        }
+
         public override ChangeSet Apply(ProgressionContext ctx)
         {
             var cs = new ChangeSet();

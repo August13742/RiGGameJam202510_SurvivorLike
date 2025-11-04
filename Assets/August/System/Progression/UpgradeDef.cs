@@ -38,7 +38,8 @@ namespace Survivor.Progression
             return Mathf.Max(0f, w);
         }
 
-        // Apply and return a ChangeSet for UI preview logging.
+        public abstract string[] GetPreviewLines(ProgressionContext ctx);
+
         public abstract ChangeSet Apply(ProgressionContext ctx);
     }
 }
