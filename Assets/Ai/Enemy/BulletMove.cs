@@ -1,54 +1,55 @@
-using Survivor.Enemy;
-using Survivor.Game;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
+using Survivor.Game;
 
-public class BulletMove : MonoBehaviour
+namespace Survivor.Weapon
 {
-
-    private float _speed = 3f;
-    private float _lifeTime = 7f;
-
-    private Rigidbody2D _rb;
-    Vector2 _direction;
-
-    Transform _target;
-
-    [SerializeField] private EnemyDef _def;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public sealed class EnemyProjectile : MonoBehaviour
     {
-        _rb = GetComponent<Rigidbody2D>();
-    }
+        public float Damage { get; private set; }
+        public float Speed { get; private set; }
 
-    private void Awake()
-    {
-        _target = GameObject.FindWithTag("Player")?.transform;
-        _direction = ((Vector2)_target.position - (Vector2)transform.position).normalized;
-    }
+        private enum ForwardAxis { Right, Up }
+        [SerializeField] private ForwardAxis forwardAxis = ForwardAxis.Right;
 
-    // Update is called once per frame
-    void FixedUpdate()
-    {
-        _rb.MovePosition(_rb.position + _direction * _speed * Time.fixedDeltaTime);
+        private Vector2 _dir;
+        private float _lifeTime;
 
-        _lifeTime -= Time.fixedDeltaTime;
 
-        if (_lifeTime <= 0f)
+        public void Fire(Vector2 p, Vector2 direction, float speed, float dmg, float time)
         {
-            Destroy(gameObject);
-        }
-    }
+            transform.position = p;
+            _dir = direction.sqrMagnitude > 0f ? direction.normalized : Vector2.right;
+            Speed = speed;
+            Damage = dmg;
+            _lifeTime = time;
 
-    private void OnTriggerEnter2D(Collider2D col)
-    {
-        if (col.gameObject.tag == "Player" || col.gameObject.tag == "PlayerProjectile")
-        {
-            if (!col.TryGetComponent<HealthComponent>(out var target))
-                Destroy(gameObject);
-               
-            target.Damage(_def.ContactDamage / 2);
+            float ang = Mathf.Atan2(_dir.y, _dir.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.AngleAxis(
+                (forwardAxis == ForwardAxis.Right) ? ang : (ang - 90f),
+                Vector3.forward
+            );
         }
+
+        private void FixedUpdate()
+        {
+            _lifeTime -= Time.fixedDeltaTime;
+            if (_lifeTime <= 0f) { Destroy(this); return; }
+
+            transform.position += (Vector3)(Speed * Time.fixedDeltaTime * _dir);
+        }
+
+        private void OnTriggerEnter2D(Collider2D col)
+        {
+            if (!col.TryGetComponent<HealthComponent>(out var target)) return;
+            if (target.IsDead) return;
+
+            float dealt = Damage;
+
+   
+
+            target.Damage(dealt);
+        }
+
+
     }
 }

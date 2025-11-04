@@ -3,8 +3,7 @@ using UnityEngine;
 
 namespace Survivor.Enemy
 {
-    [CreateAssetMenu(menuName = "Defs/EnemyDef")]
-    public sealed class EnemyDef : ScriptableObject
+    public abstract class EnemyDef : ScriptableObject
     {
         [Header("Prefab")]
         public GameObject Prefab;              // Must include EnemyMarker, Rigidbody2D, collider, etc.

@@ -9,16 +9,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 033528aa34880dc4ab5360f5f9fcc5d9, type: 3}
+  m_Script: {fileID: 11500000, guid: 6c738d448f7918b42a0ff7cb0614bce1, type: 3}
   m_Name: BulletEnemy
-  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Enemy.EnemyDef
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Enemy.ShooterEnemyDef
   Prefab: {fileID: 4166214330910034951, guid: e9b1ad0a7eab3004b9f6a4e4b841b018, type: 3}
   BaseHP: 20
-  MoveSpeed: 1
+  MoveSpeed: 2
   Acceleration: 50
   ContactDamage: 5
   XPValue: 1
   PrewarmCount: 8
-  DropChance: 0.6
+  DropChance: 0.75
   Rolls: 1
   LootTable: {fileID: 11400000, guid: be5f8603e81dd7441a552ec478915411, type: 2}
+  ProjectileDamage: 5
+  ShootIntervalSec: 5
+  PreferredDistance: 16
+  UnsafeDistance: 8
+  ProjectileLifeTimeSec: 7
+  ProjectileSpeed: 8
