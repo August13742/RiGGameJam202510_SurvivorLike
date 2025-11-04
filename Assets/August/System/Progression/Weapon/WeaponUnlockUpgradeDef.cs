@@ -13,6 +13,11 @@ namespace Survivor.Progression
             return ctx.DroneManager && ctx.DroneManager.HasEmptyWeaponSlot() && !ctx.DroneManager.OwnsWeapon(WeaponDef);
         }
 
+        public override string[] GetPreviewLines(ProgressionContext ctx)
+        {
+            return new[] { $"Unlocked: {WeaponDef?.name ?? "Unknown"}" };
+        }
+
         public override ChangeSet Apply(ProgressionContext ctx)
         {
             var cs = new ChangeSet();

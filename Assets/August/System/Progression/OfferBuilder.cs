@@ -9,7 +9,7 @@ namespace Survivor.Progression
         // Store the last offered defs so Pick() can find them.
         public UpgradeDef[] LastDefs { get; private set; }
 
-        private readonly List<UpgradeDef> _choices = new List<UpgradeDef>();
+        private readonly List<UpgradeDef> _choices = new ();
 
         public UpgradeCardVM[] BuildOffer(ProgressionContext ctx, UpgradeDef[] pool, int count)
         {
@@ -58,7 +58,7 @@ namespace Survivor.Progression
                 Description = def.Description,
                 Icon = def.Icon,
                 Rarity = def.Rarity,
-                PreviewLines = def.Apply(ctx).PreviewLines.ToArray() // Get a temporary changeset for preview
+                PreviewLines = def.GetPreviewLines(ctx)
             }).ToArray();
         }
     }
