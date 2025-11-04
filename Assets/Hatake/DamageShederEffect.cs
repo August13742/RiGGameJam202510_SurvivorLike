@@ -12,7 +12,7 @@ public class DamageShederEffect : MonoBehaviour
 
     private Coroutine flashCoroutine;
 
-    private static readonly int DamageIntensityProperty = Shader.PropertyToID("_DmageIntensity");
+    private static readonly int DamageIntensityProperty = Shader.PropertyToID("_DamageIntensity");
 
     void Awake()
     {

@@ -65,7 +65,8 @@ Shader "Custom/NewUnlitUniversalRenderPipelineShader"
                 //アルファ値が低いフラグメントを破棄する
                 clip(baseColor.a - 0.001f);
 
-                half4 damageColor = baseColor * _DamageColor;
+                // half4 damageColor = baseColor * _DamageColor;
+                half4 damageColor =_DamageColor;
 
                 half4 finalcolor = lerp(normalColor, damageColor, _DamageIntensity);
                 return finalcolor;
