@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 4414971827159035628}
   - component: {fileID: 2289285937386345649}
   - component: {fileID: 5690418907262690774}
+  - component: {fileID: -8617032383766434448}
   m_Layer: 8
   m_Name: BulletEnemy
   m_TagString: Enemy
@@ -195,7 +196,7 @@ MonoBehaviour:
   maxHP: 100
   current: 0
   triggerHitstopOnDamaged: 1
-  hitstopDurationSec: 0.05
+  hitstopDurationSec: 0.1
   useIframe: 0
   iframeDuration: 0.05
 --- !u!114 &5690418907262690774
@@ -215,3 +216,15 @@ MonoBehaviour:
     m_Bits: 64
   BulletPrefab: {fileID: 5289430583379552253, guid: 047d12e4408afbf489a2ff09e3cefddc, type: 3}
   def: {fileID: 11400000, guid: 6c884ee5906be3a40a3657d194e20770, type: 2}
+--- !u!114 &-8617032383766434448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4166214330910034951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be6a860d9819d8247970ae4416e12694, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitstopArbiter

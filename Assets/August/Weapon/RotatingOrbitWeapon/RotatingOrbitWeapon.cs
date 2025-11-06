@@ -8,11 +8,13 @@ namespace Survivor.Weapon
     {
         private ObjectPool _orbPool;
 
-        public override void Equip(WeaponContext context)
+
+        protected override void OnEquipped()
         {
-            base.Equip(context);
-            _orbPool = new ObjectPool(def.OrbPrefab, prewarm: 8, context.PoolRoot);
+            base.OnEquipped();
+            _orbPool = new ObjectPool(def.OrbPrefab, prewarm: 8, ctx.PoolRoot);
         }
+
 
         public override void Tick(float dt)
         {

@@ -6,7 +6,7 @@ namespace Survivor.Enemy
     [RequireComponent(typeof(PrefabStamp), typeof(HealthComponent), typeof(Rigidbody2D))]
     [RequireComponent(typeof(Collider2D))]
     [DisallowMultipleComponent]
-    public abstract class EnemyBase : MonoBehaviour, IPoolable
+    public abstract class EnemyBase : MonoBehaviour, IPoolable, IHitstoppable
     {
         protected EnemyDef _def;
         protected PrefabStamp _stamp;
@@ -62,12 +62,17 @@ namespace Survivor.Enemy
             target.Damage(_def.ContactDamage);
 
         }
+        bool IsFrozen = false;
+        public void OnHitstopStart() { IsFrozen = true; }
+        public void OnHitstopEnd() { IsFrozen = false; }
+
 
         // --- Public-facing movement APIs ---
 
         // Melee: always chase
         protected void Move()
         {
+            if (IsFrozen) return;
             if (!_target || IsDead) { Stop(); return; }
 
             Vector2 toTarget = (Vector2)_target.position - (Vector2)transform.position;

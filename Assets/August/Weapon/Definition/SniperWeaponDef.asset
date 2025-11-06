@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eba1c4734aa4104894bb072713edb09, type: 3}
+  m_Name: SniperWeaponDef
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.ProjectileWeaponDef
+  RuntimePrefab: {fileID: 217942150539425492, guid: da0644ea70a928649a25d0290542bd94, type: 3}
+  Id: test
+  Icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  BaseDamage: 10
+  BaseCooldown: 1.5
+  TargetingMode: 1
+  AreaScale: 1
+  Projectiles: 1
+  BaseCritChance: 0.05
+  BaseCritMultiplier: 1.5
+  ProjectilePrefab: {fileID: 2056179235282298931, guid: d959ca6def84dbe41bc4669fcaa4f67a, type: 3}
+  ProjectileSpeed: 25
+  Pierce: 5
+  Lifetime: 4
+  SpreadDeg: 6

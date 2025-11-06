@@ -57,14 +57,7 @@ namespace Survivor.Weapon
                 SelfCentered = selfCent
             };
 
-            // Equip any weapons already present as child components
-            var existingWeapon = GetComponentInChildren<IWeapon>(includeInactive: false);
-            _weapons.Clear();
-            if(existingWeapon!= null)
-            {
-                _weapons.Add(existingWeapon);
-                existingWeapon.Equip(_ctx);
-            }
+            
                 
             _initialized = true;
         }
@@ -93,13 +86,6 @@ namespace Survivor.Weapon
                 SelfCentered = selfCent
             };
 
-            var existingWeapon = GetComponentInChildren<IWeapon>(includeInactive: false);
-            _weapons.Clear();
-            if (existingWeapon != null)
-            {
-                _weapons.Add(existingWeapon);
-                existingWeapon.Equip(_ctx);
-            }
             _initialized = true;
         }
 
@@ -133,7 +119,7 @@ namespace Survivor.Weapon
             }
 
             _weapons.Add(weapon);
-            weapon.Equip(_ctx); // <-- uses injected context
+            weapon.Equip(def,_ctx); // <-- uses injected context
             return true;
         }
 

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1036449216494695409}
   - component: {fileID: 4430005986827990580}
   - component: {fileID: 2650506820563219090}
+  - component: {fileID: 7046581121702574843}
   m_Layer: 8
   m_Name: EnemyTest 2
   m_TagString: Enemy
@@ -199,7 +200,7 @@ MonoBehaviour:
   maxHP: 100
   current: 0
   triggerHitstopOnDamaged: 1
-  hitstopDurationSec: 0.05
+  hitstopDurationSec: 0.1
   useIframe: 0
   iframeDuration: 0.05
 --- !u!114 &2650506820563219090
@@ -214,3 +215,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cfdb64496ae9ca46b8b9e75892219d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.PrefabStamp
+--- !u!114 &7046581121702574843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 220892323894252418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be6a860d9819d8247970ae4416e12694, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitstopArbiter

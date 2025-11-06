@@ -44,5 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd2fe18498aadf94da55b4cd3bab46a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.ProjectileWeapon
-  def: {fileID: 11400000, guid: aa9ee12cf43551c48af3a12139e7736a, type: 2}
+  def: {fileID: 0}
   fireOrigin: {fileID: 0}
+  mods: []

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 namespace Survivor.Control
 {
-    public sealed class PlayerController : MonoBehaviour
+    public sealed class PlayerController : MonoBehaviour, IHitstoppable
     {
         [SerializeField] private float moveSpeed = 6f;
         [SerializeField] private float acceleration = 75f;
@@ -50,6 +50,7 @@ namespace Survivor.Control
         
         private void FixedUpdate()
         {
+            if (IsFrozen) return;
             Vector2 targetVelocity = inputDirection.sqrMagnitude > 0f
                 ? inputDirection.normalized * moveSpeed
                 : Vector2.zero;
@@ -62,5 +63,10 @@ namespace Survivor.Control
             //transform.position += (Vector3)(velocity * Time.fixedDeltaTime);
             //rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
         }
+        #region Hitstop
+        bool IsFrozen = false;
+        public void OnHitstopStart() { IsFrozen = true; }
+        public void OnHitstopEnd() { IsFrozen = false; }
+        #endregion
     }
 }
