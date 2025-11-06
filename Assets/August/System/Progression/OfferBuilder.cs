@@ -39,9 +39,11 @@ namespace Survivor.Progression
                     current += weightedPool[j].weight;
                     if (current >= pick)
                     {
-                        var selected = weightedPool[j];
-                        _choices.Add(selected.def);
-                        totalWeight -= selected.weight;
+                        var (def, weight) = weightedPool[j];
+                        _choices.Add(def);
+
+                        //Debug.Log($"choice appended: {def.Id}");
+                        totalWeight -= weight;
                         weightedPool.RemoveAt(j);
                         break;
                     }
@@ -50,7 +52,7 @@ namespace Survivor.Progression
 
             LastDefs = _choices.ToArray();
 
-            // 3. Convert the chosen UpgradeDefs into ViewModels for the (future) UI
+            // 3. Convert the chosen UpgradeDefs into ViewModels for UI
             return LastDefs.Select(def => new UpgradeCardVM
             {
                 Id = def.Id,

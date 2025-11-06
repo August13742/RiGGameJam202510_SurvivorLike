@@ -7,10 +7,10 @@ namespace Survivor.Weapon
     {
         private ObjectPool _projPool;
 
-        public override void Equip(WeaponContext context)
+        protected override void OnEquipped()
         {
-            base.Equip(context); // sets ctx, cooldown, _getTarget
-            _projPool = new ObjectPool(def.ProjectilePrefab, prewarm: 32, context.PoolRoot);
+            base.OnEquipped();
+            _projPool = new ObjectPool(def.ProjectilePrefab, prewarm: 32, ctx.PoolRoot);
         }
 
         public override void Tick(float dt)

@@ -9,11 +9,11 @@ namespace Survivor.Weapon
     {
         private ObjectPool _beamPool;
 
-        public override void Equip(WeaponContext context)
-        {
-            base.Equip(context);
-            _beamPool = new ObjectPool(def.BeamPrefab, prewarm: 8, context.PoolRoot);
 
+        protected override void OnEquipped()
+        {
+            base.OnEquipped();
+            _beamPool = new ObjectPool(def.BeamPrefab, prewarm: 8, ctx.PoolRoot);
         }
 
         public override void Tick(float dt)
