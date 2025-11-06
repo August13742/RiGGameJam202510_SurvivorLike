@@ -33,7 +33,7 @@ namespace Survivor.Weapon
         private void FixedUpdate()
         {
             _lifeTime -= Time.fixedDeltaTime;
-            if (_lifeTime <= 0f) { Destroy(this); return; }
+            if (_lifeTime <= 0f) { Destroy(this.gameObject); return; }
 
             transform.position += (Vector3)(Speed * Time.fixedDeltaTime * _dir);
         }
