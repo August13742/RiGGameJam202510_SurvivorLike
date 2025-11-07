@@ -31921,6 +31921,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be6a860d9819d8247970ae4416e12694, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitstopArbiter
+--- !u!114 &1876785540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1876785524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175d4616b921ae64a8439818ad3ac9b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.PlayerStatsComponent
+  baseMoveSpeed: 6
+  basePickupRadius: 2
+  baseMaxHP: 100
 --- !u!1 &1891806700
 GameObject:
   m_ObjectHideFlags: 0
@@ -32151,6 +32166,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4578546165907560104, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      propertyPath: acceleration
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 5806806840443530406, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       propertyPath: poolRoot
       value: 
@@ -32167,6 +32186,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5914224002963691110, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      insertIndex: 6
+      addedObject: {fileID: 1876785540}
     - targetCorrespondingSourceObject: {fileID: 5914224002963691110, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1876785532}
