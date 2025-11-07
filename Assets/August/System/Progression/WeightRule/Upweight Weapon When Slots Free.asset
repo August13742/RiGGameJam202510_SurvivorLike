@@ -9,8 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74893f01f7c5c9b488741822bcaed6e8, type: 3}
-  m_Name: New Downweight Infinite Early
-  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.Rule.DownweightInfiniteEarly
-  UntilLevel: 10
-  Multiplier: 0.4
+  m_Script: {fileID: 11500000, guid: b571d0fa0c5a6e640a3306625b6ce613, type: 3}
+  m_Name: Upweight Weapon When Slots Free
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.Rule.UpweightWeaponWhenSlotsFree
+  MultiplierWhenFree: 2

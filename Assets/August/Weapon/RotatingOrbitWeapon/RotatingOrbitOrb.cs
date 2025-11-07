@@ -116,7 +116,7 @@ namespace Survivor.Weapon
         private float EvaluateMotion(float u01)
         {
             if (_motionCurve != null) return Mathf.Clamp01(_motionCurve.Evaluate(u01));
-            return CurveUtility.EaseInOutQuint(u01);
+            return EasingFunctions.EaseInOutQuint(u01);
         }
 
         private void OnTriggerEnter2D(Collider2D other)
