@@ -9,18 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc98546cef3c5bc4f98ade4cf03b0259, type: 3}
-  m_Name: OrbitWeaponUnlock 1
-  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.UpgradeDef
-  Id: orbit_unlock
-  Title: Unlock Orbit
-  Description: x
+  m_Script: {fileID: 11500000, guid: edf21eb66ecdc9040b736c7def93e563, type: 3}
+  m_Name: DebugWeaponUnlockAction
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.WeaponUnlockUpgradeDef
+  Id: debug_projectile_unlock
+  Title: Unlock Debug Weapon
+  Description: xxx
   Icon: {fileID: 0}
   Rarity: 0
   Kind: 0
   IsInfinite: 0
-  MaxPicks: 0
-  BaseWeight: 1
+  MaxPicks: 1
+  BaseWeight: 99
   Rules:
   - {fileID: 11400000, guid: efd923a34d8c52049b306bc056762b55, type: 2}
-  Action: {fileID: 11400000, guid: b796cc7053f7bea4ea9f9e7fd0644473, type: 2}
+  WeaponDef: {fileID: 11400000, guid: ea53b3f12dfb2814f814a9ba1423fdd3, type: 2}

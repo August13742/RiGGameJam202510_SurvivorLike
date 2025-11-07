@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cc98546cef3c5bc4f98ade4cf03b0259, type: 3}
-  m_Name: OrbitWeaponUnlock 1
+  m_Name: ProjectileUpgradeCard
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.UpgradeDef
-  Id: orbit_unlock
-  Title: Unlock Orbit
-  Description: x
+  Id: ProjectileUpgrade
+  Title: Projectile Level
+  Description: xxx
   Icon: {fileID: 0}
   Rarity: 0
-  Kind: 0
-  IsInfinite: 0
+  Kind: 1
+  IsRepeatable: 1
   MaxPicks: 0
   BaseWeight: 1
   Rules:
-  - {fileID: 11400000, guid: efd923a34d8c52049b306bc056762b55, type: 2}
-  Action: {fileID: 11400000, guid: b796cc7053f7bea4ea9f9e7fd0644473, type: 2}
+  - {fileID: 11400000, guid: 57e580e9bd691434dbe264a3f1f7d91c, type: 2}
+  Action: {fileID: 11400000, guid: 2fc99d1569ccc374c96e60f67b062c1e, type: 2}

@@ -12,25 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0696a57667dc02f4fbb6e62b6083fe44, type: 3}
   m_Name: ProjectileUpgrade1
   m_EditorClassIdentifier: Assembly-CSharp::WeaponLevelUpgradeDef
-  Id: projectile_upgrade_1
-  Title: Projectile Level 2
-  Description: xxx
-  Icon: {fileID: 0}
-  Rarity: 1
-  Kind: 1
-  IsInfinite: 0
-  MaxPicks: 1
-  BaseWeight: 1
-  Rules:
-  - {fileID: 11400000, guid: 57e580e9bd691434dbe264a3f1f7d91c, type: 2}
   WeaponDef: {fileID: 11400000, guid: 4e35ef32968c35242839648f51500f49, type: 2}
-  Delta:
-    CooldownMul: 0.9
-    DamageMul: 1.2
-    AreaMul: 1
-    ProjectilesAdd: 1
-    PierceAdd: 0
-    SpeedMul: 1
-    CritChance: 0.1
-    CritMultiplier: 1.5
-  MaxLevel: 8
+  ConstantBonusPerPick:
+    DamageMultiplierBonus: 0
+    CooldownReduction: 0
+    AreaScaleBonus: 0
+    SpeedMultiplierBonus: 0
+    ProjectileCountBonus: 0
+    PierceCountBonus: 0
+    CritChanceBonus: 0
+    CritDamageMultiplierBonus: 0
+  Levels:
+  - DamageMultiplierBonus: 0.5
+    CooldownReduction: 0.1
+    AreaScaleBonus: 0
+    SpeedMultiplierBonus: 0
+    ProjectileCountBonus: 1
+    PierceCountBonus: 0
+    CritChanceBonus: 0
+    CritDamageMultiplierBonus: 0
+  - DamageMultiplierBonus: 0.5
+    CooldownReduction: 0.1
+    AreaScaleBonus: 0
+    SpeedMultiplierBonus: 0
+    ProjectileCountBonus: 1
+    PierceCountBonus: 0
+    CritChanceBonus: 0
+    CritDamageMultiplierBonus: 0
+  MaxLevel: 2

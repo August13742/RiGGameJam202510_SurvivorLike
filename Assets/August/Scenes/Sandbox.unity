@@ -31884,11 +31884,11 @@ MonoBehaviour:
   isDebugAutoPick: 0
   cardsPerLevel: 3
   UpgradePool:
-  - {fileID: 11400000, guid: b4f3e659e09d9ac4aae21d05fdfc0871, type: 2}
-  - {fileID: 11400000, guid: d3dd76f0fc736e944aedbccd1382acb2, type: 2}
-  - {fileID: 11400000, guid: b796cc7053f7bea4ea9f9e7fd0644473, type: 2}
-  - {fileID: 11400000, guid: 2fc99d1569ccc374c96e60f67b062c1e, type: 2}
-  - {fileID: 11400000, guid: a5aa78787865a6e4795b86d56f4ae21b, type: 2}
+  - {fileID: 11400000, guid: 27ce165372b77e24dbbe38e646d54cf6, type: 2}
+  - {fileID: 11400000, guid: 705dd0ab7e81d5247a28f4c6466d8c74, type: 2}
+  - {fileID: 11400000, guid: a3cdac39dfc2c3449a10d71157acaeec, type: 2}
+  - {fileID: 11400000, guid: c505f9b01a3f394419f1800855317c17, type: 2}
+  - {fileID: 11400000, guid: f4f8b5c43c383bd478b7f0858fbcc748, type: 2}
 --- !u!114 &1823177357
 MonoBehaviour:
   m_ObjectHideFlags: 0
