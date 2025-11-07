@@ -2,15 +2,17 @@ using UnityEngine;
 
 namespace Survivor.Progression
 {
-    public enum UpgradeKind
+    public abstract class UpgradeAction : ScriptableObject
     {
-        WeaponUnlock,
-        WeaponLevel,
-        PlayerStat,
-        WeaponMod,
-        Utility // reroll, heal, gold, etc.
+        public abstract bool IsAvailable(ProgressionContext ctx, UpgradeDef card);
+        public abstract string[] GetPreviewLines(ProgressionContext ctx, UpgradeDef card);
+        public abstract ChangeSet Apply(ProgressionContext ctx, UpgradeDef card);
     }
-    public abstract class UpgradeDef : ScriptableObject
+
+    public enum UpgradeKind { WeaponUnlock, WeaponLevel, PlayerStat, WeaponMod, Utility }
+
+    [CreateAssetMenu(menuName = "Defs/Progression/Upgrades/Card")]
+    public sealed class UpgradeDef : ScriptableObject
     {
         [Header("Meta")]
         public string Id;
@@ -19,27 +21,54 @@ namespace Survivor.Progression
         public Sprite Icon;
         public Rarity Rarity;
         public UpgradeKind Kind;
-        public bool IsInfinite;     // true for repeatable stat bumps
-        public int MaxPicks = 1;    // caps finite upgrades
+
+        [Header("Picks")]
+        public bool IsRepeatable;           // repeatable?
+        [Tooltip("If > 0 and Repeatable, cap repeats")]
+        public int MaxPicks = 0;
 
         [Header("Weights")]
         public float BaseWeight = 1f;
         public Rule.WeightRule[] Rules;
 
-        public virtual bool IsAvailable(ProgressionContext ctx) => !ctx.History.IsCapped(Id);
+        [Header("Effect")]
+        public UpgradeAction Action;      // <- only this varies per upgrade
+
+        public bool IsAvailable(ProgressionContext ctx)
+        {
+            if (ctx.History.IsCapped(Id)) return false;
+            return Action ? Action.IsAvailable(ctx, this) : false;
+        }
+
         public float ComputeWeight(ProgressionContext ctx)
         {
             if (!IsAvailable(ctx)) return 0f;
             float w = BaseWeight;
             if (Rules != null) foreach (var r in Rules) if (r) w *= r.GetMultiplier(ctx, this);
-            // diminishing return: penalise repeated picks of same Id
             int n = ctx.History.Count(Id);
             if (n > 0) w *= 1f / (1f + 0.5f * n);
             return Mathf.Max(0f, w);
         }
 
-        public abstract string[] GetPreviewLines(ProgressionContext ctx);
+        public string[] GetPreviewLines(ProgressionContext ctx)
+            => Action ? Action.GetPreviewLines(ctx, this) : new[] { "(No Action)" };
 
-        public abstract ChangeSet Apply(ProgressionContext ctx);
+        public ChangeSet Apply(ProgressionContext ctx)
+        {
+            var cs = Action ? Action.Apply(ctx, this) : new ChangeSet();
+
+            // Shared pick/cap bookkeeping
+            int after = ctx.History.Count(Id) + 1;
+            if (!IsRepeatable)
+            {
+                ctx.History.MarkCapped(Id);
+            }
+            else if (MaxPicks > 0 && after >= MaxPicks)
+            {
+                ctx.History.MarkCapped(Id);
+            }
+            ctx.History.RecordPick(Id);
+            return cs;
+        }
     }
 }

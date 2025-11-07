@@ -1,10 +1,12 @@
+using Survivor.Progression;
 using UnityEngine;
 using UnityEngine.InputSystem;
 namespace Survivor.Control
 {
+    [RequireComponent(typeof(Rigidbody2D),typeof(KinematicMotor2D),typeof(PlayerStatsComponent))]
     public sealed class PlayerController : MonoBehaviour, IHitstoppable
     {
-        [SerializeField] private float moveSpeed = 6f;
+        [SerializeField] private float moveSpeed=> stats.MoveSpeed;
         [SerializeField] private float acceleration = 75f;
         [SerializeField] private float friction = 35f;
         private InputSystem_Actions input;
@@ -15,6 +17,8 @@ namespace Survivor.Control
 
         private Rigidbody2D rb;
         private KinematicMotor2D motor;
+        private PlayerStatsComponent statComponent;
+        private EffectivePlayerStats stats;
 
         private void Awake()
         {
@@ -22,6 +26,8 @@ namespace Survivor.Control
             rb = GetComponent<Rigidbody2D>();
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
             motor = GetComponent<KinematicMotor2D>();
+            statComponent = GetComponent<PlayerStatsComponent>();
+            stats = statComponent.EffectiveStats;
         }
         private void OnEnable()
         {

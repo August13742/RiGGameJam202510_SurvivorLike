@@ -8,7 +8,7 @@ namespace Survivor.Progression.Rule
         public float Multiplier = 0.4f;
         public override float GetMultiplier(ProgressionContext ctx, UpgradeDef def)
         {
-            if (ctx.PlayerLevel < UntilLevel && def.IsInfinite)
+            if (ctx.PlayerLevel < UntilLevel && def.IsRepeatable)
                 return Multiplier;
             return 1f;
         }

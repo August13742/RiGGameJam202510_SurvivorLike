@@ -10,13 +10,6 @@ public interface IUpgradeableWeapon : IWeapon
     /// </summary>
     bool Owns(WeaponDef def);
 
-    /// <summary>
-    /// Applies stat modifiers specific to this weapon instance.
-    /// </summary>
-    void ApplyUpgrade(WeaponStats delta);
-
-    /// <summary>
-    /// Gets the current combined stats for this weapon.
-    /// </summary>
-    WeaponStats GetCurrentStats();
+    void ApplyUpgrade(WeaponLevelBonus bonus);
+    EffectiveWeaponStats GetCurrentStats();
 }

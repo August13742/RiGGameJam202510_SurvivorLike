@@ -64,7 +64,7 @@ namespace Survivor.Weapon
 
 
                 orb.SetHitSink(this);
-                orb.ConfigureCrit(GetEffectiveCritChance(), GetEffectiveCritMultiplier(), perHit: true);
+                orb.ConfigureCrit(Current().CritChance, Current().CritMultiplier, perHit: true);
 
                 orb.Arm(
                     pivot: pivot,

@@ -42,10 +42,10 @@ namespace Survivor.Weapon
                 p.SetHitSink(this);
 
                 int pierceFinal = def.Pierce + Pierce();
-                float speedFinal = def.ProjectileSpeed * Speed();
+                float speedFinal = def.ProjectileSpeed * Current().SpeedFactor;
 
                 // Let projectile do per-hit crits with current effective chance/mul.
-                p.ConfigureCrit(GetEffectiveCritChance(), GetEffectiveCritMultiplier(), perHit: true);
+                p.ConfigureCrit(Current().CritChance, Current().CritMultiplier, perHit: true);
 
                 p.Fire(fireOrigin.position, dir, speedFinal, baseDamage, pierceFinal, def.Lifetime);
             }

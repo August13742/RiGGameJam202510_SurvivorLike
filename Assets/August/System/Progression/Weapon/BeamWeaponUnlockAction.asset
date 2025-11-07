@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edf21eb66ecdc9040b736c7def93e563, type: 3}
+  m_Name: BeamWeaponUnlockAction
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.WeaponUnlockUpgradeDef
+  Id: beam_weapon_unlock
+  Title: Unlock Beam Weapon
+  Description: xxx
+  Icon: {fileID: 0}
+  Rarity: 0
+  Kind: 0
+  IsInfinite: 0
+  MaxPicks: 1
+  BaseWeight: 10
+  Rules:
+  - {fileID: 11400000, guid: efd923a34d8c52049b306bc056762b55, type: 2}
+  WeaponDef: {fileID: 11400000, guid: ac125b56b450a5241b43e4e993e233b4, type: 2}

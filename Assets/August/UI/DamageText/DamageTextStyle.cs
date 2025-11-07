@@ -34,7 +34,7 @@ namespace Survivor.UI
                 alphaOverLife = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
 
             if (scaleOverLife == null || scaleOverLife.length == 0)
-                scaleOverLife = CurveUtility.Sample(CurveUtility.EaseOutElastic, samples: 48, clamp01: false);
+                scaleOverLife = EasingFunctions.Sample(EasingFunctions.EaseOutElastic, samples: 48);
         }
     }
 }

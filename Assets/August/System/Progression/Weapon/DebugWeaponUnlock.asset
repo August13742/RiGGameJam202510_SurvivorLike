@@ -9,18 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: edf21eb66ecdc9040b736c7def93e563, type: 3}
-  m_Name: BeamWeaponUnlock 1
-  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.WeaponUnlockUpgradeDef
-  Id: beam_weapon_unlock
-  Title: Unlock Beam Weapon
-  Description: xxx
+  m_Script: {fileID: 11500000, guid: cc98546cef3c5bc4f98ade4cf03b0259, type: 3}
+  m_Name: DebugWeaponUnlock
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.UpgradeDef
+  Id: debug_unlock
+  Title: Unlock Debug
+  Description: x
   Icon: {fileID: 0}
   Rarity: 0
   Kind: 0
   IsInfinite: 0
-  MaxPicks: 1
-  BaseWeight: 10
+  MaxPicks: 0
+  BaseWeight: 99
   Rules:
   - {fileID: 11400000, guid: efd923a34d8c52049b306bc056762b55, type: 2}
-  WeaponDef: {fileID: 11400000, guid: ac125b56b450a5241b43e4e993e233b4, type: 2}
+  Action: {fileID: 11400000, guid: a5aa78787865a6e4795b86d56f4ae21b, type: 2}

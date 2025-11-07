@@ -3,10 +3,28 @@ using UnityEngine;
 namespace Survivor.Drop
 {
 
-    [RequireComponent(typeof(Collider2D))]
+    [RequireComponent(typeof(CircleCollider2D))]
     public sealed class PlayerMagnetZone : MonoBehaviour
     {
-        public Transform Player;  // assign to root player transform in inspector
-        private void Reset() { Player = transform.root; }
+        public float Radius
+        {
+            get { return radius; }
+            set
+            {
+                value = Mathf.Max(0, value);
+                radius = value;
+                col.radius = radius;
+            }
+
+        }
+        private float radius = 2f;
+        public Transform Owner;
+        private CircleCollider2D col;
+        private void Awake()
+        {
+            col = GetComponent<CircleCollider2D>();
+        }
+
+        private void Reset() { Owner = transform.root; }
     }
 }
