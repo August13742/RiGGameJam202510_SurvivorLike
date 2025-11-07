@@ -86,13 +86,13 @@ public static class EasingFunctions
 
             if (x < 0.5f)
             {
-                return -(MathF.Pow(2f, 20f * x - 10f) *
-                         MathF.Sin((20f * x - 11.125f) * c5)) / 2f;
+                return -(Mathf.Pow(2f, 20f * x - 10f) *
+                         Mathf.Sin((20f * x - 11.125f) * c5)) / 2f;
             }
             else
             {
-                return (MathF.Pow(2f, -20f * x + 10f) *
-                        MathF.Sin((20f * x - 11.125f) * c5)) / 2f + 1f;
+                return (Mathf.Pow(2f, -20f * x + 10f) *
+                        Mathf.Sin((20f * x - 11.125f) * c5)) / 2f + 1f;
             }
 
         }
