@@ -12,7 +12,7 @@ namespace Survivor.Game
         public int Gold { get; private set; } = 0;
         public int PlayerLevel { get; private set; } = 0;
 
-        private int currentExp = 0;
+        private int currentExp = 20;
         private int currentExpReq = 5;
         public int ExpGrowthPerLevel = 5;
         public Action LevelUp;
@@ -146,6 +146,7 @@ namespace Survivor.Game
                 int residual = currentExp - currentExpReq;
                 TriggerLevelUp();
                 currentExp = 0 + residual;
+                CheckIfLevelUp();
 
             }
         }

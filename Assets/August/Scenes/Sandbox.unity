@@ -30902,6 +30902,79 @@ Transform:
   - {fileID: 440676264}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &337946412
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3548929382880601497, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3548929382880601497, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3548929382880601497, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3548929382880601497, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3548929382880601497, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3548929382880601497, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3548929382880601497, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3548929382880601497, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3548929382880601497, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3548929382880601497, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7121951547652680521, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: mixer
+      value: 
+      objectReference: {fileID: 24100000, guid: ca95a02c07bcc8f49a56b5c1e960a6e1, type: 2}
+    - target: {fileID: 7121951547652680521, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: SFXGroup
+      value: 
+      objectReference: {fileID: 5265083541958323349, guid: ca95a02c07bcc8f49a56b5c1e960a6e1, type: 2}
+    - target: {fileID: 7121951547652680521, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: musicGroup
+      value: 
+      objectReference: {fileID: 7751899662335070228, guid: ca95a02c07bcc8f49a56b5c1e960a6e1, type: 2}
+    - target: {fileID: 7971485775612590544, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: m_Name
+      value: AudioSystem
+      objectReference: {fileID: 0}
+    - target: {fileID: 7971485775612590544, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 19ce7ae805c19654f9ef2314bb7ff5b4, type: 3}
 --- !u!1 &411938110
 GameObject:
   m_ObjectHideFlags: 0
@@ -31815,6 +31888,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b4f3e659e09d9ac4aae21d05fdfc0871, type: 2}
   - {fileID: 11400000, guid: d3dd76f0fc736e944aedbccd1382acb2, type: 2}
   - {fileID: 11400000, guid: b796cc7053f7bea4ea9f9e7fd0644473, type: 2}
+  - {fileID: 11400000, guid: 2fc99d1569ccc374c96e60f67b062c1e, type: 2}
 --- !u!114 &1823177357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32006,7 +32080,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2560214199077104943, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       propertyPath: hitstopDurationSec
-      value: 0.1
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 2560214199077104943, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       propertyPath: resetToFullOnEnable
@@ -32089,3 +32163,4 @@ SceneRoots:
   - {fileID: 1569298593}
   - {fileID: 1328501868}
   - {fileID: 1636565947}
+  - {fileID: 337946412}

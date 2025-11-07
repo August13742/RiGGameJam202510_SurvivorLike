@@ -256,58 +256,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &515635738
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 515635740}
-  - component: {fileID: 515635739}
-  m_Layer: 0
-  m_Name: EnemySpawner2
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
---- !u!114 &515635739
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 515635738}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68663c721d8e2874ba050f175645e281, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.EnemySpawner
-  weightTable: {fileID: 11400000, guid: 1a5b8be72c6af674f997eaa5997a6946, type: 2}
-  player: {fileID: 1087677166}
-  ringRadiusMin: 15
-  ringRadiusMax: 16
-  ringJitterDeg: 7
-  spawnsPerSecond: 5
-  maxAlive: 70
-  poolRoot: {fileID: 1738727418}
---- !u!4 &515635740
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 515635738}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &586142070 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2069315446844185925, guid: b64475fc4db138849b8891fbf66fca03, type: 3}
@@ -700,6 +648,10 @@ PrefabInstance:
     - target: {fileID: 217942150539425492, guid: da0644ea70a928649a25d0290542bd94, type: 3}
       propertyPath: m_Name
       value: ProjectileWeapon
+      objectReference: {fileID: 0}
+    - target: {fileID: 217942150539425492, guid: da0644ea70a928649a25d0290542bd94, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2813144054694777791, guid: da0644ea70a928649a25d0290542bd94, type: 3}
       propertyPath: fireOrigin
@@ -1148,6 +1100,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BeamWeapon
       objectReference: {fileID: 0}
+    - target: {fileID: 5321779039240465208, guid: b64475fc4db138849b8891fbf66fca03, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8515178553762405841, guid: b64475fc4db138849b8891fbf66fca03, type: 3}
       propertyPath: fireOrigin
       value: 
@@ -1307,7 +1263,6 @@ SceneRoots:
   - {fileID: 714303197}
   - {fileID: 1738727418}
   - {fileID: 1767992471}
-  - {fileID: 515635740}
   - {fileID: 411938112}
   - {fileID: 1554075412}
   - {fileID: 1823177355}

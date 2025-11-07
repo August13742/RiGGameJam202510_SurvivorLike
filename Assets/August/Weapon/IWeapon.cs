@@ -4,9 +4,9 @@ namespace Survivor.Weapon
     /// Common interface for all runtime weapons.
     /// Implemented by WeaponBase<T> so WeaponController can call Equip/Tick polymorphically.
     /// </summary>
-    public interface IWeapon
+    public interface IWeapon 
     {
-        void Equip(WeaponContext ctx);
+        void Equip(WeaponDef def,WeaponContext ctx);
         void Tick(float deltaTime);
     }
 }

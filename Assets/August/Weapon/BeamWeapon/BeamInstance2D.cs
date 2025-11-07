@@ -53,7 +53,8 @@ namespace Survivor.Weapon
                 _lr.positionCount = 2;
                 _lr.numCornerVertices = 2;
                 _lr.numCapVertices = 2;
-                _lr.textureMode = LineTextureMode.Tile;
+                //_lr.textureMode = LineTextureMode.Tile;
+                _lr.textureMode = LineTextureMode.Stretch;
                 _lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 _lr.receiveShadows = false;
                 _lr.alignment = LineAlignment.TransformZ;

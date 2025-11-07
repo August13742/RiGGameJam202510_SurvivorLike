@@ -6,7 +6,7 @@ namespace Survivor.Enemy
     [RequireComponent(typeof(PrefabStamp), typeof(HealthComponent), typeof(Rigidbody2D))]
     [RequireComponent(typeof(Collider2D))]
     [DisallowMultipleComponent]
-    public abstract class EnemyBase : MonoBehaviour, IPoolable
+    public abstract class EnemyBase : MonoBehaviour, IPoolable, IHitstoppable
     {
         protected EnemyDef _def;
         protected PrefabStamp _stamp;
@@ -62,17 +62,66 @@ namespace Survivor.Enemy
             target.Damage(_def.ContactDamage);
 
         }
+        bool IsFrozen = false;
+        public void OnHitstopStart() { IsFrozen = true; }
+        public void OnHitstopEnd() { IsFrozen = false; }
 
+
+        // --- Public-facing movement APIs ---
+
+        // Melee: always chase
         protected void Move()
         {
-            if (!_target || IsDead) { _velocity = Vector2.zero; return; }
-            Vector2 dir = ((Vector2)_target.position - (Vector2)transform.position).normalized;
+            if (IsFrozen) return;
+            if (!_target || IsDead) { Stop(); return; }
+
+            Vector2 toTarget = (Vector2)_target.position - (Vector2)transform.position;
+            Vector2 dir = toTarget.sqrMagnitude > 0.0001f ? toTarget.normalized : Vector2.zero;
+
             Vector2 targetVelocity = dir * _def.MoveSpeed;
-
-
-            _velocity = Vector2.MoveTowards(_velocity, targetVelocity, _def.Acceleration * Time.fixedDeltaTime);
-            _rb.MovePosition(_rb.position + _velocity * Time.fixedDeltaTime);
+            ApplyMove(targetVelocity);
         }
+
+        // Ranged: hold a distance band; canShoot is true only when in band
+        protected void Move(out bool canShoot, float preferredDistance, float unsafeDistance)
+        {
+            canShoot = false;
+
+            if (!_target || IsDead) { Stop(); return; }
+
+            Vector2 toTarget = (Vector2)_target.position - (Vector2)transform.position;
+            float currentDistance = toTarget.magnitude;
+            Vector2 dir = currentDistance > 0.0001f ? toTarget / currentDistance : Vector2.zero;
+
+            Vector2 targetVelocity;
+
+            if (currentDistance < unsafeDistance)         // too close → retreat
+                targetVelocity = -dir * _def.MoveSpeed;
+            else if (currentDistance > preferredDistance) // too far → approach
+                targetVelocity = dir * _def.MoveSpeed;
+            else                                          // in band → hold & shoot
+            {
+                targetVelocity = Vector2.zero;
+                canShoot = true;
+            }
+
+            ApplyMove(targetVelocity);
+        }
+
+        // --- Internals ---
+
+        private void ApplyMove(Vector2 targetVelocity)
+        {
+            float dt = Time.fixedDeltaTime;
+            _velocity = Vector2.MoveTowards(_velocity, targetVelocity, _def.Acceleration * dt);
+            _rb.MovePosition(_rb.position + _velocity * dt);
+        }
+
+        private void Stop()
+        {
+            _velocity = Vector2.zero;
+        }
+
         // Spawner calls once per spawn (after Rent)
         public virtual void InitFrom(EnemyDef def)
         {

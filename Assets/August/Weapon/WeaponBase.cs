@@ -20,10 +20,30 @@ namespace Survivor.Weapon {
         public WeaponContext GetContext() => ctx;
         public TDef GetDef() => def;
 
-        public virtual void Equip(WeaponContext context)
+
+        void IWeapon.Equip(WeaponDef baseDef, WeaponContext context)
         {
+            // Defensive narrowing cast
+            if (baseDef is not TDef typed)
+                throw new System.ArgumentException(
+                    $"[{GetType().Name}] expects {typeof(TDef).Name}, got {baseDef?.GetType().Name ?? "null"}");
+
+            def = typed;
             ctx = context;
-            fireOrigin = context.FireOrigin;
+            OnEquipped(); // hook for subclasses
+        }
+
+        // Optional: a strongly-typed overload for internal use/tests
+        protected virtual void Equip(TDef typedDef, WeaponContext context)
+        {
+            def = typedDef ?? throw new System.ArgumentNullException(nameof(typedDef));
+            ctx = context;
+            OnEquipped();
+        }
+
+        protected virtual void OnEquipped()
+        {
+            fireOrigin = ctx.FireOrigin;
             cooldown = 0f;
 
             // Initialize weapon stats from def
@@ -44,6 +64,7 @@ namespace Survivor.Weapon {
                 for (int i = 0; i < mods.Length; i++)
                     if (mods[i]) mods[i].OnEquip(this);
             }
+
         }
 
         // --- Tick scaffolding shared by all weapons -------------------------

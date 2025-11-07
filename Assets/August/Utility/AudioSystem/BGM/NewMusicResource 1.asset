@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f30e0788a17ea7a4cb58daf4ce35048b, type: 3}
+  m_Name: NewMusicResource 1
+  m_EditorClassIdentifier: 
+  clip: {fileID: 8300000, guid: c068a8c76a5be7c429b79a03ef7041c6, type: 3}
+  volume: 1
+  loop: 0
+  fadeInSeconds: 1
+  fadeOutSeconds: 1
