@@ -20,8 +20,10 @@ namespace Survivor.Progression
         public Rarity Rarity;
         public UpgradeKind Kind;
         public bool IsInfinite;     // true for repeatable stat bumps
+        [Tooltip("Only If Infinite")]
         public int MaxPicks = 1;    // caps finite upgrades
-
+        
+            
         [Header("Weights")]
         public float BaseWeight = 1f;
         public Rule.WeightRule[] Rules;

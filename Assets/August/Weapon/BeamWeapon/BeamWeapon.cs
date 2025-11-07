@@ -112,7 +112,7 @@ namespace Survivor.Weapon
                 : LayerMask.NameToLayer("EnemyProjectile");
 
             beam.SetHitSink(this);
-            beam.ConfigureCrit(GetEffectiveCritChance(), GetEffectiveCritMultiplier(), perTick: true);
+            beam.ConfigureCrit(Current().CritChance, Current().CritMultiplier, perTick: true);
 
             var targetMask = (ctx.Team == Team.Player) ? LayerMask.GetMask("Enemy") : LayerMask.GetMask("Player");
             beam.SetTargetMask(targetMask);

@@ -7,7 +7,7 @@ namespace Survivor.Drop
     [DisallowMultipleComponent]
     public abstract class DropItemBase : MonoBehaviour, IDrop, IPoolable
     {
-        [SerializeField, Min(1)] public int amount = 1;
+        [Min(1)] public int amount = 1;
         protected PrefabStamp _stamp;
         protected Collider2D _collider;
         protected SpriteOutline _outlineDriver;

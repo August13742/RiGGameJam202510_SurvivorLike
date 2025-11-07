@@ -1,39 +1,42 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-namespace Survivor.Weapon { 
+namespace Survivor.Weapon
+{
+    public enum Team { Player, Enemy }
 
-    public enum Team{Player,Enemy}
-    public abstract class WeaponBase<TDef> : MonoBehaviour, IUpgradeableWeapon, IHitEventSink, IModTarget where TDef : WeaponDef
+    public abstract class WeaponBase<TDef> : MonoBehaviour,
+        IUpgradeableWeapon, IHitEventSink, IModTarget where TDef : WeaponDef
     {
         [SerializeField] protected TDef def;
         [SerializeField] protected Transform fireOrigin;
-
         [SerializeField] protected WeaponModDef[] mods;
 
         protected WeaponContext ctx;
         protected float cooldown;
         protected System.Func<Transform> _getTarget;
 
-        protected WeaponStats weaponStats = new (); // permanent
-        protected WeaponStats dynamicMods = new (); // per-tick, reset every Tick
+        // Permanent from upgrades
+        protected readonly List<WeaponLevelBonus> permanentBonuses = new();
+
+        // Per-tick, reset every Tick
+        protected RuntimeModState dynamicMods = new();
 
         public WeaponContext GetContext() => ctx;
         public TDef GetDef() => def;
 
-
+        // ---- IWeapon --------------------------------------------------------
         void IWeapon.Equip(WeaponDef baseDef, WeaponContext context)
         {
-            // Defensive narrowing cast
             if (baseDef is not TDef typed)
                 throw new System.ArgumentException(
                     $"[{GetType().Name}] expects {typeof(TDef).Name}, got {baseDef?.GetType().Name ?? "null"}");
 
             def = typed;
             ctx = context;
-            OnEquipped(); // hook for subclasses
+            OnEquipped();
         }
 
-        // Optional: a strongly-typed overload for internal use/tests
         protected virtual void Equip(TDef typedDef, WeaponContext context)
         {
             def = typedDef ?? throw new System.ArgumentNullException(nameof(typedDef));
@@ -46,10 +49,6 @@ namespace Survivor.Weapon {
             fireOrigin = ctx.FireOrigin;
             cooldown = 0f;
 
-            // Initialize weapon stats from def
-            weaponStats.CritChance = def.BaseCritChance;
-            weaponStats.CritMultiplier = def.BaseCritMultiplier;
-
             _getTarget = def.TargetingMode switch
             {
                 TargetMode.SelfCentered => ctx.SelfCentered ?? ctx.Target,
@@ -58,37 +57,32 @@ namespace Survivor.Weapon {
                 _ => ctx.Nearest ?? ctx.Target
             };
 
-            // Mods: OnEquip for all weapons
             if (mods != null)
-            {
                 for (int i = 0; i < mods.Length; i++)
                     if (mods[i]) mods[i].OnEquip(this);
-            }
-
         }
 
-        // --- Tick scaffolding shared by all weapons -------------------------
-
-        /// Call this at the very start of Tick.
+        // ---- Tick scaffolding ----------------------------------------------
+        /// Call at the very start of Tick.
         protected bool BeginTickAndGate(float dt)
         {
-            // 1) reset per-tick
+            // 1) reset per-tick mods
             ResetDynamicMods();
 
-            // 2) let mods apply per-tick effects (e.g., haste stacks)
+            // 2) let mods apply per-tick effects
             if (mods != null)
             {
                 for (int i = 0; i < mods.Length; i++)
                     if (mods[i]) mods[i].OnTick(this, dt);
             }
 
-            // 3) cooldown decrement with current effective multiplier
+            // 3) cooldown
             cooldown -= dt;
             if (cooldown > 0f) return false;
-            
-            // 4) Fire allowed - set new cooldown using effective multiplier
-            float cd = def.BaseCooldown * GetEffectiveCooldownMul();
-            cooldown = Mathf.Max(0.01f, cd);
+
+            // 4) set next cooldown using effective snapshot
+            var stats = Current(); // snapshot from def + permanent + dynamic
+            cooldown = Mathf.Max(0.01f, stats.Cooldown);
             return true;
         }
 
@@ -96,25 +90,25 @@ namespace Survivor.Weapon {
         {
             cooldown -= dt;
             if (cooldown > 0f) return false;
-            float cd = def.BaseCooldown * GetEffectiveCooldownMul();
-            cooldown = Mathf.Max(0.01f, cd);
+            var stats = Current();
+            cooldown = Mathf.Max(0.01f, stats.Cooldown);
             return true;
         }
 
-        // --- Crit helpers ----------------------------------------------------
+        // ---- Crit helpers ---------------------------------------------------
         protected bool RollCrit()
         {
-            return Random.value < Mathf.Clamp01(GetEffectiveCritChance());
+            return Random.value < Mathf.Clamp01(Current().CritChance);
         }
 
         protected int ApplyCrit(int baseDamage, bool crit)
         {
             if (!crit) return baseDamage;
-            float m = Mathf.Max(1f, GetEffectiveCritMultiplier());
+            float m = Mathf.Max(1f, Current().CritMultiplier);
             return Mathf.Max(1, Mathf.RoundToInt(baseDamage * m));
         }
 
-        // --- Mod event fan-out ----------------------------------------------
+        // ---- Mod event fan-out ---------------------------------------------
         public void OnHit(float damage, Vector2 pos, bool crit)
         {
             if (mods == null) return;
@@ -134,55 +128,121 @@ namespace Survivor.Weapon {
                 if (mods[i]) mods[i].OnKill(this, pos);
         }
 
-        // --- Effective stats ------------------------------------
-        protected int ScaledDamage() => Mathf.Max(1, Mathf.RoundToInt(def.BaseDamage * GetEffectiveDamageMul()));
-        protected float ScaledArea() => def.AreaScale * GetEffectiveAreaMul();
-        protected int Shots() => Mathf.Max(1, def.Projectiles + GetEffectiveProjectilesAdd());
-        protected int Pierce() => GetEffectivePierceAdd();
-        protected float Speed() => GetEffectiveSpeedMul();
+        // ---- Effective snapshot & convenience accessors --------------------
+        protected EffectiveWeaponStats Current()
+        {
+            int basePierce = 0;
+            if (def is ProjectileWeaponDef pdef) basePierce = pdef.Pierce;
 
-        protected float GetEffectiveCooldownMul() => weaponStats.CooldownMul * dynamicMods.CooldownMul;
-        protected float GetEffectiveDamageMul() => weaponStats.DamageMul * dynamicMods.DamageMul;
-        protected float GetEffectiveAreaMul() => weaponStats.AreaMul * dynamicMods.AreaMul;
-        protected int GetEffectiveProjectilesAdd() => weaponStats.ProjectilesAdd + dynamicMods.ProjectilesAdd;
-        protected int GetEffectivePierceAdd() => weaponStats.PierceAdd + dynamicMods.PierceAdd;
-        protected float GetEffectiveSpeedMul() => weaponStats.SpeedMul * dynamicMods.SpeedMul;
-        protected float GetEffectiveCritChance() => weaponStats.CritChance + dynamicMods.CritChance;
-        protected float GetEffectiveCritMultiplier() => Mathf.Max(weaponStats.CritMultiplier, dynamicMods.CritMultiplier);
+            // combine permanent bonuses with a single-frame "bonus" view over dynamic mods
+            var combined = _tmpCombined;
+            combined.Clear();
+            // fold permanent
+            for (int i = 0; i < permanentBonuses.Count; i++) Accumulate(ref combined, permanentBonuses[i]);
+            // fold dynamic
+            Accumulate(ref combined, dynamicMods);
 
-        public void SetDynamicMods(WeaponStats modsStats) { if (modsStats != null) dynamicMods = modsStats; }
-        public void ResetDynamicMods() { dynamicMods = new WeaponStats(); }
-        public WeaponStats GetAndMutateDynamicMods(System.Action<WeaponStats> mut = null)
+            return Compute(def, combined, basePierce);
+        }
+
+        protected int ScaledDamage() => Mathf.Max(1, Mathf.RoundToInt(Current().Damage));
+        protected float ScaledArea() => Current().AreaScale;
+        protected int Shots() => Current().Projectiles;
+        protected int Pierce() => Current().Pierce;
+        protected float SpeedFactor() => Current().SpeedFactor;
+
+        // ---- IModTarget -----------------------------------------------------
+        public void SetDynamicMods(RuntimeModState modsState)
+        {
+            if (modsState != null) dynamicMods = modsState;
+        }
+
+        public void ResetDynamicMods() => dynamicMods.Clear();
+
+        public RuntimeModState GetAndMutateDynamicMods(System.Action<RuntimeModState> mut = null)
         {
             mut?.Invoke(dynamicMods);
             return dynamicMods;
         }
 
-        // IUpgradeableWeapon
+        // ---- IUpgradeableWeapon --------------------------------------------
         public bool Owns(WeaponDef otherDef) => def == otherDef;
-        public void ApplyUpgrade(WeaponStats delta)
+
+        public void ApplyUpgrade(WeaponLevelBonus bonus)
         {
-            if (delta == null) return;
-            weaponStats.CooldownMul *= delta.CooldownMul;
-            weaponStats.DamageMul *= delta.DamageMul;
-            weaponStats.AreaMul *= delta.AreaMul;
-            weaponStats.ProjectilesAdd += delta.ProjectilesAdd;
-            weaponStats.PierceAdd += delta.PierceAdd;
-            weaponStats.SpeedMul *= delta.SpeedMul;
-            weaponStats.CritChance += delta.CritChance;
-            weaponStats.CritMultiplier = Mathf.Max(weaponStats.CritMultiplier, delta.CritMultiplier);
+            if (bonus == null || bonus.IsNoop()) return;
+            permanentBonuses.Add(bonus);
         }
-        public WeaponStats GetCurrentStats() => new WeaponStats
+
+        public EffectiveWeaponStats GetCurrentStats() => Current();
+
+        // ---- Aggregation helpers -------------------------------------------
+        private readonly Accum _tmpCombined = new();
+
+        private struct Accum
         {
-            CooldownMul = weaponStats.CooldownMul,
-            DamageMul = weaponStats.DamageMul,
-            AreaMul = weaponStats.AreaMul,
-            ProjectilesAdd = weaponStats.ProjectilesAdd,
-            PierceAdd = weaponStats.PierceAdd,
-            SpeedMul = weaponStats.SpeedMul,
-            CritChance = weaponStats.CritChance,
-            CritMultiplier = weaponStats.CritMultiplier
-        };
+            public float dmgMul, cdRed, areaMul, speedMul;
+            public int projAdd, pierceAdd;
+            public float critChanceAdd, critMultAdd;
+            public void Clear()
+            {
+                dmgMul = cdRed = areaMul = speedMul = 0f;
+                projAdd = pierceAdd = 0;
+                critChanceAdd = critMultAdd = 0f;
+            }
+        }
+
+        private static void Accumulate(ref Accum a, WeaponLevelBonus b)
+        {
+            a.dmgMul += b.DamageMultiplierBonus;
+            a.cdRed += b.CooldownReduction;
+            a.areaMul += b.AreaScaleBonus;
+            a.speedMul += b.SpeedMultiplierBonus;
+            a.projAdd += b.ProjectileCountBonus;
+            a.pierceAdd += b.PierceCountBonus;
+            a.critChanceAdd += b.CritChanceBonus;
+            a.critMultAdd += b.CritDamageMultiplierBonus;
+        }
+
+        private static void Accumulate(ref Accum a, RuntimeModState d)
+        {
+            a.dmgMul += d.DamageMultiplierBonus;
+            a.cdRed += d.CooldownReduction;
+            a.areaMul += d.AreaScaleBonus;
+            a.speedMul += d.SpeedMultiplierBonus;
+            a.projAdd += d.ProjectileCountBonus;
+            a.pierceAdd += d.PierceCountBonus;
+            a.critChanceAdd += d.CritChanceBonus;
+            a.critMultAdd += d.CritDamageMultiplierBonus;
+        }
+
+        private static EffectiveWeaponStats Compute(WeaponDef def, in Accum a, int typeBasePierce)
+        {
+            float damage = def.BaseDamage * (1f - 0f + (1f * a.dmgMul)); // base × (1+Σ)
+            float cooldown = def.BaseCooldown * Mathf.Max(0.01f, 1f - a.cdRed);
+            float area = def.AreaScale * (1f + a.areaMul);
+            int proj = Mathf.Max(1, def.Projectiles + a.projAdd);
+            int pierce = Mathf.Max(0, typeBasePierce + a.pierceAdd);
+
+            float cChance = Mathf.Clamp01(def.BaseCritChance + a.critChanceAdd);
+            float cMult = Mathf.Max(1f, def.BaseCritMultiplier + a.critMultAdd);
+
+            return new EffectiveWeaponStats
+            {
+                Damage = damage,
+                Cooldown = cooldown,
+                AreaScale = area,
+                Projectiles = proj,
+                Pierce = pierce,
+                CritChance = cChance,
+                CritMultiplier = cMult,
+                SpeedFactor = 1f + a.speedMul,
+
+                DamageMultiplierFromBase = (def.BaseDamage > 0f) ? damage / def.BaseDamage : 1f,
+                CooldownMultiplierFromBase = (def.BaseCooldown > 0f) ? cooldown / def.BaseCooldown : 1f,
+                AreaMultiplierFromBase = (def.AreaScale > 0f) ? area / def.AreaScale : 1f
+            };
+        }
 
         public abstract void Tick(float dt);
     }
