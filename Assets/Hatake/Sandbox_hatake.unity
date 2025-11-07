@@ -31698,6 +31698,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DamageShederEffect
   effectTime: 0.5
+--- !u!114 &1676254784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1676254775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ca3ed3e4257db1448db8740b25701a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameStop
 --- !u!1 &1738727417
 GameObject:
   m_ObjectHideFlags: 0
@@ -32097,6 +32109,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5914224002963691110, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1676254783}
+    - targetCorrespondingSourceObject: {fileID: 5914224002963691110, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1676254784}
   m_SourcePrefab: {fileID: 100100000, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
