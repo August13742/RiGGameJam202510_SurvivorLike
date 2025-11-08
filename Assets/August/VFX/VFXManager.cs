@@ -8,10 +8,12 @@ namespace Survivor.VFX
         public static VFXManager Instance { get; private set; }
 
         [SerializeField] private AutoExpandingVFXElement HitEffectPrefab;
+        [SerializeField] private AutoExpandingVFXElement CritHitEffectPrefab;
         [SerializeField] private int prewarm = 128;
 
         private Transform _vfxPoolRoot;
-        private ObjectPool<AutoExpandingVFXElement> _pool;
+        private ObjectPool<AutoExpandingVFXElement> _poolNormal;
+        private ObjectPool<AutoExpandingVFXElement> _poolCrit;
 
         private void Awake()
         {
@@ -24,12 +26,15 @@ namespace Survivor.VFX
             _vfxPoolRoot = new GameObject("VFXPool").transform;
             _vfxPoolRoot.SetParent(poolRoot, false);
 
-            _pool = new ObjectPool<AutoExpandingVFXElement>(HitEffectPrefab, prewarm, _vfxPoolRoot);
+            _poolNormal = new ObjectPool<AutoExpandingVFXElement>(HitEffectPrefab, prewarm, _vfxPoolRoot);
+            _poolCrit = new ObjectPool<AutoExpandingVFXElement>(CritHitEffectPrefab, prewarm, _vfxPoolRoot);
+
         }
 
         public void ShowHitEffect(Vector3 worldPos, bool crit = false)
         {
-            var fx = _pool.Rent(worldPos, Quaternion.identity);
+
+            var fx = crit ? _poolNormal.Rent(worldPos, Quaternion.identity) : _poolCrit.Rent(worldPos, Quaternion.identity);
             fx.Init(crit);
         }
 

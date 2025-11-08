@@ -1,5 +1,6 @@
 using UnityEngine;
 using Survivor.Game;
+using Survivor.VFX;
 
 namespace Survivor.Weapon
 {
@@ -77,6 +78,8 @@ namespace Survivor.Weapon
             target.Damage(dealt,crit);
 
             _sink?.OnHit(dealt, transform.position, crit);
+
+            VFXManager.Instance?.ShowHitEffect(col.gameObject.transform.position, crit);
             if (target.IsDead) _sink?.OnKill(transform.position);
 
             if (Pierce > 0) { Pierce--; } else { Despawn(); }
