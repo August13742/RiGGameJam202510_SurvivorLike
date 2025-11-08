@@ -239,15 +239,13 @@ namespace Survivor.Game
                 return;
             }
 
-            string msg;
-            switch (kind)
+            string msg = kind switch
             {
-                case "enemyDown": msg = number.ToString() + "‘Ì‚Ì“G‚ð“|‚µ‚½!"; break;
-                case "damage": msg = number.ToString() + "ƒ_ƒ[ƒW‚ð—^‚¦‚½!"; break;
-                case "beDamaged": msg = number.ToString() + "ƒ_ƒ[ƒW‚­‚ç‚Á‚½!"; break;
-                default: msg = number.ToString(); break;
-            }
-
+                "enemyDown" => number.ToString() + "‘Ì‚Ì“G‚ð“|‚µ‚½!",
+                "damage" => number.ToString() + "ƒ_ƒ[ƒW‚ð—^‚¦‚½!",
+                "beDamaged" => number.ToString() + "ƒ_ƒ[ƒW‚­‚ç‚Á‚½!",
+                _ => number.ToString(),
+            };
             Sprite icon = null;
 
             popup.Configure(msg, icon);

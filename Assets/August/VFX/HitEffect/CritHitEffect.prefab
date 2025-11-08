@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8585465845216887926}
   - component: {fileID: 1186405288449814466}
+  - component: {fileID: -8142329514329488047}
   m_Layer: 0
-  m_Name: ProceduralCircleHitEffect
+  m_Name: CritHitEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -79,7 +80,7 @@ SpriteRenderer:
   m_SortingLayerID: 77542161
   m_SortingLayer: 5
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 325e9d59ac09ac54faae2f730871baf0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 08c200e83a57ed148b52aeb37ab06979, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -90,3 +91,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &-8142329514329488047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5742687312237229555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04d7efea39f9845458c13f045f167b41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.VFX.AutoExpand
+  InitialScale: {x: 0, y: 0, z: 1}
+  FinalScale: {x: 0.3, y: 0.3, z: 1}
+  Duration: 0.3

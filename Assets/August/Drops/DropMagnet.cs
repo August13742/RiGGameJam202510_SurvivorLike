@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-
+using AugustsUtility.Tween;
 namespace Survivor.Drop
 {
     [RequireComponent(typeof(DropItemBase))]
@@ -26,18 +26,15 @@ namespace Survivor.Drop
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            // If the pickup itself has the trigger, it will also see the magnet zone.
-            // Detect the magnet zone, not the player body, here.
+            // If the pickup itself has the trigger, it will also see the magnet zone
+            // Detects the magnet zone, not the player body
             var zone = other.GetComponent<PlayerMagnetZone>();
             if (!zone) return;
 
             Triggered.Invoke();
             _target = zone.Owner ? zone.Owner : other.transform.root;
-            transform.TweenPosition(
-                target: _target,
-                duration: tweenDuration,
-                ease: EasingFunctions.EaseInOutBack);
 
+            transform.TweenFollowPosition(_target, tweenDuration, EasingFunctions.EaseInOutBack);
 
         }
     }
