@@ -14,7 +14,7 @@ public static class CustomTween
     /// <summary>
     /// Tweens a float value.
     /// </summary>
-    public static Tween<float> To(float from, float to, float duration, Func<float, float> ease, Action<float> onUpdate, Action onComplete = null)
+    public static Tween<float> To(float from, float to, float duration, Func<float, float> ease = null, Action<float> onUpdate = null, Action onComplete = null)
     {
         var tween = new Tween<float>(from, to, duration, ease, onUpdate, InterpolateFloat, onComplete);
         TweenRunner.Instance.Register(tween);
@@ -24,7 +24,7 @@ public static class CustomTween
     /// <summary>
     /// Tweens a Vector2 value.
     /// </summary>
-    public static Tween<Vector2> To(Vector2 from, Vector2 to, float duration, Func<float, float> ease, Action<Vector2> onUpdate, Action onComplete = null)
+    public static Tween<Vector2> To(Vector2 from, Vector2 to, float duration, Func<float, float> ease = null, Action<Vector2> onUpdate = null, Action onComplete = null)
     {
         // Use LerpUnclamped to allow easing functions to overshoot the 0-1 range (e.g., elastic/back).
         var tween = new Tween<Vector2>(from, to, duration, ease, onUpdate, Vector2.LerpUnclamped, onComplete);
@@ -35,7 +35,7 @@ public static class CustomTween
     /// <summary>
     /// Tweens a Vector3 value.
     /// </summary>
-    public static Tween<Vector3> To(Vector3 from, Vector3 to, float duration, Func<float, float> ease, Action<Vector3> onUpdate, Action onComplete = null)
+    public static Tween<Vector3> To(Vector3 from, Vector3 to, float duration, Func<float, float> ease = null, Action<Vector3> onUpdate = null, Action onComplete = null)
     {
         var tween = new Tween<Vector3>(from, to, duration, ease, onUpdate, Vector3.LerpUnclamped, onComplete);
         TweenRunner.Instance.Register(tween);
@@ -190,8 +190,8 @@ public class Tween<T> : ITween
 public class TweenRunner : MonoBehaviour
 {
     private static TweenRunner _instance;
-    private readonly List<ITween> _activeTweens = new List<ITween>();
-    private readonly List<ITween> _tweensToAdd = new List<ITween>();
+    private readonly List<ITween> _activeTweens = new();
+    private readonly List<ITween> _tweensToAdd = new();
 
     public static TweenRunner Instance
     {

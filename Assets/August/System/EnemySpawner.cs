@@ -20,8 +20,9 @@ namespace Survivor.Game
         [SerializeField] private float spawnsPerSecond = 3f;
         [SerializeField] private int maxAlive = 150;
 
-        [Header("Layering")]
-        [SerializeField] private Transform poolRoot;
+
+        private Transform poolRoot;
+        private Transform enemyPool;
 
         private readonly Dictionary<GameObject, ObjectPool> _pools = new();
         private float _spawnAcc;
@@ -30,7 +31,13 @@ namespace Survivor.Game
 
         private void Awake()
         {
-            if (!poolRoot) poolRoot = new GameObject("EnemyPools").transform;
+            poolRoot = GameObject.FindWithTag("PoolRoot").transform;
+            if (!poolRoot) { poolRoot = new GameObject("ObjectPools").transform; }
+
+            enemyPool = new GameObject("EnemyPool").transform;
+            enemyPool.tag = "EnemyPool";
+            enemyPool.parent = poolRoot;
+                
             _rng = new System.Random(13742);
         }
 
@@ -71,7 +78,7 @@ namespace Survivor.Game
         private ObjectPool GetOrCreatePool(GameObject prefab, int prewarm)
         {
             if (_pools.TryGetValue(prefab, out var p)) return p;
-            var pool = new ObjectPool(prefab, Mathf.Max(0, prewarm), poolRoot);
+            var pool = new ObjectPool(prefab, Mathf.Max(0, prewarm), enemyPool);
             _pools.Add(prefab, pool);
             return pool;
         }

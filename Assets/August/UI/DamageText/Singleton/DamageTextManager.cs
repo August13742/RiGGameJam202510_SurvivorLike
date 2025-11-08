@@ -10,7 +10,7 @@ namespace Survivor.UI
 
         [SerializeField] private GameObject textPrefab; // prefab with DamageNumber + PrefabStamp + TMP
         [SerializeField] private int prewarm = 128;
-        [SerializeField] private Transform poolRoot;
+        private Transform poolRoot;
 
         private ObjectPool _pool;
 
@@ -19,11 +19,20 @@ namespace Survivor.UI
             if (Instance && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
 
-            if (!poolRoot) poolRoot = new GameObject("DamageNumbersPool").transform;
+            GameObject pools = GameObject.FindWithTag("PoolRoot");
+            if (!pools)
+            {
+                pools = new GameObject("ObjectPools");
+            }
+
+            poolRoot = new GameObject("DamageNumbersPool").transform;
+            poolRoot.parent = pools.transform;
+
+
             _pool = new ObjectPool(textPrefab, prewarm, poolRoot);
         }
 
-        public void ShowNormal(Vector3 worldPos, float amount)
+public void ShowNormal(Vector3 worldPos, float amount)
         {
             GameObject go = _pool.Rent(worldPos, Quaternion.identity);
             DamageText text = go.GetComponent<DamageText>();

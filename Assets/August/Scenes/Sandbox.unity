@@ -31006,7 +31006,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.LootManager
   preloadTables:
   - {fileID: 11400000, guid: be5f8603e81dd7441a552ec478915411, type: 2}
-  poolRoot: {fileID: 1738727418}
 --- !u!4 &411938112
 Transform:
   m_ObjectHideFlags: 0
@@ -31532,6 +31531,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc4fb011827f8964ea63251465909be4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.SessionManager
+  player: {fileID: 0}
+  currentExp: 20
+  currentExpReq: 5
   ExpGrowthPerLevel: 5
   enemyDowned: 0
   damageDealt: 0
@@ -31539,6 +31541,13 @@ MonoBehaviour:
   damageTaken: 0
   goldCollected: 0
   experienceCollected: 0
+  uiCanvas: {fileID: 1554075412}
+  achievementPrefab: {fileID: 1031539035029167239, guid: d0ced84e6e4323a4ca9b29189bfb322c, type: 3}
+  YPosoffset: 10
+  HoldDurationSec: 2
+  enemyDownThresholds: 64000000e803000010270000a0860100
+  dmgDealtThresholds: 64000000e803000010270000a0860100
+  dmgTakenThresholds: 64000000e803000010270000
 --- !u!4 &1328501868
 Transform:
   m_ObjectHideFlags: 0
@@ -31546,6 +31555,37 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1328501866}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1494741500
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1494741501}
+  m_Layer: 0
+  m_Name: VFXManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!4 &1494741501
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1494741500}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -31687,7 +31727,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.UI.DamageTextManager
   textPrefab: {fileID: 1514175761618714281, guid: a4c2fa28915fc864e9eb98096c20d432, type: 3}
   prewarm: 96
-  poolRoot: {fileID: 1738727418}
 --- !u!4 &1569298593
 Transform:
   m_ObjectHideFlags: 0
@@ -31762,7 +31801,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1738727418}
   m_Layer: 0
-  m_Name: Pools
+  m_Name: ObjectPools
   m_TagString: PoolRoot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31820,7 +31859,6 @@ MonoBehaviour:
   ringJitterDeg: 8
   spawnsPerSecond: 5
   maxAlive: 150
-  poolRoot: {fileID: 1738727418}
 --- !u!4 &1767992471
 Transform:
   m_ObjectHideFlags: 0
@@ -31904,23 +31942,6 @@ MonoBehaviour:
   progression: {fileID: 1823177356}
   menu: {fileID: 0}
   menuPrefab: {fileID: 7220090452295562062, guid: eb6f7429076dfcb4aafe8992f5df2313, type: 3}
---- !u!1 &1876785524 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5914224002963691110, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
-  m_PrefabInstance: {fileID: 6532379212128414380}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1876785532
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1876785524}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be6a860d9819d8247970ae4416e12694, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HitstopArbiter
 --- !u!1 &1891806700
 GameObject:
   m_ObjectHideFlags: 0
@@ -32087,26 +32108,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 714303197}
     m_Modifications:
-    - target: {fileID: 2560214199077104943, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
-      propertyPath: useIframe
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2560214199077104943, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
-      propertyPath: iframeDuration
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2560214199077104943, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
-      propertyPath: hitstopDurationSec
-      value: 0.05
-      objectReference: {fileID: 0}
-    - target: {fileID: 2560214199077104943, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
-      propertyPath: resetToFullOnEnable
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3366415871892552821, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
-      propertyPath: forwardLerp
-      value: 0.25
-      objectReference: {fileID: 0}
     - target: {fileID: 3366415871892552821, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       propertyPath: sharedPoolRoot
       value: 
@@ -32159,17 +32160,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerTest
       objectReference: {fileID: 0}
-    - target: {fileID: 8636856998270990283, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
-      propertyPath: Owner
-      value: 
-      objectReference: {fileID: 1087677166}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5914224002963691110, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1876785532}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -32179,8 +32173,8 @@ SceneRoots:
   - {fileID: 143754022}
   - {fileID: 714303197}
   - {fileID: 1738727418}
-  - {fileID: 1767992471}
   - {fileID: 1554075412}
+  - {fileID: 1767992471}
   - {fileID: 1149942828}
   - {fileID: 411938112}
   - {fileID: 1823177355}
@@ -32188,3 +32182,4 @@ SceneRoots:
   - {fileID: 1328501868}
   - {fileID: 1636565947}
   - {fileID: 337946412}
+  - {fileID: 1494741501}

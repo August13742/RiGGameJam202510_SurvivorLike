@@ -77,7 +77,7 @@ public static class EasingFunctions
 
     public static float EaseInOutElastic(float x)
         {
-            const float c5 = (2f * MathF.PI) / 4.5f;
+            const float c5 = (2f * Mathf.PI) / 4.5f;
 
             if (x == 0f)
                 return 0f;
@@ -86,18 +86,18 @@ public static class EasingFunctions
 
             if (x < 0.5f)
             {
-                return -(MathF.Pow(2f, 20f * x - 10f) *
-                         MathF.Sin((20f * x - 11.125f) * c5)) / 2f;
+                return -(Mathf.Pow(2f, 20f * x - 10f) *
+                         Mathf.Sin((20f * x - 11.125f) * c5)) / 2f;
             }
             else
             {
-                return (MathF.Pow(2f, -20f * x + 10f) *
-                        MathF.Sin((20f * x - 11.125f) * c5)) / 2f + 1f;
+                return (Mathf.Pow(2f, -20f * x + 10f) *
+                        Mathf.Sin((20f * x - 11.125f) * c5)) / 2f + 1f;
             }
 
         }
 
 
 
-    public static float Linear(float x) => x; // baseline
+    public static float Linear(float x) { return x; } // baseline
     }
