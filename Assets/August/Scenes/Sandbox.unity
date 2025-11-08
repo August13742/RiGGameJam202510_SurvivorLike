@@ -31532,7 +31532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.SessionManager
   player: {fileID: 0}
-  currentExp: 20
+  currentExp: -9999
   currentExpReq: 5
   ExpGrowthPerLevel: 5
   enemyDowned: 0
@@ -31543,8 +31543,6 @@ MonoBehaviour:
   experienceCollected: 0
   uiCanvas: {fileID: 1554075412}
   achievementPrefab: {fileID: 1031539035029167239, guid: d0ced84e6e4323a4ca9b29189bfb322c, type: 3}
-  YPosoffset: 10
-  HoldDurationSec: 2
   enemyDownThresholds: 64000000e803000010270000a0860100
   dmgDealtThresholds: 64000000e803000010270000a0860100
   dmgTakenThresholds: 64000000e803000010270000
@@ -31725,7 +31723,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd8ead2ed47e3a43a4ac54e47eb2e81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.UI.DamageTextManager
-  textPrefab: {fileID: 1514175761618714281, guid: a4c2fa28915fc864e9eb98096c20d432, type: 3}
+  textPrefab: {fileID: 2431448332733701753, guid: a4c2fa28915fc864e9eb98096c20d432, type: 3}
   prewarm: 96
 --- !u!4 &1569298593
 Transform:
@@ -32108,6 +32106,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 714303197}
     m_Modifications:
+    - target: {fileID: 1188870799436704693, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
+      propertyPath: m_Radius
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 3366415871892552821, guid: 58f82412127165445b3815ced0bdd9f0, type: 3}
       propertyPath: sharedPoolRoot
       value: 

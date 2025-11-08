@@ -5,7 +5,7 @@ namespace Survivor.Weapon
     [CreateAssetMenu(menuName = "Defs/Weapons/Projectile")]
     public sealed class ProjectileWeaponDef : WeaponDef
     {
-        public GameObject ProjectilePrefab;
+        public Projectile ProjectilePrefab;
         public float ProjectileSpeed = 8f;
         public int Pierce = 0;
         public float Lifetime = 4f;

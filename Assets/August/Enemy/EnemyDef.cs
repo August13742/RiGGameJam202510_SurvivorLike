@@ -6,7 +6,7 @@ namespace Survivor.Enemy
     public abstract class EnemyDef : ScriptableObject
     {
         [Header("Prefab")]
-        public GameObject Prefab;              // Must include EnemyMarker, Rigidbody2D, collider, etc.
+        public EnemyBase Prefab;              // Must include EnemyMarker, Rigidbody2D, collider, etc.
 
         [Header("Stats")]
         public int BaseHP = 20;

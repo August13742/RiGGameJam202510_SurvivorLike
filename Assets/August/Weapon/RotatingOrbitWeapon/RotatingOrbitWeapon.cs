@@ -6,13 +6,13 @@ namespace Survivor.Weapon
     [DisallowMultipleComponent]
     public sealed class RotatingOrbitWeapon : WeaponBase<RotatingOrbitWeaponDef>
     {
-        private ObjectPool _orbPool;
+        private ObjectPool<RotatingOrbitOrb> _orbPool;
 
 
         protected override void OnEquipped()
         {
             base.OnEquipped();
-            _orbPool = new ObjectPool(def.OrbPrefab, prewarm: 8, ctx.PoolRoot);
+            _orbPool = new(def.OrbPrefab, prewarm: 8, ctx.PoolRoot);
         }
 
 
@@ -54,13 +54,10 @@ namespace Survivor.Weapon
             {
                 float startAng = step * i;
 
-                GameObject go = _orbPool.Rent(pivot.position, Quaternion.identity);
-                go.layer = (ctx.Team == Team.Player)
+                RotatingOrbitOrb orb = _orbPool.Rent(pivot.position, Quaternion.identity);
+                orb.gameObject.layer = (ctx.Team == Team.Player)
                     ? LayerMask.NameToLayer("PlayerProjectile")
                     : LayerMask.NameToLayer("EnemyProjectile");
-
-                var orb = go.GetComponent<RotatingOrbitOrb>();
-                orb.SetPool(_orbPool);
 
 
                 orb.SetHitSink(this);

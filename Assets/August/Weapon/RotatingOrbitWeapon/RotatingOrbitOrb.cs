@@ -23,17 +23,20 @@ namespace Survivor.Weapon
         private bool _followOrigin;
         private int _damage;
         private Team _team;
-        private ObjectPool _pool;
         private int _maxHitsPerTarget;
         private HashSet<HealthComponent> _hitSet;
         private AnimationCurve _motionCurve;
 
+        private PrefabStamp _stamp;
         private IHitEventSink _sink;
         private float _critChance = 0f;
         private float _critMul = 1f;
         private bool _critPerHit = true;
 
-        public void SetPool(ObjectPool p) => _pool = p;
+        private void Awake()
+        {
+            _stamp = GetComponent<PrefabStamp>();
+        }
         public void SetHitSink(IHitEventSink sink) => _sink = sink;
         public void ConfigureCrit(float chance, float mul, bool perHit)
         {
@@ -93,9 +96,9 @@ namespace Survivor.Weapon
             transform.position = pos;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
-            _t += Time.deltaTime;
+            _t += Time.fixedDeltaTime;
             if (_t >= _lifetime || (!_pivot && _followOrigin))
             {
                 Despawn();
@@ -147,7 +150,7 @@ namespace Survivor.Weapon
 
         private void Despawn()
         {
-            if (_pool != null) _pool.Return(gameObject);
+            if (_stamp.OwnerPool != null) _stamp.OwnerPool.Return(gameObject);
             else gameObject.SetActive(false);
         }
 

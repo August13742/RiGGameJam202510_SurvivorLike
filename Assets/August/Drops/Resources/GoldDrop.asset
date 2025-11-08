@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49603eba6384dfb41a40aa45801bc294, type: 3}
   m_Name: GoldDrop
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Drop.DropItemDef
-  Prefab: {fileID: 3830765849734340063, guid: 57799d8d385f4f447b8429808544a3ec, type: 3}
+  Prefab: {fileID: 4303593088729978649, guid: 57799d8d385f4f447b8429808544a3ec, type: 3}
   MinAmount: 1
   MaxAmount: 1
   PrewarmCount: 8
