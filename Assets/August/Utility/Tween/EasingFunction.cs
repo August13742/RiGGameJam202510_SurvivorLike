@@ -77,7 +77,7 @@ public static class EasingFunctions
 
     public static float EaseInOutElastic(float x)
         {
-            const float c5 = (2f * MathF.PI) / 4.5f;
+            const float c5 = (2f * Mathf.PI) / 4.5f;
 
             if (x == 0f)
                 return 0f;
@@ -99,5 +99,5 @@ public static class EasingFunctions
 
 
 
-    public static float Linear(float x) => x; // baseline
+    public static float Linear(float x) { return x; } // baseline
     }

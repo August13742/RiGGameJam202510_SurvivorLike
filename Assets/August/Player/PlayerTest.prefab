@@ -214,7 +214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54a1ed95f3e22444ca9003505a19f033, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Drop.PlayerMagnetZone
-  Player: {fileID: 3863936289245180800}
+  Owner: {fileID: 3863936289245180800}
 --- !u!1 &5914224002963691110
 GameObject:
   m_ObjectHideFlags: 0
@@ -229,8 +229,10 @@ GameObject:
   - component: {fileID: 152034367600551103}
   - component: {fileID: 2560214199077104943}
   - component: {fileID: 4578546165907560104}
+  - component: {fileID: 7207761287062554941}
   - component: {fileID: 5806806840443530406}
   - component: {fileID: 3366415871892552821}
+  - component: {fileID: 549629195904960400}
   m_Layer: 6
   m_Name: PlayerTest
   m_TagString: Player
@@ -351,7 +353,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
   maxHP: 100
   current: 0
-  resetToFullOnEnable: 1
+  triggerHitstopOnDamaged: 1
+  hitstopDurationSec: 0.05
+  useIframe: 1
+  iframeDuration: 0.1
 --- !u!114 &4578546165907560104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,11 +369,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1669688571a3c67409d407901e79cb26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Control.PlayerController
-  moveSpeed: 6
-  acceleration: 30
+  acceleration: 50
   friction: 100
   velocity: {x: 0, y: 0}
   inputDirection: {x: 0, y: 0}
+--- !u!114 &7207761287062554941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5914224002963691110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175d4616b921ae64a8439818ad3ac9b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.PlayerStatsComponent
+  baseMoveSpeed: 6
+  basePickupRadius: 2
+  baseMaxHP: 100
 --- !u!114 &5806806840443530406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -410,12 +429,24 @@ MonoBehaviour:
     m_Bits: 256
   searchRadius: 48
   behindDistance: 0.5
-  forwardLerp: 0.75
+  forwardLerp: 0.25
   arcHalfAngleDeg: 70
   ellipseA: 1.2
   ellipseB: 0.7
   spacingScale: 1
   reassignGain: 1.15
+--- !u!114 &549629195904960400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5914224002963691110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be6a860d9819d8247970ae4416e12694, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitstopArbiter
 --- !u!1 &6236897456521426334
 GameObject:
   m_ObjectHideFlags: 0

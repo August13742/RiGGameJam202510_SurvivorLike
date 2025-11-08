@@ -10,7 +10,7 @@ namespace Survivor.Game
 
         [Header("Optional preload (tables to prewarm)")]
         [SerializeField] private LootTableDef[] preloadTables;
-        [SerializeField] private Transform poolRoot;
+        private Transform poolRoot;
 
         private readonly Dictionary<DropItemDef, ObjectPool> _pools = new();
         private System.Random _rng;
@@ -19,8 +19,19 @@ namespace Survivor.Game
         {
             if (Instance && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
-            if (!poolRoot) poolRoot = new GameObject("LootPools").transform;
-            _rng = new System.Random(94231);
+
+            GameObject pools = GameObject.FindWithTag("PoolRoot");
+            if (!pools)
+            {
+                pools = new GameObject("ObjectPools");
+            }
+
+            poolRoot = new GameObject("LootPool").transform;
+            poolRoot.tag = "LootPool";
+            poolRoot.parent = pools.transform;
+
+
+            _rng = new System.Random(13742);
             PrewarmFromTables(preloadTables);
         }
 
