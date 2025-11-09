@@ -16,10 +16,10 @@ MonoBehaviour:
   Id: orb
   Icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   BaseDamage: 5
-  BaseCooldown: 15
+  BaseCooldown: 5
   TargetingMode: 0
-  AreaScale: 9
-  Projectiles: 3
+  AreaScale: 5
+  Projectiles: 1
   BaseCritChance: 0.05
   BaseCritMultiplier: 1.5
   Radius: 2

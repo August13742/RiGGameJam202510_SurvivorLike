@@ -29,6 +29,11 @@ public static class EasingFunctions
     }
 #endif
 
+    public static float EaseInCubic(float x)
+    {
+        return Mathf.Pow(x, 3);
+    }
+
     public static float EaseOutElastic(float x)
     {
         const float c4 = (2f * Mathf.PI) / 3f;

@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: ChaserRed
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Enemy.ChaserEnemyDef
   Prefab: {fileID: 1036449216494695409, guid: 208b1c5aa42dc7040a1ad34584c0f4a9, type: 3}
-  BaseHP: 9999
+  BaseHP: 100
   MoveSpeed: 2
   Acceleration: 50
   ContactDamage: 5
   XPValue: 1
-  PrewarmCount: 8
+  PrewarmCount: 32
   DropChance: 0.8
   Rolls: 1
   LootTable: {fileID: 11400000, guid: be5f8603e81dd7441a552ec478915411, type: 2}
