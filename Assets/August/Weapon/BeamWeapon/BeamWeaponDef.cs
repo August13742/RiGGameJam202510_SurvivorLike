@@ -5,7 +5,7 @@ namespace Survivor.Weapon
     [CreateAssetMenu(menuName = "Defs/Weapons/Beam")]
     public sealed class BeamWeaponDef : WeaponDef
     {
-        public GameObject BeamPrefab;
+        public BeamInstance2D BeamPrefab;
         [Header("Beam Shape")]
         [Min(0.1f)] public float BeamLength = 6f;
         [Min(0.05f)] public float BeamWidth = 0.35f;

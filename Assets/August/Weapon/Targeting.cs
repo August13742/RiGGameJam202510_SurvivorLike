@@ -7,7 +7,7 @@ public static class Targeting
     // Shared buffers (single-threaded gameplay assumption)
     private static readonly List<Collider2D> _overlap = new(32);
     private static readonly List<Transform> _valid = new(32);
-
+    private static readonly HashSet<HealthComponent> _seenHealthComponents = new(32);
     public static Transform SelfCentered(Transform origin) {  return origin; }
     
     public static Transform NearestEnemy(Transform origin, float radius, ContactFilter2D filter)
@@ -46,19 +46,19 @@ public static class Targeting
 
         _overlap.Clear();
         _valid.Clear();
+        _seenHealthComponents.Clear(); // <-- Clear the static set
 
         int hitCount = Physics2D.OverlapCircle((Vector2)origin.position, radius, filter, _overlap);
         if (hitCount <= 0) return null;
 
-        // Use HashSet to deduplicate enemies with multiple colliders
-        var seenHealthComponents = new HashSet<HealthComponent>();
+
         for (int i = 0; i < hitCount; i++)
         {
             var c = _overlap[i];
             if (!c) continue;
             if (c.TryGetComponent<HealthComponent>(out var hp) && !hp.IsDead)
             {
-                if (seenHealthComponents.Add(hp))
+                if (_seenHealthComponents.Add(hp))
                     _valid.Add(hp.transform);
             }
         }

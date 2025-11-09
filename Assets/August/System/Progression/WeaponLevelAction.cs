@@ -23,12 +23,18 @@ namespace Survivor.Progression
             if (!ctx.DroneManager.OwnsWeapon(WeaponDef)) return false;
 
             int n = ctx.History.Count(card.Id);
+
+            // Below max level: always available
+            if (n < MaxLevel) return true;
+
+            // At or above max level: only available if repeatable
             if (card.IsRepeatable)
             {
                 if (card.MaxPicks > 0 && n >= card.MaxPicks) return false;
                 return true;
             }
-            return n < MaxLevel && !ctx.History.IsCapped(card.Id);
+
+            return false;
         }
 
         public override string[] GetPreviewLines(ProgressionContext ctx, UpgradeDef card)
@@ -37,17 +43,21 @@ namespace Survivor.Progression
             if (!WeaponDef) return new[] { "Missing WeaponDef" };
 
             int current = ctx.History.Count(card.Id);
+            bool isInLevelRange = current < MaxLevel;
+
             lines.Add($"{WeaponDef.name} Level {current + 1}");
 
-            if (!card.IsRepeatable && Levels != null && current < Levels.Count && Levels[current] != null && !Levels[current].IsNoop())
-                AppendBonus(lines, Levels[current], "Per-Level Bonus");
+            // Show level-specific bonus if still leveling
+            if (isInLevelRange && Levels != null && current < Levels.Count && Levels[current] != null && !Levels[current].IsNoop())
+                AppendBonus(lines, Levels[current], "Level Bonus");
 
-            if (ConstantBonusPerPick != null && !ConstantBonusPerPick.IsNoop())
-                AppendBonus(lines, ConstantBonusPerPick, card.IsRepeatable ? "Per Pick (Constant)" : "Also Grants");
+            // Show constant bonus if it exists and we're in repeatable territory
+            if (!isInLevelRange && ConstantBonusPerPick != null && !ConstantBonusPerPick.IsNoop())
+                AppendBonus(lines, ConstantBonusPerPick, "Repeatable Bonus");
 
-            if (card.IsRepeatable)
+            if (!isInLevelRange && card.IsRepeatable)
                 lines.Add(card.MaxPicks > 0 ? $"(Repeatable, up to {card.MaxPicks})" : "(Repeatable)");
-            else if (current >= MaxLevel)
+            else if (current >= MaxLevel && !card.IsRepeatable)
                 lines.Add("Max level reached");
 
             return lines.ToArray();
@@ -62,13 +72,17 @@ namespace Survivor.Progression
                 if (controller)
                 {
                     int n = ctx.History.Count(card.Id);
+                    bool isInLevelRange = n < MaxLevel;
 
-                    if (!card.IsRepeatable && Levels != null && n < Levels.Count && Levels[n] != null && !Levels[n].IsNoop())
+                    // Apply level-specific bonus if still leveling
+                    if (isInLevelRange && Levels != null && n < Levels.Count && Levels[n] != null && !Levels[n].IsNoop())
                     {
                         controller.ApplyUpgrade(WeaponDef, Levels[n]);
                         cs.Add($"{WeaponDef.name}: Level {n + 1} applied");
                     }
-                    if (ConstantBonusPerPick != null && !ConstantBonusPerPick.IsNoop())
+
+                    // Apply constant bonus if we're in repeatable territory
+                    if (!isInLevelRange && ConstantBonusPerPick != null && !ConstantBonusPerPick.IsNoop())
                     {
                         controller.ApplyUpgrade(WeaponDef, ConstantBonusPerPick);
                         cs.Add($"{WeaponDef.name}: Constant bonus applied");

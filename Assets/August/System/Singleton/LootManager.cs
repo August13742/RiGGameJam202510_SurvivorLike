@@ -12,7 +12,7 @@ namespace Survivor.Game
         [SerializeField] private LootTableDef[] preloadTables;
         private Transform poolRoot;
 
-        private readonly Dictionary<DropItemDef, ObjectPool> _pools = new();
+        private readonly Dictionary<DropItemDef, ObjectPool<DropItemBase>> _pools = new();
         private System.Random _rng;
 
         private void Awake()
@@ -49,10 +49,10 @@ namespace Survivor.Game
             }
         }
 
-        private ObjectPool GetOrCreatePool(DropItemDef def)
+        private ObjectPool<DropItemBase> GetOrCreatePool(DropItemDef def)
         {
             if (_pools.TryGetValue(def, out var p)) return p;
-            var pool = new ObjectPool(def.Prefab, Mathf.Max(0, def.PrewarmCount), poolRoot);
+            ObjectPool<DropItemBase> pool = new (def.Prefab, Mathf.Max(0, def.PrewarmCount), poolRoot);
             _pools.Add(def, pool);
             return pool;
         }

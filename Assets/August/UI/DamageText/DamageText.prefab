@@ -205,5 +205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b72da5c765208345a6ef0cc0e77cea9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.UI.DamageText
+  debug_normal: 0
+  debug_crit: 1
   label: {fileID: 3218951028580887050}
   style: {fileID: 11400000, guid: 2743fb5b20c8b2d449753ebc1f2f7f67, type: 2}

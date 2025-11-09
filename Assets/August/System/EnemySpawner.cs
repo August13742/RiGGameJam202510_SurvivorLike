@@ -7,6 +7,7 @@ namespace Survivor.Game
     public sealed class EnemySpawner : MonoBehaviour
     {
         public bool Enabled = true;
+
         [Header("Sources")]
         [SerializeField] private EnemyWeightTable weightTable;
         [SerializeField] private Transform player;
@@ -20,48 +21,53 @@ namespace Survivor.Game
         [SerializeField] private float spawnsPerSecond = 3f;
         [SerializeField] private int maxAlive = 150;
 
-
         private Transform poolRoot;
         private Transform enemyPool;
 
-        private readonly Dictionary<GameObject, ObjectPool> _pools = new();
+        // Typed pools keyed by typed prefab
+        private readonly Dictionary<EnemyBase, ObjectPool<EnemyBase>> _pools = new();
         private float _spawnAcc;
         private int _aliveCount;
         private System.Random _rng;
 
         private void Awake()
         {
-            poolRoot = GameObject.FindWithTag("PoolRoot").transform;
-            if (!poolRoot) { poolRoot = new GameObject("ObjectPools").transform; }
+            var rootGo = GameObject.FindWithTag("PoolRoot");
+            poolRoot = rootGo ? rootGo.transform : new GameObject("ObjectPools").transform;
 
             enemyPool = new GameObject("EnemyPool").transform;
             enemyPool.tag = "EnemyPool";
-            enemyPool.parent = poolRoot;
-                
+            enemyPool.SetParent(poolRoot, false);
+
             _rng = new System.Random(13742);
         }
 
         private void Update()
         {
-            if (!Enabled) return;
-            if (!player || !weightTable) return;
+            if (!Enabled || !player || !weightTable) return;
 
             _spawnAcc += spawnsPerSecond * Time.deltaTime;
             while (_spawnAcc >= 1f && _aliveCount < maxAlive)
             {
                 _spawnAcc -= 1f;
-                if (!weightTable.TrySample(_rng, out var def) || !def || !def.Prefab) continue;
+
+                if (!weightTable.TrySample(_rng, out var def) || !def || !def.Prefab)
+                    continue; // no def or prefab
 
                 var pool = GetOrCreatePool(def.Prefab, def.PrewarmCount);
                 Vector3 pos = SampleRingPosition(player.position);
-                GameObject go = pool.Rent(pos, Quaternion.identity);
 
-                var enemy = go.GetComponent<EnemyBase>();
-                if (!enemy) { Debug.LogError($"Enemy prefab missing EnemyBase: {def.name}"); pool.Return(go); continue; }
+                // Typed rent returns EnemyBase directly
+                EnemyBase enemy = pool.Rent(pos, Quaternion.identity);
+                if (!enemy)
+                {
+                    Debug.LogError($"Failed to spawn enemy from {def.name}");
+                    continue;
+                }
 
                 // init + subscribe
                 enemy.InitFrom(def);
-                enemy.Despawned -= OnEnemyDespawned; // safety against double-sub
+                enemy.Despawned -= OnEnemyDespawned; // safety
                 enemy.Despawned += OnEnemyDespawned;
 
                 _aliveCount++;
@@ -70,15 +76,14 @@ namespace Survivor.Game
 
         private void OnEnemyDespawned(EnemyBase e)
         {
-            // unsubscribe to avoid handler buildup over many runs
             e.Despawned -= OnEnemyDespawned;
             _aliveCount = Mathf.Max(0, _aliveCount - 1);
         }
 
-        private ObjectPool GetOrCreatePool(GameObject prefab, int prewarm)
+        private ObjectPool<EnemyBase> GetOrCreatePool(EnemyBase prefab, int prewarm)
         {
             if (_pools.TryGetValue(prefab, out var p)) return p;
-            var pool = new ObjectPool(prefab, Mathf.Max(0, prewarm), enemyPool);
+            var pool = new ObjectPool<EnemyBase>(prefab, Mathf.Max(0, prewarm), enemyPool);
             _pools.Add(prefab, pool);
             return pool;
         }

@@ -110,9 +110,11 @@ namespace Survivor.Game
 
         public void IncrementDamageDealt(float amount)
         {
+            //return;
             if (amount <= 0f) return;
             damageDealt = Mathf.Max(0f, damageDealt + amount);
             // Cast to int for integer thresholds (e.g., 100, 1000, c)
+            //return;
             EvaluateAndShowAchievements_Int((int)damageDealt, dmgDealtThresholds, _dmgDealtUnlocked, "damage");
         }
 
@@ -208,6 +210,7 @@ namespace Survivor.Game
         // ---------- Achievement evaluation ----------
         private void EvaluateAndShowAchievements_Int(int current, int[] thresholds, HashSet<int> unlocked, string key)
         {
+            //return;
             if (thresholds == null || thresholds.Length == 0) return;
             // evaluate in ascending order; fire the highest just-reached threshold
             for (int i = 0; i < thresholds.Length; i++)
@@ -239,15 +242,13 @@ namespace Survivor.Game
                 return;
             }
 
-            string msg;
-            switch (kind)
+            string msg = kind switch
             {
-                case "enemyDown": msg = number.ToString() + "‘Ì‚Ì“G‚ð“|‚µ‚½!"; break;
-                case "damage": msg = number.ToString() + "ƒ_ƒ[ƒW‚ð—^‚¦‚½!"; break;
-                case "beDamaged": msg = number.ToString() + "ƒ_ƒ[ƒW‚­‚ç‚Á‚½!"; break;
-                default: msg = number.ToString(); break;
-            }
-
+                "enemyDown" => number.ToString() + "‘Ì‚Ì“G‚ð“|‚µ‚½!",
+                "damage" => number.ToString() + "ƒ_ƒ[ƒW‚ð—^‚¦‚½!",
+                "beDamaged" => number.ToString() + "ƒ_ƒ[ƒW‚­‚ç‚Á‚½!",
+                _ => number.ToString(),
+            };
             Sprite icon = null;
 
             popup.Configure(msg, icon);

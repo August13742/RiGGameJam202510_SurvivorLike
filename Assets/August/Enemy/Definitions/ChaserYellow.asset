@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15bc7911dfd86a94d959db08a0116c32, type: 3}
   m_Name: ChaserYellow
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Enemy.ChaserEnemyDef
-  Prefab: {fileID: 220892323894252418, guid: 797cffc1c8c0a8249b54ce8553f61953, type: 3}
-  BaseHP: 20
+  Prefab: {fileID: 1036449216494695409, guid: 797cffc1c8c0a8249b54ce8553f61953, type: 3}
+  BaseHP: 9999
   MoveSpeed: 1.5
   Acceleration: 50
   ContactDamage: 5

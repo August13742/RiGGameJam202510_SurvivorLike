@@ -41,16 +41,19 @@ namespace Survivor.Enemy
         {
             if (_health != null)
             {
-                if (_health != null) _health.Died -= OnDied;
-                if (_health != null) _health.Damaged -= OnDamaged;
+                _health.Died -= OnDied;
+                _health.Damaged -= OnDamaged;
             }
         }
         protected virtual void OnDamaged(float amt, Vector3 pos, bool crit)
         {
+            
             if (crit) DamageTextManager.Instance.ShowCrit(pos, amt);
             else DamageTextManager.Instance.ShowNormal(pos, amt);
 
+
             SessionManager.Instance.IncrementDamageDealt(amt);
+            
         }
         private void OnTriggerEnter2D(Collider2D col)
         {
@@ -143,6 +146,8 @@ namespace Survivor.Enemy
         public virtual void OnDespawned()
         {
             // Clear vfx/sfx/trails
+            _health.DisconnectAllSignals();
+            Despawned = null;
         }
 
         // Death pipeline -> return to owning pool

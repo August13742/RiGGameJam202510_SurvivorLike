@@ -16,10 +16,12 @@ MonoBehaviour:
   Id: orb
   Icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   BaseDamage: 5
-  BaseCooldown: 5
+  BaseCooldown: 15
   TargetingMode: 0
   AreaScale: 9
   Projectiles: 3
+  BaseCritChance: 0.05
+  BaseCritMultiplier: 1.5
   Radius: 2
   OrbAreaBias: 0.8
   RadiusAreaBias: 0.2
@@ -35,6 +37,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  OrbPrefab: {fileID: 3978831621617729869, guid: 222440cf12b130c4bbbb26c063223d9b, type: 3}
+  OrbPrefab: {fileID: 2939867143732988035, guid: 222440cf12b130c4bbbb26c063223d9b, type: 3}
   MaxHitsPerTarget: 0
   ToggleRendererAndCollider: 1
