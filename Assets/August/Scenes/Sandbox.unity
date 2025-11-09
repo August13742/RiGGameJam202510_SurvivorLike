@@ -31373,6 +31373,65 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 24aec0cd666cfc94e80cba8ba3e59f00, type: 3}
+--- !u!1 &1000862122
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1000862125}
+  - component: {fileID: 1000862124}
+  - component: {fileID: 1000862123}
+  m_Layer: 0
+  m_Name: test
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1000862123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000862122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b72da5c765208345a6ef0cc0e77cea9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.UI.DamageText
+  label: {fileID: 0}
+  style: {fileID: 0}
+--- !u!114 &1000862124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000862122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cfdb64496ae9ca46b8b9e75892219d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.PrefabStamp
+--- !u!4 &1000862125
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000862122}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1061101602
 GameObject:
   m_ObjectHideFlags: 0
@@ -31512,6 +31571,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1328501868}
   - component: {fileID: 1328501867}
+  - component: {fileID: 1328501869}
   m_Layer: 0
   m_Name: SessionManager
   m_TagString: Untagged
@@ -31561,6 +31621,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1328501869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1328501866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d704472439313e84b865991750a51fd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MemoryMonitor
 --- !u!1 &1494741500
 GameObject:
   m_ObjectHideFlags: 0
@@ -31570,6 +31642,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1494741501}
+  - component: {fileID: 1494741502}
   m_Layer: 0
   m_Name: VFXManager
   m_TagString: Untagged
@@ -31592,6 +31665,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1494741502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1494741500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e717025d394b744f8f7835c777dc706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.VFX.VFXManager
+  HitEffectPrefab: {fileID: -8142329514329488047, guid: 020becad7bee2474ba5e15284a251acf, type: 3}
+  CritHitEffectPrefab: {fileID: -8142329514329488047, guid: 4241305bfa9c502458cf0aaef996b7b6, type: 3}
+  prewarm: 128
 --- !u!1 &1554075408
 GameObject:
   m_ObjectHideFlags: 0
@@ -31718,7 +31806,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1569298591}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9dd8ead2ed47e3a43a4ac54e47eb2e81, type: 3}
   m_Name: 
@@ -32028,7 +32116,7 @@ Transform:
   m_GameObject: {fileID: 1891806700}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: -0.90999985, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -32185,3 +32273,4 @@ SceneRoots:
   - {fileID: 1636565947}
   - {fileID: 337946412}
   - {fileID: 1494741501}
+  - {fileID: 1000862125}

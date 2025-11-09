@@ -21,7 +21,7 @@ namespace Survivor.Game
             // Instantiate the GameObject from the component's GameObject
             var go = Object.Instantiate(_prefab.gameObject, _parent);
 
-            // Get the component of type T from the new GameObject. for some reason if you don't do it like this it throws errors.
+            // Get the component of type T from the new GameObject. for some reason if you don't do it like this it throws runtime errors.
             var inst = go.GetComponent<T>();
 
             var stamp = go.GetComponent<PrefabStamp>() ?? go.AddComponent<PrefabStamp>();
@@ -40,9 +40,9 @@ namespace Survivor.Game
                 tr.SetParent(reparentTo, worldPositionStays: false);
 
             tr.SetPositionAndRotation(pos, rot);
-            inst.gameObject.SetActive(true);
-
             if (inst.TryGetComponent<IPoolable>(out var ip)) ip.OnSpawned();
+
+            inst.gameObject.SetActive(true);
             return inst;
         }
 

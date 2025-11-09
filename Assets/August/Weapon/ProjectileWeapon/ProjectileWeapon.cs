@@ -10,7 +10,7 @@ namespace Survivor.Weapon
         protected override void OnEquipped()
         {
             base.OnEquipped();
-            _projPool = new ObjectPool<Projectile>(def.ProjectilePrefab, prewarm: 32, ctx.PoolRoot);
+            _projPool = new ObjectPool<Projectile>(def.ProjectilePrefab, prewarm: 64, ctx.PoolRoot);
         }
 
         public override void Tick(float dt)

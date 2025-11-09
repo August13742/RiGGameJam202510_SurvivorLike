@@ -63,6 +63,8 @@ namespace Survivor.UI
             float a = style ? style.alphaOverLife.Evaluate(u) : (1f - u);
             float s = style ? style.scaleOverLife.Evaluate(u) : 1f;
 
+
+
             Color c = _baseColor; c.a *= a;
             label.alpha = c.a;
             float scale = _baseScale * s;

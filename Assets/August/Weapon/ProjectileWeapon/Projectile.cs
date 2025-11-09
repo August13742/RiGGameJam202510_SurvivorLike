@@ -1,6 +1,7 @@
 using UnityEngine;
 using Survivor.Game;
 using Survivor.VFX;
+using System.Collections.Generic;
 
 namespace Survivor.Weapon
 {
@@ -15,12 +16,15 @@ namespace Survivor.Weapon
 
         private PrefabStamp _stamp;
         private Vector2 _dir;
-        private float _lifeTime;
+        [SerializeField] private float _lifeTime;
+        [SerializeField] private bool _isAlive;
+        private Vector3 _baseScale;
 
         private IHitEventSink _sink;
         private float _critChance = 0f;
         private float _critMul = 1f;
         private bool _critPerHit = true;
+
 
         private enum ForwardAxis { Right, Up }
 
@@ -40,7 +44,9 @@ namespace Survivor.Weapon
             Damage = dmg;
             Pierce = pierce;
             _lifeTime = time;
-            transform.localScale = (Vector3)(new Vector2(transform.localScale.x * size,transform.localScale.y * size));
+            _isAlive = true;
+
+            transform.localScale = transform.localScale = _baseScale * size;
 
             float ang = Mathf.Atan2(_dir.y, _dir.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(
@@ -51,18 +57,22 @@ namespace Survivor.Weapon
         void Awake()
         {
             _stamp = GetComponent<PrefabStamp>();
+            _baseScale = transform.localScale;
+            _isAlive = false;
         }
 
         private void FixedUpdate()
         {
+            if (!_isAlive) return;
             _lifeTime -= Time.fixedDeltaTime;
-            if (_lifeTime <= 0f) { Despawn(); return; }
+            if (_lifeTime <= 0f) { Despawn();  return; }
 
             transform.position += (Vector3)(Speed * Time.fixedDeltaTime * _dir);
         }
 
         private void OnTriggerEnter2D(Collider2D col)
         {
+            if (!_isAlive) return;
             if (!col.TryGetComponent<HealthComponent>(out var target)) return;
             if (target.IsDead) return;
 
@@ -82,21 +92,24 @@ namespace Survivor.Weapon
             VFXManager.Instance?.ShowHitEffect(col.gameObject.transform.position, crit);
             if (target.IsDead) _sink?.OnKill(transform.position);
 
-            if (Pierce > 0) { Pierce--; } else { Despawn(); }
+            if (Pierce > 0) { Pierce--; } else {Despawn(); return; }
         }
 
         private void Despawn()
         {
+            if (!_isAlive) return;
+            _isAlive = false;
             if (_stamp.OwnerPool != null) _stamp.OwnerPool.Return(gameObject);
             else gameObject.SetActive(false);
         }
         void IPoolable.OnDespawned()
         {
-
         }
         void IPoolable.OnSpawned()
         {
-
+            _lifeTime = float.PositiveInfinity;
+            Pierce = int.MaxValue;
+            _isAlive = true;
         }
     }
 }

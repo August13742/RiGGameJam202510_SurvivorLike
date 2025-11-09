@@ -25,6 +25,9 @@ namespace Survivor.Weapon
         public WeaponContext GetContext() => ctx;
         public TDef GetDef() => def;
 
+        private readonly EffectiveWeaponStats _tickCachedStats = new EffectiveWeaponStats();
+        private int _lastTickFrame = -1;
+
         // ---- IWeapon --------------------------------------------------------
         void IWeapon.Equip(WeaponDef baseDef, WeaponContext context)
         {
@@ -131,6 +134,14 @@ namespace Survivor.Weapon
         // ---- Effective snapshot & convenience accessors --------------------
         protected EffectiveWeaponStats Current()
         {
+            // Check if we already computed stats for this exact frame
+            if (_lastTickFrame == Time.frameCount)
+            {
+                return _tickCachedStats;
+            }
+
+            _lastTickFrame = Time.frameCount; // Mark as computed for this frame
+
             int basePierce = 0;
             if (def is ProjectileWeaponDef pdef) basePierce = pdef.Pierce;
 
@@ -141,8 +152,9 @@ namespace Survivor.Weapon
             for (int i = 0; i < permanentBonuses.Count; i++) Accumulate(ref combined, permanentBonuses[i]);
             // fold dynamic
             Accumulate(ref combined, dynamicMods);
+            Compute(_tickCachedStats, def, combined, basePierce);
 
-            return Compute(def, combined, basePierce);
+            return _tickCachedStats;
         }
 
         protected int ScaledDamage() => Mathf.Max(1, Mathf.RoundToInt(Current().Damage));
@@ -216,32 +228,28 @@ namespace Survivor.Weapon
             a.critMultAdd += d.CritDamageMultiplierBonus;
         }
 
-        private static EffectiveWeaponStats Compute(WeaponDef def, in Accum a, int typeBasePierce)
+        private void Compute(EffectiveWeaponStats target, WeaponDef def, in Accum a, int typeBasePierce)
         {
             float damage = def.BaseDamage * (1f - 0f + (1f * a.dmgMul)); // base × (1+Σ)
             float cooldown = def.BaseCooldown * Mathf.Max(0.01f, 1f - a.cdRed);
             float area = def.AreaScale * (1f + a.areaMul);
             int proj = Mathf.Max(1, def.Projectiles + a.projAdd);
             int pierce = Mathf.Max(0, typeBasePierce + a.pierceAdd);
-
             float cChance = Mathf.Clamp01(def.BaseCritChance + a.critChanceAdd);
             float cMult = Mathf.Max(1f, def.BaseCritMultiplier + a.critMultAdd);
 
-            return new EffectiveWeaponStats
-            {
-                Damage = damage,
-                Cooldown = cooldown,
-                AreaScale = area,
-                Projectiles = proj,
-                Pierce = pierce,
-                CritChance = cChance,
-                CritMultiplier = cMult,
-                SpeedFactor = 1f + a.speedMul,
+            target.Damage = damage;
+            target.Cooldown = cooldown;
+            target.AreaScale = area;
+            target.Projectiles = proj;
+            target.Pierce = pierce;
+            target.CritChance = cChance;
+            target.CritMultiplier = cMult;
+            target.SpeedFactor = 1f + a.speedMul;
+            target.DamageMultiplierFromBase = (def.BaseDamage > 0f) ? damage / def.BaseDamage : 1f;
+            target.CooldownMultiplierFromBase = (def.BaseCooldown > 0f) ? cooldown / def.BaseCooldown : 1f;
+            target.AreaMultiplierFromBase = (def.AreaScale > 0f) ? area / def.AreaScale : 1f;
 
-                DamageMultiplierFromBase = (def.BaseDamage > 0f) ? damage / def.BaseDamage : 1f,
-                CooldownMultiplierFromBase = (def.BaseCooldown > 0f) ? cooldown / def.BaseCooldown : 1f,
-                AreaMultiplierFromBase = (def.AreaScale > 0f) ? area / def.AreaScale : 1f
-            };
         }
 
         public abstract void Tick(float dt);
