@@ -16,7 +16,7 @@ namespace Survivor.Enemy
         public int XPValue = 1;
 
         [Header("Pooling")]
-        [Min(0)] public int PrewarmCount = 8;
+        [Min(0)] public int PrewarmCount = 16;
 
         [Header("Drops")]
         [Range(0f, 1f)] public float DropChance = 0.6f;  // chance that this enemy drops anything

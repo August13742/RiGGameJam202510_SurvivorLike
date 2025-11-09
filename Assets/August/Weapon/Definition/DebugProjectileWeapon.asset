@@ -15,7 +15,7 @@ MonoBehaviour:
   RuntimePrefab: {fileID: 217942150539425492, guid: da0644ea70a928649a25d0290542bd94, type: 3}
   Id: debug
   Icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  BaseDamage: 0
+  BaseDamage: 5
   BaseCooldown: 0.1
   TargetingMode: 1
   AreaScale: 1

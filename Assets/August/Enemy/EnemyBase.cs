@@ -4,7 +4,6 @@ using Survivor.UI;
 namespace Survivor.Enemy
 {
     [RequireComponent(typeof(PrefabStamp), typeof(HealthComponent), typeof(Rigidbody2D))]
-    [RequireComponent(typeof(Collider2D))]
     [DisallowMultipleComponent]
     public abstract class EnemyBase : MonoBehaviour, IPoolable, IHitstoppable
     {
@@ -15,6 +14,16 @@ namespace Survivor.Enemy
         protected Rigidbody2D _rb;
         protected Transform _target;
         [SerializeField] protected LayerMask hitMask;
+
+        [SerializeField] private bool UpdateFacing = true;
+        [SerializeField] private bool FaceByVelocity = true;
+        [SerializeField] private float OverlapKeepFacingRadius = 0.6f; // don't update facing when this close
+        [SerializeField] private float FlipDotThreshold = 0.35f;       // hysteresis via cooldown
+        [SerializeField] private float MinFlipUpdateInterval = 0.25f;        // seconds between flips
+
+        private int _facingSign = +1;     // +1 = right, -1 = left, assumes sprite default face right
+        private float _flipTimer = 0f;
+
         public bool IsDead => _health != null && _health.IsDead;
         public System.Action<EnemyBase> Despawned;
 
@@ -70,6 +79,48 @@ namespace Survivor.Enemy
         public void OnHitstopEnd() { IsFrozen = false; }
 
 
+        protected void UpdateFacingPolicy(Vector2 toTarget, float distanceToTarget)
+        {
+            if (!UpdateFacing || IsFrozen) return;
+
+            _flipTimer -= Time.fixedDeltaTime;
+            if (_flipTimer < 0f) _flipTimer = 0f;
+
+            // 1) When overlapping/very close, freeze facing to avoid jitter
+            if (distanceToTarget <= OverlapKeepFacingRadius) return;
+
+            // 2) Choose an aim direction: prefer velocity when moving; otherwise, use target direction.
+            Vector2 dir =
+                (FaceByVelocity && _velocity.sqrMagnitude > 0.0004f) // 2cm
+                    ? _velocity.normalized
+                    : (toTarget.sqrMagnitude > 0.000001f ? toTarget.normalized : new Vector2(_facingSign, 0f)); //1mm threshold
+
+            float dot = dir.x; // since dir is normalized, dot(dir, +X) == dir.x
+
+            if (_facingSign > 0)
+            {
+                if (dot < -FlipDotThreshold && _flipTimer <= 0f)
+                    SetFacing(-1);
+            }
+            else
+            {
+                if (dot > +FlipDotThreshold && _flipTimer <= 0f)
+                    SetFacing(+1);
+            }
+        }
+
+        private void SetFacing(int sign)
+        {
+            if (_facingSign == sign) return;
+            _facingSign = sign;
+
+            Vector3 s = transform.localScale;
+            s.x = Mathf.Abs(s.x) * sign;
+            transform.localScale = s;
+
+            _flipTimer = MinFlipUpdateInterval;
+        }
+
         // --- Public-facing movement APIs ---
 
         // Melee: always chase
@@ -79,10 +130,13 @@ namespace Survivor.Enemy
             if (!_target || IsDead) { Stop(); return; }
 
             Vector2 toTarget = (Vector2)_target.position - (Vector2)transform.position;
-            Vector2 dir = toTarget.sqrMagnitude > 0.0001f ? toTarget.normalized : Vector2.zero;
+            float currentDistance = toTarget.magnitude;
+            Vector2 dir = toTarget.sqrMagnitude > 0.01f ? toTarget.normalized : Vector2.zero;
 
             Vector2 targetVelocity = dir * _def.MoveSpeed;
             ApplyMove(targetVelocity);
+
+            UpdateFacingPolicy(toTarget, currentDistance);
         }
 
         // Ranged: hold a distance band; canShoot is true only when in band
@@ -109,6 +163,8 @@ namespace Survivor.Enemy
             }
 
             ApplyMove(targetVelocity);
+
+            UpdateFacingPolicy(toTarget, currentDistance);
         }
 
         // --- Internals ---
