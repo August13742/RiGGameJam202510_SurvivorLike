@@ -50,6 +50,5 @@ namespace Survivor.Weapon
             target.Damage(dealt);
         }
 
-
     }
 }
