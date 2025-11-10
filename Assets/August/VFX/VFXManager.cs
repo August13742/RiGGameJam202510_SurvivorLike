@@ -5,6 +5,7 @@ namespace Survivor.VFX
 {
     public class VFXManager : MonoBehaviour
     {
+        enum Variant { Type1,Typ2,Type3,Type4}
         public static VFXManager Instance { get; private set; }
 
         [SerializeField] private AutoExpandingVFXElement HitEffectPrefab;
@@ -34,7 +35,7 @@ namespace Survivor.VFX
         public void ShowHitEffect(Vector3 worldPos, bool crit = false)
         {
 
-            var fx = crit ? _poolNormal.Rent(worldPos, Quaternion.identity) : _poolCrit.Rent(worldPos, Quaternion.identity);
+            var fx = crit ? _poolCrit.Rent(worldPos, Quaternion.identity) : _poolNormal.Rent(worldPos, Quaternion.identity);
             fx.Init(crit);
         }
 

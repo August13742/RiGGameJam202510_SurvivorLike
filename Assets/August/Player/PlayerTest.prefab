@@ -54,8 +54,6 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -77,7 +75,6 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1560946809
   m_SortingLayer: 4
   m_SortingOrder: 0
@@ -423,7 +420,6 @@ MonoBehaviour:
   playerWeaponController: {fileID: 0}
   dronePrefab: {fileID: 2105961958307006955, guid: 1c81bdeea35f66945839177223ebb9c9, type: 3}
   maxDrones: 4
-  sharedPoolRoot: {fileID: 0}
   enemyMask:
     serializedVersion: 2
     m_Bits: 256
