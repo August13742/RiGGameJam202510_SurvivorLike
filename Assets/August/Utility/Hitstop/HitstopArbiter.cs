@@ -13,7 +13,7 @@ public class HitstopArbiter : MonoBehaviour, IHitstoppable
     private readonly List<ISnapshot> _snapshots = new();
 
     #region Unity Lifecycle
-    private void Awake()
+    private void Start()
     {
         FindAndCachePausableComponents();
     }
@@ -40,6 +40,7 @@ public class HitstopArbiter : MonoBehaviour, IHitstoppable
             }
         }
     }
+
     #endregion
 
     /// <summary>
@@ -81,19 +82,25 @@ public class HitstopArbiter : MonoBehaviour, IHitstoppable
     {
         private readonly Animator _target;
         private float _originalSpeed;
+        private bool _isFrozen = false; // State flag to prevent corruption
 
         public AnimatorSnapshot(Animator target) { _target = target; }
 
         public void Freeze()
         {
-            if (_target == null) return;
+            if (_target == null || _isFrozen) return;
+
+            _isFrozen = true;
             _originalSpeed = _target.speed;
             _target.speed = 0f;
         }
 
         public void Unfreeze()
         {
-            if (_target != null) _target.speed = _originalSpeed;
+            if (_target == null || !_isFrozen) return;
+
+            _isFrozen = false;
+            _target.speed = _originalSpeed;
         }
     }
 
@@ -103,30 +110,36 @@ public class HitstopArbiter : MonoBehaviour, IHitstoppable
         private Vector2 _velocity;
         private float _angularVelocity;
         private RigidbodyType2D _originalBodyType;
+        private bool _wasFrozen = false;
 
         public Rigidbody2DSnapshot(Rigidbody2D target) { _target = target; }
 
         public void Freeze()
         {
-            if (_target == null) return;
+            if (_target == null || _wasFrozen) return;
 
             _originalBodyType = _target.bodyType;
             if (_originalBodyType != RigidbodyType2D.Dynamic) return;
 
+            _wasFrozen = true;
             _velocity = _target.linearVelocity;
             _angularVelocity = _target.angularVelocity;
-
-            _target.linearVelocity = Vector2.zero;
-            _target.angularVelocity = 0f;
             _target.bodyType = RigidbodyType2D.Static;
         }
 
         public void Unfreeze()
         {
-            if (_target == null) return;
+            if (_target == null || !_wasFrozen) return;
+
+            _wasFrozen = false;
             _target.bodyType = _originalBodyType;
-            _target.linearVelocity = _velocity;
-            _target.angularVelocity = _angularVelocity;
+
+            // Restore velocity only if it was originally dynamic
+            if (_originalBodyType == RigidbodyType2D.Dynamic)
+            {
+                _target.linearVelocity = _velocity;
+                _target.angularVelocity = _angularVelocity;
+            }
         }
     }
 
@@ -134,21 +147,27 @@ public class HitstopArbiter : MonoBehaviour, IHitstoppable
     {
         private readonly ParticleSystem _target;
         private bool _wasPlaying;
+        private bool _isFrozen = false;
 
         public ParticleSystemSnapshot(ParticleSystem target) { _target = target; }
 
         public void Freeze()
         {
-            if (_target == null) return;
+            if (_target == null || _isFrozen) return;
+
+            _isFrozen = true;
             _wasPlaying = _target.isPlaying;
             if (_wasPlaying) _target.Pause();
         }
 
         public void Unfreeze()
         {
-            if (_target != null && _wasPlaying) _target.Play();
+            if (_target == null || !_isFrozen) return;
+
+            _isFrozen = false;
+            if (_wasPlaying) _target.Play();
         }
     }
 
-    #endregion
+#endregion
 }

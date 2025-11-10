@@ -74,8 +74,7 @@ namespace Survivor.Weapon
                     followOrigin: def.FollowOrigin,
                     toggleVis: def.ToggleRendererAndCollider,
                     maxHitsPerTarget: def.MaxHitsPerTarget,
-                    orbVisualScale: orbScale,
-                    motionCurve: null
+                    orbVisualScale: orbScale
                 );
             }
         }

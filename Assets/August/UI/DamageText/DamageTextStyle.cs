@@ -20,7 +20,8 @@ namespace Survivor.UI
         [Header("Motion")]
         [Min(0f)] public float riseSpeed = 2f;        // units/sec
         [Min(0.05f)] public float lifetime = 0.7f;    // seconds
-        [Min(0f)] public float horizontalJitter = 0.25f;
+        [Min(0f)] public float horizontalJitter = 1.25f;
+        [Min(0f)] public float verticalJitter = 1f;
 
 
     }

@@ -10,6 +10,7 @@ namespace Survivor.UI {
         [Header("UI References")]
         [SerializeField] private Image healthFill; // The primary (green) health bar
         [SerializeField] private Image damageFill; // The secondary (red) catch-up bar
+        [SerializeField] private TMPro.TMP_Text textField;
 
         [Header("Animation Settings")]
         [SerializeField] private float fillDuration = 0.6f; // How long the catch-up tween takes
@@ -27,7 +28,7 @@ namespace Survivor.UI {
             if (playerHealthComponent != null)
             {
                 playerHealthComponent.HealthChanged += OnPlayerHealthChanged;
-                InitialiseBars(playerHealthComponent.GetCurrentPercent());
+                Initialise(playerHealthComponent.GetCurrentPercent());
 
             }
             else
@@ -51,11 +52,18 @@ namespace Survivor.UI {
         }
 
 
-        private void InitialiseBars(float initialPercent)
+        private void Initialise(float initialPercent)
         {
             healthFill.fillAmount = initialPercent;
             damageFill.fillAmount = initialPercent;
+            UpdateText();
         }
+
+        private void UpdateText()
+        {
+            textField.text = $"{(int)playerHealthComponent.Current}/{(int)playerHealthComponent.Max}";
+        }
+
         private void OnPlayerHealthChanged(float current, float previous)
         {
             // Cancel any existing tween or delayed tween
@@ -85,6 +93,7 @@ namespace Survivor.UI {
                 // Start delayed tween for green bar
                 delayCoroutine = StartCoroutine(DelayedCatchupTween(previousPercent, true));
             }
+            UpdateText();
         }
 
         private IEnumerator DelayedCatchupTween(float previousPercent, bool isHealing)

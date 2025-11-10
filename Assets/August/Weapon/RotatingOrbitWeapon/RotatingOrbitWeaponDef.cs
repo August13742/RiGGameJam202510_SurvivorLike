@@ -27,8 +27,6 @@ namespace Survivor.Weapon
         public bool FollowOrigin = true;
         public bool Clockwise = false;
 
-        [Tooltip("ProgressÅ®angle profile (0..1). If null, uses easeInOutCirc.")]
-        public AnimationCurve MotionCurve = null;
 
         [Header("Prefab")]
         [Tooltip("Prefab with RotatingOrbitOrb + Collider2D(isTrigger).")]

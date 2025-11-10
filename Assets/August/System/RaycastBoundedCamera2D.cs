@@ -75,7 +75,7 @@ public sealed class RaycastBoundedCamera2D : MonoBehaviour
     {
         if (!target) return;
 
-        Vector3 follow = new Vector3(target.position.x, target.position.y, transform.position.z);
+        Vector3 follow = new (target.position.x, target.position.y, transform.position.z);
 
         if (!cam || !cam.orthographic || !boundsValid)
         {

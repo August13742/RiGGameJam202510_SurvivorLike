@@ -1,3 +1,4 @@
+using Survivor.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -99,6 +100,11 @@ namespace Survivor.Game
             }
             return player;
         }
+        public Vector3 GetPlayerPosition()
+        {
+            if (player == null) GetPlayerReference();
+            return player.transform.position;
+        }
 
         // ---------- Public stat mutation API (authoritative) ----------
         public void IncrementEnemyDowned(int amount = 1)
@@ -186,6 +192,7 @@ namespace Survivor.Game
         // ---------- Player damage hook ----------
         private void OnPlayerDamaged(float amount, Vector3 pos, bool isCrit)
         {
+            AugustsUtility.CameraShake.CameraShake2D.Shake(strength: 0.1f);
             IncrementDamageTaken(amount);
         }
 
@@ -203,6 +210,7 @@ namespace Survivor.Game
             if (_playerHealth != null)
             {
                 _playerHealth.Heal(amount);
+                DamageTextManager.Instance.ShowHeal(GetPlayerPosition(), amount);
                 IncrementHeal(amount);
             }
         }

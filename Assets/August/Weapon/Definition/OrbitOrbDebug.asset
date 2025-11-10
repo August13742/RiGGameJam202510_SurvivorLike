@@ -19,7 +19,7 @@ MonoBehaviour:
   BaseCooldown: 5
   TargetingMode: 0
   AreaScale: 5
-  Projectiles: 1
+  Projectiles: 2
   BaseCritChance: 0.05
   BaseCritMultiplier: 1.5
   Radius: 2
@@ -31,12 +31,6 @@ MonoBehaviour:
   Revolutions: 1
   FollowOrigin: 1
   Clockwise: 1
-  MotionCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
   OrbPrefab: {fileID: 2939867143732988035, guid: 222440cf12b130c4bbbb26c063223d9b, type: 3}
   MaxHitsPerTarget: 0
   ToggleRendererAndCollider: 1

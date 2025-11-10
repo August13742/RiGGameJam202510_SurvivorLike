@@ -13,6 +13,7 @@ namespace Survivor.Enemy
         protected Vector2 _velocity = Vector2.zero;
         protected Rigidbody2D _rb;
         protected Transform _target;
+        protected Animator _animator;
         [SerializeField] protected LayerMask hitMask;
 
         [SerializeField] private bool UpdateFacing = true;
@@ -33,6 +34,7 @@ namespace Survivor.Enemy
             _health = GetComponent<HealthComponent>();
             _rb = GetComponent<Rigidbody2D>();
             _rb.bodyType = RigidbodyType2D.Kinematic;
+            _animator = GetComponentInChildren<Animator>();
             _health.ResetFull();
         }
 
@@ -42,7 +44,12 @@ namespace Survivor.Enemy
             {
                 _health.Died += OnDied;
                 _health.Damaged += OnDamaged;
-                
+
+            }
+            if (_animator != null)
+            {
+                _animator.Play("Default");
+                _animator.speed = 1f;
             }
         }
 

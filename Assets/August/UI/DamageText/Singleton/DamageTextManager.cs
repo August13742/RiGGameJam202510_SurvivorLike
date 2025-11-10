@@ -31,11 +31,11 @@ namespace Survivor.UI
 
             _pool = new ObjectPool<DamageText>(textPrefab, prewarm, poolRoot);
         }
-
+        
         public void ShowNormal(Vector3 worldPos, float amount)
         {
             DamageText text = _pool.Rent(worldPos, Quaternion.identity);
-            text.ShowNormal(worldPos, amount); 
+            text.ShowNormal(worldPos, amount);
         }
 
         public void ShowCrit(Vector3 worldPos, float amount)
