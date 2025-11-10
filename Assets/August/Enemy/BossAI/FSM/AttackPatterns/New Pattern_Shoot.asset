@@ -13,19 +13,19 @@ MonoBehaviour:
   m_Name: New Pattern_Shoot
   m_EditorClassIdentifier: 
   shootAnimationName: Shoot
-  ProjectilePrefab: {fileID: 0}
+  ProjectilePrefab: {fileID: 4992832623426345031, guid: 3955badc9c444694490d3326e93b3aee, type: 3}
   Damage: 5
-  Speed: 14
+  Speed: 8
   Life: 3
   ArrowPerRep: 3
   SpreadMultiplier: 3
-  Homing: 0
+  Homing: 1
   HomingDuration: 1.5
   healthThresholdForEnrage: 0.5
   Repetition: 3
-  RepIsProbabilistic: 0
-  ProbDecayPerShot: 0.25
-  windupSeconds: 0.15
+  RepIsProbabilistic: 1
+  ProbDecayPerShot: 0.2
+  windupSeconds: 0.5
   interArrowDelay: 0.05
   interRepDelay: 0.25
   enrageArrowMul: 1.5
