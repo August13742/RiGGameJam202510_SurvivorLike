@@ -59,8 +59,6 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -82,7 +80,6 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1493332755
   m_SortingLayer: 6
   m_SortingOrder: 0
@@ -109,7 +106,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 222
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1bb4b93cb2b2aac448f0c1fa6a02b413, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -178,7 +175,7 @@ MonoBehaviour:
   _SortingLayer: 0
   _SortingLayerID: 0
   _SortingOrder: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_renderer: {fileID: 8613952077184020712}
   m_maskType: 0
 --- !u!114 &-8914030447015249097
@@ -205,7 +202,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b72da5c765208345a6ef0cc0e77cea9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.UI.DamageText
-  debug_normal: 0
-  debug_crit: 1
   label: {fileID: 3218951028580887050}
   style: {fileID: 11400000, guid: 2743fb5b20c8b2d449753ebc1f2f7f67, type: 2}
