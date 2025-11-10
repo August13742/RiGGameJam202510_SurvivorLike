@@ -192,6 +192,7 @@ namespace Survivor.Game
         // ---------- Player damage hook ----------
         private void OnPlayerDamaged(float amount, Vector3 pos, bool isCrit)
         {
+            AugustsUtility.CameraShake.CameraShake2D.Shake(strength: 0.1f);
             IncrementDamageTaken(amount);
         }
 

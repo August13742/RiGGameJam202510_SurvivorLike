@@ -47,6 +47,7 @@ namespace Survivor.Weapon
                 projectile.ConfigureCrit(Current().CritChance, Current().CritMultiplier, perHit: true);
 
                 projectile.Fire(fireOrigin.position, dir, speedFinal, baseDamage, pierceFinal, def.Lifetime,def.AreaScale);
+
             }
         }
     }

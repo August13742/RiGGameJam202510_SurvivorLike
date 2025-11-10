@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e1037c836c061a489630e45bbc9bd19, type: 3}
+  m_Name: New Pattern_Shoot
+  m_EditorClassIdentifier: 
+  shootAnimationName: Shoot
+  ProjectilePrefab: {fileID: 0}
+  Damage: 5
+  Speed: 14
+  Life: 3
+  ArrowPerRep: 3
+  SpreadMultiplier: 3
+  Homing: 0
+  HomingDuration: 1.5
+  healthThresholdForEnrage: 0.5
+  Repetition: 3
+  RepIsProbabilistic: 0
+  ProbDecayPerShot: 0.25
+  windupSeconds: 0.15
+  interArrowDelay: 0.05
+  interRepDelay: 0.25
+  enrageArrowMul: 1.5
+  enrageRateMul: 1.25
