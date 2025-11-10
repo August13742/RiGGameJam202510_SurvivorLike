@@ -86,6 +86,7 @@ namespace Survivor.UI
         }
         #endregion
 
+
         #region Convenience Presets
         public void ShowNormal(Vector3 pos, float amount)
         {
@@ -95,7 +96,7 @@ namespace Survivor.UI
                  s ? s.normalColor : Color.white,
                  s ? s.normalScale : 1f,
                  s ? s.lifetime : 0.7f,
-                 s ? new Vector3(Random.Range(-s.horizontalJitter, s.horizontalJitter), 0f, 0f) : Vector3.zero,
+                 s ? new Vector3(Random.Range(-s.horizontalJitter, s.horizontalJitter), Random.Range(0f,s.verticalJitter), 0f) : Vector3.zero,
                  s ? s.riseSpeed : 2f);
         }
 
@@ -107,7 +108,7 @@ namespace Survivor.UI
                  s ? s.critColor : new Color(1f, 0.85f, 0.2f),
                  s ? s.critScale : 1.3f,
                  s ? s.lifetime : 0.7f,
-                 s ? new Vector3(Random.Range(-s.horizontalJitter, s.horizontalJitter), 0f, 0f) : Vector3.zero,
+                 s ? new Vector3(Random.Range(-s.horizontalJitter, s.horizontalJitter), Random.Range(0f, s.verticalJitter), 0f) : Vector3.zero,
                  s ? s.riseSpeed : 2f);
         }
 
@@ -119,7 +120,7 @@ namespace Survivor.UI
                  s ? s.healColor : new Color(0.2f, 1f, 0.2f),
                  s ? s.healScale : 1.0f,
                  s ? s.lifetime : 0.7f,
-                 s ? new Vector3(Random.Range(-s.horizontalJitter, s.horizontalJitter), 0f, 0f) : Vector3.zero,
+                 s ? new Vector3(Random.Range(-s.horizontalJitter, s.horizontalJitter), Random.Range(0f, s.verticalJitter), 0f) : Vector3.zero,
                  s ? s.riseSpeed : 2f);
         }
         #endregion
