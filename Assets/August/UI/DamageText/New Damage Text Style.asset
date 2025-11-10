@@ -19,6 +19,6 @@ MonoBehaviour:
   healColor: {r: 0.2, g: 1, b: 0.2, a: 1}
   healScale: 1
   riseSpeed: 2
-  lifetime: 0.5
+  lifetime: 0.75
   horizontalJitter: 1.25
   verticalJitter: 1

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c738d448f7918b42a0ff7cb0614bce1, type: 3}
   m_Name: BulletEnemy
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Enemy.ShooterEnemyDef
-  Prefab: {fileID: 4166214330910034951, guid: e9b1ad0a7eab3004b9f6a4e4b841b018, type: 3}
+  Prefab: {fileID: 5690418907262690774, guid: e9b1ad0a7eab3004b9f6a4e4b841b018, type: 3}
   BaseHP: 20
   MoveSpeed: 1
   Acceleration: 25

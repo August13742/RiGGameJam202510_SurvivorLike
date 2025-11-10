@@ -13,6 +13,7 @@ TagManager:
   - HitstopImmune
   - LootPool
   - EnemyPool
+  - EnemyProjectiles
   layers:
   - Default
   - TransparentFX
