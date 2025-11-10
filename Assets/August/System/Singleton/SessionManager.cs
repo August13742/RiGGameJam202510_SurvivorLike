@@ -1,3 +1,4 @@
+using Survivor.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -98,6 +99,11 @@ namespace Survivor.Game
                 player = GameObject.FindGameObjectWithTag("Player");
             }
             return player;
+        }
+        public Vector3 GetPlayerPosition()
+        {
+            if (player == null) GetPlayerReference();
+            return player.transform.position;
         }
 
         // ---------- Public stat mutation API (authoritative) ----------
@@ -203,6 +209,7 @@ namespace Survivor.Game
             if (_playerHealth != null)
             {
                 _playerHealth.Heal(amount);
+                DamageTextManager.Instance.ShowHeal(GetPlayerPosition(), amount);
                 IncrementHeal(amount);
             }
         }
