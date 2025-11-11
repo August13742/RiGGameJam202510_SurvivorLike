@@ -119,7 +119,7 @@ namespace Survivor.Game
             //return;
             if (amount <= 0f) return;
             damageDealt = Mathf.Max(0f, damageDealt + amount);
-            // Cast to int for integer thresholds (e.g., 100, 1000, c)
+            // Cast to int for integer thresholds (e.g., 100, 1000, ï¿½c)
             //return;
             EvaluateAndShowAchievements_Int((int)damageDealt, dmgDealtThresholds, _dmgDealtUnlocked, "damage");
         }
@@ -252,9 +252,9 @@ namespace Survivor.Game
 
             string msg = kind switch
             {
-                "enemyDown" => number.ToString() + "‘Ì‚Ì“G‚ð“|‚µ‚½!",
-                "damage" => number.ToString() + "ƒ_ƒ[ƒW‚ð—^‚¦‚½!",
-                "beDamaged" => number.ToString() + "ƒ_ƒ[ƒW‚­‚ç‚Á‚½!",
+                "enemyDown" => number.ToString() + "Enemy Down!",
+                "damage" => number.ToString() + "Damage Dealt!",
+                "beDamaged" => number.ToString() + "Damage Taken!",
                 _ => number.ToString(),
             };
             Sprite icon = null;

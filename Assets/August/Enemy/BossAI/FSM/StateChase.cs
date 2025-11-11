@@ -14,7 +14,7 @@ namespace Survivor.Enemy.FSM
 			float dist = Vector2.Distance(_controller.transform.position, _controller.PlayerTransform.position);
 			var band = _controller.GetBand(dist);
 
-			// Attack if in-band + candidates + GCD ready
+			// Attack if in-band + candidates + GlobalCD ready
 			if (band != RangeBand.OffBand && !_controller.IsGlobalAttackOnCooldown())
 			{
                 if (_controller.TryBuildCandidatesForDistance(dist, out _))
@@ -22,13 +22,13 @@ namespace Survivor.Enemy.FSM
 			}
 
 			// Movement policy
-			if (band == RangeBand.OffBand || band == RangeBand.Pocket) // Off band OR Pocket but no ranged play ¨ nudge toward melee
-			{
+			if (band == RangeBand.OffBand || band == RangeBand.Pocket) // Off band OR Pocket but no ranged play -> nudge toward melee
+            {
 				Vector2 dir = ((Vector2)(_controller.PlayerTransform.position - _controller.transform.position)).normalized;
 				_controller.Velocity = dir * _controller.Config.ChaseSpeed;
 				return null;
 			}
-			else // Melee band but dry ¨ wander instead of face-tanking nothing
+			else // Melee band but dry -> wander instead of face-tanking nothing
 			{
 				return typeof(StateIdle);
 			}

@@ -29,7 +29,7 @@ namespace Survivor.Enemy.FSM
 
         // --- State Machine ---
         private IState _currentState;
-        [SerializeField] String _currentStateLabel = "";
+        [SerializeField] String _currentStateLabel = ""; //inspector debug use only
         private Dictionary<Type, IState> _states;
 
         // --- Cooldowns ---
