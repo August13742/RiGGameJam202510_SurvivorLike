@@ -19,7 +19,7 @@ MonoBehaviour:
   ContactDamage: 3
   XPValue: 1
   PrewarmCount: 8
-  DropChance: 0.75
+  DropChance: 0.9
   Rolls: 1
   LootTable: {fileID: 11400000, guid: be5f8603e81dd7441a552ec478915411, type: 2}
   ProjectileDamage: 5
