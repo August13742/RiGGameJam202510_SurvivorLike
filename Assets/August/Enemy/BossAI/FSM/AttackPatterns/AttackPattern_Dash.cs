@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Survivor.Enemy.FSM
 {
     [CreateAssetMenu(fileName = "New DashAttackPattern", menuName = "Defs/Boss Attacks/Dash Pattern")]
-    public class DashAttackPattern : AttackPattern
+    public class AttackPattern_Dash : AttackPattern
     {
         [Header("Dash Properties")]
         [SerializeField] private string dashAnimationName = "RapidRotate";
@@ -20,14 +20,15 @@ namespace Survivor.Enemy.FSM
 
         [Header("Repetitions (probabilistic)")]
         [SerializeField] private bool repIsProbabilistic = false;
-        [SerializeField, Range(0f, 1f)] private float probDecayPerDash = 0.25f; // p starts at 1 and decays by this each dash
-        [SerializeField] private int hardCap = 32; // safety
+        [SerializeField, Range(0f, 1f)] private float ProbDecayPerDash = 0.25f; // p starts at 1 and decays by this each dash
+        [SerializeField] private int hardCap = 5; // safety
 
         [Header("Enrage")]
         [SerializeField, Range(0f, 1f)] private float healthThresholdForEnrage = 0.5f;
+        [SerializeField, Range(0f, 1f)] private float enrageDecayReduction = 0.5f; // 50% less decay when enraged
         [SerializeField] private float enrageSpeedMul = 1.15f;  // faster dash
         [SerializeField] private float enrageRateMul = 1.10f;   // faster telegraph/recovery cadence
-
+        bool _enraged = false;
         public override IEnumerator Execute(BossController controller)
         {
             if (controller == null || controller.PlayerTransform == null)
@@ -37,11 +38,11 @@ namespace Survivor.Enemy.FSM
             float hp = 1f;
             var hc = controller.GetComponent<HealthComponent>();
             if (hc != null) hp = hc.GetCurrentPercent();
-            bool enraged = hp <= healthThresholdForEnrage;
+            _enraged = hp <= healthThresholdForEnrage;
 
             // Enrage scalars
-            float speed = enraged ? dashSpeed * enrageSpeedMul : dashSpeed;
-            float rateMul = enraged ? enrageRateMul : 1f;
+            float speed = _enraged ? dashSpeed * enrageSpeedMul : dashSpeed;
+            float rateMul = _enraged ? enrageRateMul : 1f;
 
             if (repIsProbabilistic)
             {
@@ -49,7 +50,7 @@ namespace Survivor.Enemy.FSM
             }
             else
             {
-                int reps = Mathf.Max(0, enraged ? enragedDashCount : dashCount);
+                int reps = Mathf.Max(0, _enraged ? enragedDashCount : dashCount);
                 for (int i = 0; i < reps; i++)
                     yield return DoOneDash(controller, speed, rateMul);
             }
@@ -63,7 +64,7 @@ namespace Survivor.Enemy.FSM
             while (Random.value <= p && guard++ < hardCap)
             {
                 yield return DoOneDash(controller, speed, rateMul);
-                p = Mathf.Max(0f, p - probDecayPerDash);
+                p = Mathf.Max(0f, p - ProbDecayPerDash * (_enraged ? enrageDecayReduction : 1f));
             }
         }
 

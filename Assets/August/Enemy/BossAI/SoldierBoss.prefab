@@ -125,7 +125,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -194,7 +194,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    MaxHealth: 99999
+    MaxHealth: 6000
     EnragedColour: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
     MeleeDamage: 10
     ChaseSpeed: 4
@@ -222,6 +222,11 @@ MonoBehaviour:
       CooldownTag: shoot_homing
       Cooldown: 5
       Weight: 2
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: ae44711c14e1d3342819fbf6e2a05327, type: 2}
+      CooldownTag: dash
+      Cooldown: 5
+      Weight: 5
   <Velocity>k__BackingField: {x: 0, y: 0}
   firePoint: {fileID: 0}
   meleeHitbox: {fileID: 7554204438367727322}

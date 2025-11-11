@@ -25,15 +25,16 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private bool RepIsProbabilistic = false;
         [SerializeField, Range(0f, 1f)] private float ProbDecayPerShot = 0.25f;
 
-        // --- Local tunables (safe defaults if your base AttackPattern doesn�ft provide timings) ---
+        // --- Local tunables
         [SerializeField] private float windupSeconds = 0.15f;
         [SerializeField] private float interArrowDelay = 0.05f;
         [SerializeField] private float interRepDelay = 0.25f;
 
         // Enrage multipliers (mild; adjust to taste)
         [SerializeField] private float enrageArrowMul = 1.5f;
+        [SerializeField, Range(0f, 1f)] private float enrageDecayReduction = 0.5f; // 50% less decay when enraged
         [SerializeField] private float enrageRateMul = 1.25f; // faster cadence when enraged
-
+        bool _enraged = false;
 
         public override IEnumerator Execute(BossController controller)
         {
@@ -45,14 +46,14 @@ namespace Survivor.Enemy.FSM
             var hc = controller.GetComponent<HealthComponent>();
             if (hc != null) healthPercent = hc.GetCurrentPercent();
 
-            bool enraged = healthPercent <= healthThresholdForEnrage;
+            _enraged = healthPercent <= healthThresholdForEnrage;
             // 2) Play anim + windup
             var anim = controller.Animator;
             if (anim != null && !string.IsNullOrEmpty(shootAnimationName))
                 anim.Play(shootAnimationName);
 
-            float rateMul = enraged ? enrageRateMul : 1f;
-            float arrowMul = enraged ? enrageArrowMul : 1f;
+            float rateMul = _enraged ? enrageRateMul : 1f;
+            float arrowMul = _enraged ? enrageArrowMul : 1f;
 
             yield return new WaitForSeconds(windupSeconds / rateMul);
 
@@ -81,8 +82,10 @@ namespace Survivor.Enemy.FSM
             while (Random.value <= p && guard++ < hardCap)
             {
                 yield return FireOneRepetition(controller, Mathf.RoundToInt(ArrowPerRep * arrowMul));
-                p = Mathf.Max(0f, p - ProbDecayPerShot);
+                p = Mathf.Max(0f, p - ProbDecayPerShot * (_enraged ? enrageDecayReduction : 1f));
                 yield return new WaitForSeconds(interRepDelay / rateMul);
+
+
             }
         }
 
@@ -118,7 +121,7 @@ namespace Survivor.Enemy.FSM
             var go = Object.Instantiate(ProjectilePrefab, origin, Quaternion.identity);
 
             // required
-            var bullet = go.GetComponent<Survivor.Weapon.EnemyBullet2D>();
+            var bullet = go.GetComponent<Weapon.EnemyBullet2D>();
             if (bullet == null)
             {
                 Debug.LogWarning("ProjectilePrefab missing EnemyBullet2D.");
