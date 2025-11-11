@@ -3,16 +3,14 @@ using UnityEngine.InputSystem;
 
 public class GameStop : MonoBehaviour
 {
-    void Start()
-    {
-        
-    }
+    public GameObject panel;
 
     void Update()
     {
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            Debug.Log("E");
+            bool panelState = !panel.activeSelf;
+            panel.SetActive(panelState);
         }
     }
 }
