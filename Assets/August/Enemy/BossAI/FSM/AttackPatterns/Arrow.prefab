@@ -48,15 +48,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 12
   damage: 5
-  radius: 0.1
   hitMask:
     serializedVersion: 2
     m_Bits: 64
-  wallMask:
-    serializedVersion: 2
-    m_Bits: 2048
-  destroyOnWalls: 1
-  homing: 0
+  homing: 1
   homingDuration: 1
   maxTurnDegPerSec: 360
   forwardAxisIsRight: 1

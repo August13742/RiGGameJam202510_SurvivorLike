@@ -196,7 +196,7 @@ namespace Survivor.Game
             IncrementDamageTaken(amount);
         }
 
-        public void RestorePlayerHealth(int amount)
+        public void RestorePlayerHealth(float amount)
         {
             if (player == null)
             {

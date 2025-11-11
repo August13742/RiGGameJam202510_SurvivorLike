@@ -1,3 +1,4 @@
+using AugustsUtility.CameraShake;
 using Survivor.Game;
 using Survivor.UI;
 using System;
@@ -25,6 +26,7 @@ namespace Survivor.Enemy.FSM
         [Header("Component Refs")]
         [Tooltip("Optional: Assign a child object where projectiles will spawn from.")]
         [SerializeField] private Transform firePoint;
+        [SerializeField] private GameObject meleeHitbox;
         public Transform FirePoint => firePoint;
 
         // --- State Machine ---
@@ -52,9 +54,22 @@ namespace Survivor.Enemy.FSM
             RB = GetComponent<Rigidbody2D>();
             RB.bodyType = RigidbodyType2D.Kinematic;
             _perlinNoiseOffsetX = Random.Range(0f, 1000f);
-            _perlinNoiseOffsetY = Random.Range(0f, 1000f); 
+            _perlinNoiseOffsetY = Random.Range(0f, 1000f);
+            var bus = GetComponent<AnimationEventBus>();
+            if (bus != null) bus.Fired += OnAnimEvent;
         }
+        
 
+        private void OnAnimEvent(AnimationEvent e)
+        {
+            // Route by e.stringParameter / e.intParameter / e.floatParameter / e.objectReference
+            if (e.stringParameter == "hitbox_melee_on") ToggleMeleeHitbox(true);
+            else if (e.stringParameter == "hitbox_melee_off") ToggleMeleeHitbox(false); 
+        }
+        private void ToggleMeleeHitbox(bool on)
+        {
+            meleeHitbox?.SetActive(on);
+        }
         private void InitialiseStateFactory()
         {
             _states = new Dictionary<Type, IState>
@@ -98,6 +113,16 @@ namespace Survivor.Enemy.FSM
 
             StartCoroutine(Die());
             
+        }
+        private void OnTriggerEnter2D(Collider2D col)
+        {
+            if (!col.TryGetComponent<HealthComponent>(out var target)) return;
+            if (target.IsDead) return;
+
+            float dealt = config.MeleeDamage;
+
+            target.Damage(dealt);
+            CameraShake2D.Shake(0.3f, 2f);
         }
         IEnumerator Die()
         {

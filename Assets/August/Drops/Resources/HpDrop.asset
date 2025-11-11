@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: HpDrop
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Drop.DropItemDef
   Prefab: {fileID: -2300390411167695270, guid: c8234ea35e6455940b1a71b10a256bb2, type: 3}
-  MinAmount: 1
-  MaxAmount: 1
+  MinAmount: 5
+  MaxAmount: 5
   PrewarmCount: 4

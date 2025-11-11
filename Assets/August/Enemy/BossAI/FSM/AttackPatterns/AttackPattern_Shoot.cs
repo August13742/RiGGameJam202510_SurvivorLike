@@ -25,7 +25,7 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private bool RepIsProbabilistic = false;
         [SerializeField, Range(0f, 1f)] private float ProbDecayPerShot = 0.25f;
 
-        // --- Local tunables (safe defaults if your base AttackPattern doesnft provide timings) ---
+        // --- Local tunables (safe defaults if your base AttackPattern doesnï¿½ft provide timings) ---
         [SerializeField] private float windupSeconds = 0.15f;
         [SerializeField] private float interArrowDelay = 0.05f;
         [SerializeField] private float interRepDelay = 0.25f;
@@ -73,7 +73,7 @@ namespace Survivor.Enemy.FSM
 
         private IEnumerator ShootProbabilistic(BossController controller, float arrowMul, float rateMul)
         {
-            // Start at p=1.0 ¨ always shoot once; then decay after each repetition
+            // Start at p=1.0 ï¿½ï¿½ always shoot once; then decay after each repetition
             float p = 1f;
             int guard = 0; // absolute cap to prevent pathological infinite loops
             const int hardCap = 32;
@@ -97,7 +97,7 @@ namespace Survivor.Enemy.FSM
 
             // Spread in degrees: base fan width scales with SpreadMultiplier and arrowCount
             // With N arrows, distribute across [-halfSpread, +halfSpread]
-            float baseSpreadDeg = Mathf.Max(0f, SpreadMultiplier * 10f); // g10h as base step; knob scales it
+            float baseSpreadDeg = Mathf.Max(0f, SpreadMultiplier * 10f); // ï¿½g10ï¿½h as base step; knob scales it
             float halfSpread = (arrowCount > 1) ? 0.5f * baseSpreadDeg : 0f;
 
             for (int i = 0; i < arrowCount; i++)
