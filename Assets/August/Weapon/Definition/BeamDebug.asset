@@ -22,12 +22,12 @@ MonoBehaviour:
   Projectiles: 1
   BaseCritChance: 0.05
   BaseCritMultiplier: 1.5
-  BeamPrefab: {fileID: 4645090832089952007, guid: a1a7f1ec0d959dc4f93eafbd1e6a1db5, type: 3}
+  BeamPrefab: {fileID: 2127994361759694393, guid: a1a7f1ec0d959dc4f93eafbd1e6a1db5, type: 3}
   BeamLength: 10
   BeamWidth: 0.5
   Duration: 1
   TicksPerSecond: 6
-  BeamMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+  BeamMaterial: {fileID: 2100000, guid: 4c6a0aa23046b2e4fa39dee236fa983c, type: 2}
   UVScrollRate: 6
   AlphaOverLife:
     serializedVersion: 2

@@ -7,13 +7,13 @@ namespace Survivor.Weapon
 {
     public sealed class BeamWeapon : WeaponBase<BeamWeaponDef>
     {
-        private ObjectPool _beamPool;
+        private ObjectPool<BeamInstance2D> _beamPool;
 
-        public override void Equip(WeaponContext context)
+
+        protected override void OnEquipped()
         {
-            base.Equip(context);
-            _beamPool = new ObjectPool(def.BeamPrefab, prewarm: 8, context.PoolRoot);
-
+            base.OnEquipped();
+            _beamPool = new (def.BeamPrefab, prewarm: 8, ctx.PoolRoot);
         }
 
         public override void Tick(float dt)
@@ -103,16 +103,14 @@ namespace Survivor.Weapon
 
         private void SpawnBeam(Vector2 dir)
         {
-            GameObject go = _beamPool.Rent(fireOrigin.position, Quaternion.identity);
-            var beam = go.GetComponent<BeamInstance2D>();
-            if (!beam) { beam = go.AddComponent<BeamInstance2D>(); beam.SetPool(_beamPool); }
+            BeamInstance2D beam = _beamPool.Rent(fireOrigin.position, Quaternion.identity);
 
-            go.layer = (ctx.Team == Team.Player)
+            beam.gameObject.layer = (ctx.Team == Team.Player)
                 ? LayerMask.NameToLayer("PlayerProjectile")
                 : LayerMask.NameToLayer("EnemyProjectile");
 
             beam.SetHitSink(this);
-            beam.ConfigureCrit(GetEffectiveCritChance(), GetEffectiveCritMultiplier(), perTick: true);
+            beam.ConfigureCrit(Current().CritChance, Current().CritMultiplier, perTick: true);
 
             var targetMask = (ctx.Team == Team.Player) ? LayerMask.GetMask("Enemy") : LayerMask.GetMask("Player");
             beam.SetTargetMask(targetMask);

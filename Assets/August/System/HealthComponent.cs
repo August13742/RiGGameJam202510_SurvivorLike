@@ -59,6 +59,7 @@ namespace Survivor.Game
 
         public void Damage(float amount, bool crit = false)
         {
+            //return;
             if (amount <= 0 || IsDead) return;
             if (useIframe && (iframeTimer > 0)) return;
 
@@ -67,10 +68,16 @@ namespace Survivor.Game
             Damaged?.Invoke(amount, transform.position, crit);
             SetCurrent(next, raiseEvent: true);
 
-            if (next == 0) Died?.Invoke();
 
-            if (triggerHitstopOnDamaged && (HitstopManager.Instance != null)) HitstopManager.Instance.Request(hitstopDurationSec, gameObject);
-            if (useIframe) iframeTimer = iframeDuration;
+            if (next == 0)
+            {
+                Died?.Invoke();
+            }
+            else
+            {
+                if (triggerHitstopOnDamaged && (HitstopManager.Instance != null)) HitstopManager.Instance.Request(hitstopDurationSec, gameObject);
+                if (useIframe) iframeTimer = iframeDuration;
+            }
         }
 
         public void Heal(float amount)

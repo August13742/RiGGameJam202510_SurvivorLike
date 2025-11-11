@@ -4,6 +4,7 @@ using Survivor.Game;
 
 namespace Survivor.Weapon
 {
+    [RequireComponent(typeof(PrefabStamp))]
     [DisallowMultipleComponent]
     public sealed class BeamInstance2D : MonoBehaviour, IPoolable
     {
@@ -22,7 +23,7 @@ namespace Survivor.Weapon
         // State
         private float _tLeft;
         private int _tickFired = 0;
-        private ObjectPool _pool;
+
         private readonly Collider2D[] _hits = new Collider2D[64];
         private readonly HashSet<HealthComponent> _seen = new(32);
 
@@ -44,16 +45,19 @@ namespace Survivor.Weapon
         private float _critMul = 1f;
         private bool _critPerTick = true;
         private ContactFilter2D _filter;
+        private PrefabStamp _stamp;
 
         private void Awake()
         {
+            _stamp = GetComponent<PrefabStamp>();
             if (_lr == null)
             {
                 _lr = gameObject.AddComponent<LineRenderer>();
                 _lr.positionCount = 2;
                 _lr.numCornerVertices = 2;
                 _lr.numCapVertices = 2;
-                _lr.textureMode = LineTextureMode.Tile;
+                //_lr.textureMode = LineTextureMode.Tile;
+                _lr.textureMode = LineTextureMode.Stretch;
                 _lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 _lr.receiveShadows = false;
                 _lr.alignment = LineAlignment.TransformZ;
@@ -62,8 +66,6 @@ namespace Survivor.Weapon
             }
             _colorPropID = Shader.PropertyToID("_Color");
         }
-
-        public void SetPool(ObjectPool pool) => _pool = pool;
 
         public void SetHitSink(IHitEventSink sink) => _sink = sink;
 
@@ -220,7 +222,7 @@ namespace Survivor.Weapon
         private void Despawn()
         {
             if (_lr) _lr.enabled = false;
-            if (_pool != null) _pool.Return(gameObject);
+            if (_stamp.OwnerPool != null) _stamp.OwnerPool.Return(gameObject);
             else gameObject.SetActive(false);
         }
 

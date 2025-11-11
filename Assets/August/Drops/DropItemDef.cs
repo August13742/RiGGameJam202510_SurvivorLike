@@ -6,7 +6,7 @@ namespace Survivor.Drop
     public sealed class DropItemDef : ScriptableObject
     {
         [Header("Prefab (must have DropItemBase + PrefabStamp)")]
-        public GameObject Prefab;
+        public DropItemBase Prefab;
 
         [Header("Amount (stack)")]
         public int MinAmount = 1;

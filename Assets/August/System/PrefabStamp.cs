@@ -7,6 +7,6 @@ namespace Survivor.Game
     {
         // Set by the pool at creation time; never changes.
         public GameObject Prefab { get; internal set; }
-        public ObjectPool OwnerPool { get; internal set; }
+        public IReturnToPool OwnerPool;
     }
 }

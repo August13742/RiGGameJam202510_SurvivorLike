@@ -11,6 +11,9 @@ TagManager:
   - Loot
   - WorldBound
   - HitstopImmune
+  - LootPool
+  - EnemyPool
+  - EnemyProjectiles
   layers:
   - Default
   - TransparentFX

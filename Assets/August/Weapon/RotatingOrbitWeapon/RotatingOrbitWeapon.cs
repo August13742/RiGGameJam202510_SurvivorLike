@@ -6,13 +6,15 @@ namespace Survivor.Weapon
     [DisallowMultipleComponent]
     public sealed class RotatingOrbitWeapon : WeaponBase<RotatingOrbitWeaponDef>
     {
-        private ObjectPool _orbPool;
+        private ObjectPool<RotatingOrbitOrb> _orbPool;
 
-        public override void Equip(WeaponContext context)
+
+        protected override void OnEquipped()
         {
-            base.Equip(context);
-            _orbPool = new ObjectPool(def.OrbPrefab, prewarm: 8, context.PoolRoot);
+            base.OnEquipped();
+            _orbPool = new(def.OrbPrefab, prewarm: 8, ctx.PoolRoot);
         }
+
 
         public override void Tick(float dt)
         {
@@ -52,17 +54,14 @@ namespace Survivor.Weapon
             {
                 float startAng = step * i;
 
-                GameObject go = _orbPool.Rent(pivot.position, Quaternion.identity);
-                go.layer = (ctx.Team == Team.Player)
+                RotatingOrbitOrb orb = _orbPool.Rent(pivot.position, Quaternion.identity);
+                orb.gameObject.layer = (ctx.Team == Team.Player)
                     ? LayerMask.NameToLayer("PlayerProjectile")
                     : LayerMask.NameToLayer("EnemyProjectile");
 
-                var orb = go.GetComponent<RotatingOrbitOrb>();
-                orb.SetPool(_orbPool);
-
 
                 orb.SetHitSink(this);
-                orb.ConfigureCrit(GetEffectiveCritChance(), GetEffectiveCritMultiplier(), perHit: true);
+                orb.ConfigureCrit(Current().CritChance, Current().CritMultiplier, perHit: true);
 
                 orb.Arm(
                     pivot: pivot,
@@ -75,8 +74,7 @@ namespace Survivor.Weapon
                     followOrigin: def.FollowOrigin,
                     toggleVis: def.ToggleRendererAndCollider,
                     maxHitsPerTarget: def.MaxHitsPerTarget,
-                    orbVisualScale: orbScale,
-                    motionCurve: null
+                    orbVisualScale: orbScale
                 );
             }
         }

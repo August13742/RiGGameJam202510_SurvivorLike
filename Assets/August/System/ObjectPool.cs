@@ -3,49 +3,78 @@ using UnityEngine;
 
 namespace Survivor.Game
 {
-    public sealed class ObjectPool
+    public sealed class ObjectPool<T> : IReturnToPool where T : Component
     {
         private readonly Transform _parent;
-        private readonly GameObject _prefab;
-        private readonly Stack<GameObject> _stack = new();
+        private readonly T _prefab;
+        private readonly Stack<T> _stack = new();
 
-        public ObjectPool(GameObject prefab, int prewarm, Transform parent)
+        public ObjectPool(T prefab, int prewarm, Transform parent)
         {
             _prefab = prefab; _parent = parent;
             for (int i = 0; i < prewarm; i++)
                 _stack.Push(CreateInstance());
         }
 
-        private GameObject CreateInstance()
+        private T CreateInstance()
         {
-            GameObject obj = Object.Instantiate(_prefab, _parent);
-            var stamp = obj.GetComponent<PrefabStamp>() ?? obj.AddComponent<PrefabStamp>();
-            stamp.Prefab = _prefab;
+            // Instantiate the GameObject from the component's GameObject
+            var go = Object.Instantiate(_prefab.gameObject, _parent);
+
+            // Get the component of type T from the new GameObject. for some reason if you don't do it like this it throws runtime errors.
+            var inst = go.GetComponent<T>();
+
+            var stamp = go.GetComponent<PrefabStamp>() ?? go.AddComponent<PrefabStamp>();
+            stamp.Prefab = _prefab.gameObject;
             stamp.OwnerPool = this;
-            obj.SetActive(false);
-            return obj;
+            go.SetActive(false);
+            return inst;
         }
 
-        public GameObject Rent(Vector3 pos, Quaternion rot, Transform reparentTo = null)
+        public T Rent(Vector3 pos, Quaternion rot, Transform reparentTo = null)
         {
-            var obj = _stack.Count > 0 ? _stack.Pop() : CreateInstance();
-            if (reparentTo && obj.transform.parent != reparentTo)
-                obj.transform.SetParent(reparentTo, worldPositionStays: false);
-            obj.transform.SetPositionAndRotation(pos, rot);
-            obj.SetActive(true);
-            if (obj.TryGetComponent<IPoolable>(out var ip)) ip.OnSpawned();
-            return obj;
+            var inst = _stack.Count > 0 ? _stack.Pop() : CreateInstance();
+            var tr = inst.transform;
+
+            if (reparentTo && tr.parent != reparentTo)
+                tr.SetParent(reparentTo, worldPositionStays: false);
+
+            tr.SetPositionAndRotation(pos, rot);
+            if (inst.TryGetComponent<IPoolable>(out var ip)) ip.OnSpawned();
+
+            inst.gameObject.SetActive(true);
+            return inst;
         }
 
-        public void Return(GameObject obj)
+        /*
+        The idea is,  either attach `PrefabStamp` to the object and use stamp.OwnerPool.Return(), 
+        
+        or the component need to store Pool reference and call Pool.IReturnToPool.Return(this), 
+        because I can't attach [RequireComponent(type(PrefabStamp)) on an interface] since it's not MonoBehaviour
+         */
+        public void Return(T inst)
+        {
+            if (!inst) return;
+            if (inst.TryGetComponent<IPoolable>(out var ip)) ip.OnDespawned();
+
+            var tr = inst.transform;
+            if (tr.parent != _parent) tr.SetParent(_parent, worldPositionStays: false);
+
+            inst.gameObject.SetActive(false);
+            _stack.Push(inst);
+        }
+        // IReturnToPool hook (for objects that only know their GameObject)
+        void IReturnToPool.Return(GameObject obj)
         {
             if (!obj) return;
-            if (obj.TryGetComponent<IPoolable>(out var ip)) ip.OnDespawned();
-            // restore static parent to avoid dangling under dynamic hierarchies
-            if (obj.transform.parent != _parent) obj.transform.SetParent(_parent, worldPositionStays: false);
-            obj.SetActive(false);
-            _stack.Push(obj);
+            var inst = obj.GetComponent<T>();
+            if (inst) Return(inst);
         }
 
+    }
+
+    public interface IReturnToPool
+    {
+        void Return(GameObject obj);
     }
 }

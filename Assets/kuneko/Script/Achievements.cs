@@ -1,140 +1,140 @@
-using UnityEngine;
-using TMPro;
-using DG.Tweening;
-using System.Collections;
+//using UnityEngine;
+//using TMPro;
+//using DG.Tweening;
+//using System.Collections;
 
-public class Achievements : MonoBehaviour
-{
-    //public static Achievements Instance { get; private set; }
-    [Header("UICanvas")]
-    [SerializeField] private Transform uICanvas;
+//public class Achievements : MonoBehaviour
+//{
+//    //public static Achievements Instance { get; private set; }
+//    [Header("UICanvas")]
+//    [SerializeField] private Transform uICanvas;
 
-    [SerializeField] private GameObject achievement;
+//    [SerializeField] private GameObject achievement;
 
-    //[HideInInspector] public int EnemyDownCount = 0;
-    //[HideInInspector] public float DamageCount = 0;
-    //[HideInInspector] public float BeDamagedCount = 0;
+//    [HideInInspector] 
+//    public int EnemyDownCount = 0;
+//    public float DamageCount = 0;
+//    public float BeDamagedCount = 0;
 
-    private Vector2 defaultPos = new Vector2(225f, -345f);
-    private float defaultYPos = -345f;
-    private float moveYPos = -140f;
+//    private Vector2 defaultPos = new Vector2(225f, -345f);
+//    private float defaultYPos = -345f;
+//    private float moveYPos = -140f;
 
-    private bool oneHundredEnemyDown = false;
-    private bool oneHundredDamage = false;
-    private bool oneHundredBeDamaged = false;
-    private bool oneThousandEnemyDown = false;
-    private bool oneThousandDamage = false;
-    private bool oneThousandBeDamaged = false;
-    private bool tenThousandEnemyDown = false;
-    private bool tenThousandDamage = false;
-    private bool tenThousandBeDamaged = false;
-    private bool oneHundredThousandEnemyDown = false;
-    private bool oneHundredThousandDamage = false;
+//    private bool oneHundredEnemyDown = false;
+//    private bool oneHundredDamage = false;
+//    private bool oneHundredBeDamaged = false;
+//    private bool oneThousandEnemyDown = false;
+//    private bool oneThousandDamage = false;
+//    private bool oneThousandBeDamaged = false;
+//    private bool tenThousandEnemyDown = false;
+//    private bool tenThousandDamage = false;
+//    private bool tenThousandBeDamaged = false;
+//    private bool oneHundredThousandEnemyDown = false;
+//    private bool oneHundredThousandDamage = false;
 
-    private void Start()
-    {
-        achievement.transform.localPosition = defaultPos;
-    }
+//    private void Start()
+//    {
+//        achievement.transform.localPosition = defaultPos;
+//    }
 
-    /// <summary>
-    /// “|‚µ‚½“G‚Ì”‚É‰‚¶‚½ƒAƒ`[ƒuƒƒ“ƒg‚ğ•\¦
-    /// </summary>
-    /// <param name="enemyDown"></param>
-    public void AddEnemyCount(int enemyDown)
-    {
-        //EnemyDownCount += enemyDown;
-        if (enemyDown >= 100 && !oneHundredEnemyDown)
-        {
-            Debug.Log("100‘Ì“|‚µ‚½");
-            StartCoroutine(ShowPopUp(100, "enemyDown"));
-            oneHundredEnemyDown = true;
-        } else if (enemyDown >= 1000 && !oneThousandEnemyDown)
-        {
-            StartCoroutine(ShowPopUp(1000, "enemyDown"));
-            oneThousandEnemyDown = true;
-        } else if (enemyDown >= 10000 && !tenThousandEnemyDown)
-        {
-            StartCoroutine(ShowPopUp(10000, "enemyDown"));
-            tenThousandEnemyDown = true;
-        } else if (enemyDown >= 100000 && !oneHundredThousandEnemyDown)
-        {
-            StartCoroutine(ShowPopUp(100000, "enemyDown"));
-            oneHundredThousandEnemyDown = true;
-        }
-    }
+//    /// <summary>
+//    /// ï¿½|ï¿½ï¿½ï¿½ï¿½ï¿½Gï¿½Ìï¿½ï¿½É‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½`ï¿½[ï¿½uï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½\ï¿½ï¿½
+//    /// </summary>
+//    /// <param name="enemyDown"></param>
+//    public void AddEnemyCount(int enemyDown)
+//    {
+//        EnemyDownCount += enemyDown;
+//        if (EnemyDownCount >= 100 && !oneHundredEnemyDown)
+//        {
+//            StartCoroutine(ShowPopUp(100, "enemyDown"));
+//            oneHundredEnemyDown = true;
+//        } else if (EnemyDownCount >= 1000 && !oneThousandEnemyDown)
+//        {
+//            StartCoroutine(ShowPopUp(1000, "enemyDown"));
+//            oneThousandEnemyDown = true;
+//        } else if (EnemyDownCount >= 10000 && !tenThousandEnemyDown)
+//        {
+//            StartCoroutine(ShowPopUp(10000, "enemyDown"));
+//            tenThousandEnemyDown = true;
+//        } else if (EnemyDownCount >= 100000 && !oneHundredThousandEnemyDown)
+//        {
+//            StartCoroutine(ShowPopUp(100000, "enemyDown"));
+//            oneHundredThousandEnemyDown = true;
+//        }
+//    }
 
-    /// <summary>
-    /// —^‚¦‚½ƒ_ƒ[ƒW‚É‰‚¶‚½ƒAƒ`[ƒuƒƒ“ƒg‚ğ•\¦
-    /// </summary>
-    /// <param name="damage"></param>
-    public void AddDamageCount(float damage)
-    {
-        //DamageCount += damage;
-        if (damage == 100 && !oneHundredDamage)
-        {
-            StartCoroutine(ShowPopUp(100, "damage"));
-            oneHundredDamage = true;
-        } else if (damage >= 1000 && !oneThousandDamage)
-        {
-            StartCoroutine(ShowPopUp(1000, "damage"));
-            oneThousandDamage = true;
-        } else if (damage >= 10000 && !tenThousandDamage)
-        {
-            StartCoroutine(ShowPopUp(10000, "damage"));
-            tenThousandDamage = true;
-        } else if (damage >= 100000 && !oneHundredThousandDamage)
-        {
-            StartCoroutine(ShowPopUp(100000, "damage"));
-            oneHundredThousandDamage = true;
-        }
-    }
+//    /// <summary>
+//    /// ï¿½^ï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½[ï¿½Wï¿½É‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½`ï¿½[ï¿½uï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½\ï¿½ï¿½
+//    /// </summary>
+//    /// <param name="damage"></param>
+//    public void AddDamageCount(float damage)
+//    {
+//        DamageCount += damage;
+//        if (DamageCount == 100 && !oneHundredDamage)
+//        {
+//            StartCoroutine(ShowPopUp(100, "damage"));
+//            oneHundredDamage = true;
+//        } else if (DamageCount >= 1000 && !oneThousandDamage)
+//        {
+//            StartCoroutine(ShowPopUp(1000, "damage"));
+//            oneThousandDamage = true;
+//        } else if (DamageCount >= 10000 && !tenThousandDamage)
+//        {
+//            StartCoroutine(ShowPopUp(10000, "damage"));
+//            tenThousandDamage = true;
+//        } else if (DamageCount >= 100000 && !oneHundredThousandDamage)
+//        {
+//            StartCoroutine(ShowPopUp(100000, "damage"));
+//            oneHundredThousandDamage = true;
+//        }
+//    }
 
-    /// <summary>
-    /// ó‚¯‚½ƒ_ƒ[ƒW‚É‰‚¶‚½ƒAƒ`[ƒuƒƒ“ƒg‚ğ•\¦
-    /// </summary>
-    /// <param name="beDamaged"></param>
-    public void AddBeDamageCount(float beDamaged)
-    {
-        //BeDamagedCount += beDamaged;
-        if (beDamaged == 100 && !oneHundredBeDamaged)
-        {
-            StartCoroutine(ShowPopUp(100, "beDamaged"));
-            oneHundredBeDamaged = true;
-        } else if (beDamaged >= 1000 && !oneThousandBeDamaged)
-        {
-            StartCoroutine(ShowPopUp(1000, "beDamaged"));
-            oneThousandBeDamaged = true;
-        } else if (beDamaged >= 10000 && !tenThousandBeDamaged)
-        {
-            StartCoroutine(ShowPopUp(10000, "beDamaged"));
-            tenThousandBeDamaged = true;
-        }
-    }
+//    /// <summary>
+//    /// ï¿½ó‚¯‚ï¿½ï¿½_ï¿½ï¿½ï¿½[ï¿½Wï¿½É‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½`ï¿½[ï¿½uï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½\ï¿½ï¿½
+//    /// </summary>
+//    /// <param name="beDamaged"></param>
+//    public void AddBeDamageCount(float beDamaged)
+//    {
+//        BeDamagedCount += beDamaged;
+//        if (BeDamagedCount == 100 && !oneHundredBeDamaged)
+//        {
+//            StartCoroutine(ShowPopUp(100, "beDamaged"));
+//            oneHundredBeDamaged = true;
+//        } else if (BeDamagedCount >= 1000 && !oneThousandBeDamaged)
+//        {
+//            StartCoroutine(ShowPopUp(1000, "beDamaged"));
+//            oneThousandBeDamaged = true;
+//        } else if (BeDamagedCount >= 10000 && !tenThousandBeDamaged)
+//        {
+//            StartCoroutine(ShowPopUp(10000, "beDamaged"));
+//            tenThousandBeDamaged = true;
+//        }
+//    }
 
-    /// <summary>
-    /// ƒ|ƒbƒvƒAƒbƒv‚ğ•\¦
-    /// </summary>
-    /// <returns></returns>
-    IEnumerator ShowPopUp(int num, string str)
-    {
-        var instance = Instantiate(achievement, uICanvas, false);
-        var child = instance.transform.Find("AchieveText").gameObject;
-        TextMeshProUGUI TMPro = child.GetComponent<TextMeshProUGUI>();
-        if (str == "enemyDown")
-        {
-            TMPro.text = num + "‘Ì‚Ì“G‚ğ“|‚µ‚½!";
-        } else if (str == "damage")
-        {
-            TMPro.text = num + "ƒ_ƒ[ƒW‚ğ—^‚¦‚½!";
-        } else if (str == "beDamaged")
-        {
-            TMPro.text = num + "ƒ_ƒ[ƒW‚­‚ç‚Á‚½!";
-        }
-        instance.transform.DOLocalMoveY(moveYPos, 1f);
-        yield return new WaitForSeconds(3f);
-        instance.transform.DOLocalMoveY(defaultYPos, 1f).OnComplete(() =>
-            {
-                Destroy(instance);
-            });
-    }
-}
+//    /// <summary>
+//    /// ï¿½|ï¿½bï¿½vï¿½Aï¿½bï¿½vï¿½ï¿½\ï¿½ï¿½
+//    /// </summary>
+//    /// <returns></returns>
+//    IEnumerator ShowPopUp(int num, string str)
+//    {
+//        var instance = Instantiate(achievement, uICanvas, false);
+//        var child = instance.transform.Find("AchieveText").gameObject;
+//        TextMeshProUGUI TMPro = child.GetComponent<TextMeshProUGUI>();
+//        if (str == "enemyDown")
+//        {
+//            TMPro.text = num + "ï¿½Ì‚Ì“Gï¿½ï¿½|ï¿½ï¿½ï¿½ï¿½!";
+//        } else if (str == "damage")
+//        {
+//            TMPro.text = num + "ï¿½_ï¿½ï¿½ï¿½[ï¿½Wï¿½ï¿½^ï¿½ï¿½ï¿½ï¿½!";
+//        } else if (str == "beDamaged")
+//        {
+//            TMPro.text = num + "ï¿½_ï¿½ï¿½ï¿½[ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½!";
+//        }
+//        instance.transform.DOLocalMoveY(moveYPos, 1f);
+//        yield return new WaitForSeconds(3f);
+//        instance.transform.DOLocalMoveY(defaultYPos, 1f).OnComplete(() =>
+//            {
+//                Destroy(instance);
+//            });
+//    }
+//}

@@ -1,6 +1,8 @@
 using UnityEngine;
 using Survivor.Game;
 using TMPro;
+using AugustsUtility.Tween;
+using System.Collections.Generic;
 
 namespace Survivor.UI
 {
@@ -11,12 +13,10 @@ namespace Survivor.UI
         [SerializeField] private DamageTextStyle style;
 
         private PrefabStamp _stamp;
-        private float _t;              // elapsed
-        private float _life;           // duration
-        private Vector3 _vel;          // rise direction
         private Color _baseColor;
         private float _baseScale = 1f;
-        private bool _active;
+
+        private readonly List<ITween> _activeTweens = new ();
 
         private void Awake()
         {
@@ -26,72 +26,68 @@ namespace Survivor.UI
 
         public void Show(Vector3 worldPos, string text, Color color, float scale, float lifetime, Vector3 initialOffset, float riseSpeed)
         {
+            // Kill any tweens that might still be running on this pooled object.
+            KillActiveTweens();
+
+            // --- Set Initial State ---
             transform.position = worldPos + initialOffset;
+            transform.localScale = Vector3.zero;
             label.text = text;
             _baseColor = color;
             _baseScale = scale;
-            _life = Mathf.Max(0.05f, lifetime);
-            _vel = Vector3.up * riseSpeed;
-            _t = 0f;
-            _active = true;
+            label.color = _baseColor;
 
-            // immediate first frame
-            ApplyVisuals(0f);
-        }
+            // --- Create Tweens ---
+            var endPos = transform.position + Vector3.up * riseSpeed * lifetime;
 
-        private void Update()
-        {
-            if (!_active) return;
+            // Tween the position upwards, slowing down at the end.
+            // When this tween completes, the object is returned to the pool.
+            var moveTween = transform.TweenPosition(endPos, lifetime, EasingFunctions.EaseOutCubic, onComplete: ReturnToPool);
 
-            float dt = Time.deltaTime;
-            _t += dt;
+            var scaleTween = transform.TweenLocalScale(Vector3.one * _baseScale, lifetime, EasingFunctions.EaseOutElastic);
 
-            // move
-            transform.position += _vel * dt;
+            var alphaTween = label.TweenColorAlpha(0f, lifetime, EasingFunctions.EaseInOutQuint);
 
-            // visuals
-            float u = Mathf.Clamp01(_t / _life);
-            ApplyVisuals(u);
-
-            if (_t >= _life)
-                ReturnToPool();
-        }
-
-        private void ApplyVisuals(float u)
-        {
-            // alpha/scale curves
-            float a = style ? style.alphaOverLife.Evaluate(u) : (1f - u);
-            float s = style ? style.scaleOverLife.Evaluate(u) : 1f;
-
-            Color c = _baseColor; c.a *= a;
-            label.alpha = c.a;
-            float scale = _baseScale * s;
-            label.color = c;
-
-            transform.localScale = Vector3.one * scale;
+            _activeTweens.Add(moveTween);
+            _activeTweens.Add(scaleTween);
+            _activeTweens.Add(alphaTween);
         }
 
         private void ReturnToPool()
         {
-            _active = false;
-            if (_stamp?.OwnerPool != null) _stamp.OwnerPool.Return(gameObject);
-            else gameObject.SetActive(false);
+            // The onComplete action will only fire if the tween wasn't killed,
+            // but we call KillActiveTweens() anyway to be safe.
+            KillActiveTweens();
+            if (_stamp.OwnerPool != null)
+                _stamp.OwnerPool.Return(gameObject);
+            else
+                gameObject.SetActive(false);
         }
 
-        // --- IPoolable ---
+        private void KillActiveTweens()
+        {
+            if (_activeTweens.Count > 0)
+            {
+                foreach (var tween in _activeTweens)
+                    tween?.Kill();
+                _activeTweens.Clear();
+            }
+        }
+
+        #region IPoolable
         public void OnSpawned()
         {
-            _active = true;
-            // ensure fully visible on spawn
-            if (label) label.alpha = 1f;
+            if (label) label.color = Color.white;
         }
 
         public void OnDespawned()
         {
-            _active = false;
+            KillActiveTweens();
         }
+        #endregion
 
-        // Convenience presets
+
+        #region Convenience Presets
         public void ShowNormal(Vector3 pos, float amount)
         {
             var s = style;
@@ -100,7 +96,7 @@ namespace Survivor.UI
                  s ? s.normalColor : Color.white,
                  s ? s.normalScale : 1f,
                  s ? s.lifetime : 0.7f,
-                 s ? new Vector3(Random.Range(-s.horizontalJitter, s.horizontalJitter), 0f, 0f) : Vector3.zero,
+                 s ? new Vector3(Random.Range(-s.horizontalJitter, s.horizontalJitter), Random.Range(0f,s.verticalJitter), 0f) : Vector3.zero,
                  s ? s.riseSpeed : 2f);
         }
 
@@ -112,7 +108,7 @@ namespace Survivor.UI
                  s ? s.critColor : new Color(1f, 0.85f, 0.2f),
                  s ? s.critScale : 1.3f,
                  s ? s.lifetime : 0.7f,
-                 s ? new Vector3(Random.Range(-s.horizontalJitter, s.horizontalJitter), 0f, 0f) : Vector3.zero,
+                 s ? new Vector3(Random.Range(-s.horizontalJitter, s.horizontalJitter), Random.Range(0f, s.verticalJitter), 0f) : Vector3.zero,
                  s ? s.riseSpeed : 2f);
         }
 
@@ -124,8 +120,9 @@ namespace Survivor.UI
                  s ? s.healColor : new Color(0.2f, 1f, 0.2f),
                  s ? s.healScale : 1.0f,
                  s ? s.lifetime : 0.7f,
-                 s ? new Vector3(Random.Range(-s.horizontalJitter, s.horizontalJitter), 0f, 0f) : Vector3.zero,
+                 s ? new Vector3(Random.Range(-s.horizontalJitter, s.horizontalJitter), Random.Range(0f, s.verticalJitter), 0f) : Vector3.zero,
                  s ? s.riseSpeed : 2f);
         }
+        #endregion
     }
 }
