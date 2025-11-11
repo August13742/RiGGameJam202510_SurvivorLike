@@ -22,7 +22,7 @@ MonoBehaviour:
   Projectiles: 1
   BaseCritChance: 0.05
   BaseCritMultiplier: 1.5
-  ProjectilePrefab: {fileID: 2056179235282298931, guid: d959ca6def84dbe41bc4669fcaa4f67a, type: 3}
+  ProjectilePrefab: {fileID: 4397794084699417633, guid: d959ca6def84dbe41bc4669fcaa4f67a, type: 3}
   ProjectileSpeed: 25
   Pierce: 5
   Lifetime: 4

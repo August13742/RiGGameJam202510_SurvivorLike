@@ -6,7 +6,7 @@ namespace Survivor.Enemy
     public abstract class EnemyDef : ScriptableObject
     {
         [Header("Prefab")]
-        public GameObject Prefab;              // Must include EnemyMarker, Rigidbody2D, collider, etc.
+        public EnemyBase Prefab;              // Must include EnemyMarker, Rigidbody2D, collider, etc.
 
         [Header("Stats")]
         public int BaseHP = 20;
@@ -16,7 +16,7 @@ namespace Survivor.Enemy
         public int XPValue = 1;
 
         [Header("Pooling")]
-        [Min(0)] public int PrewarmCount = 8;
+        [Min(0)] public int PrewarmCount = 16;
 
         [Header("Drops")]
         [Range(0f, 1f)] public float DropChance = 0.6f;  // chance that this enemy drops anything

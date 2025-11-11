@@ -6,7 +6,7 @@ namespace Survivor.Weapon
     [CreateAssetMenu(menuName = "Defs/Weapons/Mods/CritHasteStacks")]
     public sealed class CritHasteStacksMod : WeaponModDef
     {
-        public float AttackSpeedPerStack = 0.05f; // +5% per stack
+        public float AttackSpeedPerStack = 0.05f; // +5% AS = +5% cooldown reduction
         public int MaxStacks = 10;
         public float Duration = 6f;
         private const string KEY = "mod.crithaste";
@@ -21,14 +21,11 @@ namespace Survivor.Weapon
             var bm = EnsureBuffManager(weapon);
             if (!bm) return;
 
-            // Clamp to MaxStacks by checking current stacks
             float current = bm.Sum(KEY);
             int currStacks = Mathf.RoundToInt(current / AttackSpeedPerStack);
 
             if (currStacks < MaxStacks)
-            {
                 bm.AddTimedStack(KEY, AttackSpeedPerStack, Duration);
-            }
         }
 
         public override void OnTick(IWeapon weapon, float dt)
@@ -37,13 +34,14 @@ namespace Survivor.Weapon
             if (!bm) return;
 
             float bonus = bm.Sum(KEY); // 0..(MaxStacks*AttackSpeedPerStack)
+            if (bonus <= 0f) return;
 
-            // Only apply if we have stacks
-            if (bonus > 0f && weapon is IModTarget wt)
+            if (weapon is IModTarget wt)
             {
                 wt.GetAndMutateDynamicMods(dyn =>
                 {
-                    dyn.CooldownMul = 1f / (1f + bonus);
+                    // cooldownReduction is linear: +0.10 => -10% CD
+                    dyn.CooldownReduction += bonus;
                 });
             }
         }

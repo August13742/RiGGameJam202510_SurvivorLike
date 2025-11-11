@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49603eba6384dfb41a40aa45801bc294, type: 3}
   m_Name: HpDrop
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Drop.DropItemDef
-  Prefab: {fileID: 3830765849734340063, guid: c8234ea35e6455940b1a71b10a256bb2, type: 3}
-  MinAmount: 1
-  MaxAmount: 1
+  Prefab: {fileID: -2300390411167695270, guid: c8234ea35e6455940b1a71b10a256bb2, type: 3}
+  MinAmount: 5
+  MaxAmount: 5
   PrewarmCount: 4

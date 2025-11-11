@@ -48,8 +48,8 @@ namespace Survivor.Weapon
    
 
             target.Damage(dealt);
+            Destroy(gameObject);
         }
-
 
     }
 }

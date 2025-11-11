@@ -22,7 +22,7 @@ MonoBehaviour:
   Projectiles: 1
   BaseCritChance: 0.05
   BaseCritMultiplier: 1.5
-  BeamPrefab: {fileID: 4645090832089952007, guid: a1a7f1ec0d959dc4f93eafbd1e6a1db5, type: 3}
+  BeamPrefab: {fileID: 2127994361759694393, guid: a1a7f1ec0d959dc4f93eafbd1e6a1db5, type: 3}
   BeamLength: 10
   BeamWidth: 0.5
   Duration: 1

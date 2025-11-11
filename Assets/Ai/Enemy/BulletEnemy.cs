@@ -8,11 +8,12 @@ namespace Survivor.Enemy
         [SerializeField] private GameObject BulletPrefab;
         [SerializeField] private ShooterEnemyDef def;
         private float _shootTimer = 0f;
-
+        private GameObject _projectileRoot;
         void Start()
         {
             _target = Game.SessionManager.Instance.GetPlayerReference().transform;
             _shootTimer = 0;
+            _projectileRoot = GameObject.FindGameObjectWithTag("EnemyProjectiles");
         }
 
         private void FixedUpdate()
@@ -27,10 +28,15 @@ namespace Survivor.Enemy
 
             if(_shootTimer <= 0f && CanShoot)
             {
-                ShootPlayer();
+                TryShootPlayer();
                 _shootTimer = def.ShootIntervalSec;
 
             }
+        }
+
+        private void TryShootPlayer()
+        {
+            _animator.Play("Shoot");
         }
 
         private void ShootPlayer()
@@ -39,6 +45,7 @@ namespace Survivor.Enemy
             Vector2 dir = toTarget.normalized;
 
             GameObject go = Instantiate(BulletPrefab, transform.position, Quaternion.identity);
+            if(_projectileRoot != null) go.transform.SetParent(_projectileRoot.transform);
             go.layer = LayerMask.NameToLayer("EnemyProjectile");
 
             var projectile = go.GetComponent<EnemyProjectile>();

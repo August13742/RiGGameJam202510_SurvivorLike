@@ -26,6 +26,11 @@ public sealed class RaycastBoundedCamera2D : MonoBehaviour
     private void Awake()
     {
         cam = GetComponent<Camera>();
+        if (cam == null)
+        {
+            cam = GetComponentInChildren<Camera>();
+            if (cam == null) Debug.LogError("Camera Not Found");
+        }
         if (target == null)
         {
             var p = GameObject.FindGameObjectWithTag("Player");
@@ -52,7 +57,7 @@ public sealed class RaycastBoundedCamera2D : MonoBehaviour
 
         Vector2 seed = target.position;
 
-        // must start *inside* the arena; otherwise itfll hit the outside.
+        // must start *inside* the arena; otherwise itï¿½fll hit the outside.
         var hitL = Physics2D.Raycast(seed, Vector2.left, maxCast, wallsMask);
         var hitR = Physics2D.Raycast(seed, Vector2.right, maxCast, wallsMask);
         var hitD = Physics2D.Raycast(seed, Vector2.down, maxCast, wallsMask);
@@ -75,7 +80,7 @@ public sealed class RaycastBoundedCamera2D : MonoBehaviour
     {
         if (!target) return;
 
-        Vector3 follow = new Vector3(target.position.x, target.position.y, transform.position.z);
+        Vector3 follow = new (target.position.x, target.position.y, transform.position.z);
 
         if (!cam || !cam.orthographic || !boundsValid)
         {
@@ -111,7 +116,7 @@ public sealed class RaycastBoundedCamera2D : MonoBehaviour
         float cx = Mathf.Clamp(desired.x, minCamX, maxCamX);
         float cy = Mathf.Clamp(desired.y, minCamY, maxCamY);
 
-        // Handle the garena smaller than viewh corner case
+        // Handle the arena smaller than viewï¿½h corner case
         if (minCamX > maxCamX) cx = (innerMinX + innerMaxX) * 0.5f;
         if (minCamY > maxCamY) cy = (innerMinY + innerMaxY) * 0.5f;
 

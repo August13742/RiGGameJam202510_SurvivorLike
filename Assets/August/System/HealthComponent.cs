@@ -59,6 +59,7 @@ namespace Survivor.Game
 
         public void Damage(float amount, bool crit = false)
         {
+            //return;
             if (amount <= 0 || IsDead) return;
             if (useIframe && (iframeTimer > 0)) return;
 

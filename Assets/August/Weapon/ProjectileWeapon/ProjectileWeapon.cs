@@ -5,12 +5,12 @@ namespace Survivor.Weapon
 {
     public sealed class ProjectileWeapon : WeaponBase<ProjectileWeaponDef>
     {
-        private ObjectPool _projPool;
+        private ObjectPool<Projectile> _projPool;
 
         protected override void OnEquipped()
         {
             base.OnEquipped();
-            _projPool = new ObjectPool(def.ProjectilePrefab, prewarm: 32, ctx.PoolRoot);
+            _projPool = new ObjectPool<Projectile>(def.ProjectilePrefab, prewarm: 64, ctx.PoolRoot);
         }
 
         public override void Tick(float dt)
@@ -34,20 +34,20 @@ namespace Survivor.Weapon
                 float ca = Mathf.Cos(ang), sa = Mathf.Sin(ang);
                 Vector2 dir = new(baseDir.x * ca - baseDir.y * sa, baseDir.x * sa + baseDir.y * ca);
 
-                GameObject go = _projPool.Rent(fireOrigin.position, Quaternion.identity);
-                go.layer = (ctx.Team == Team.Player) ? LayerMask.NameToLayer("PlayerProjectile") : LayerMask.NameToLayer("EnemyProjectile");
+                Projectile projectile = _projPool.Rent(fireOrigin.position, Quaternion.identity);
+                projectile.gameObject.layer = (ctx.Team == Team.Player) ? LayerMask.NameToLayer("PlayerProjectile") : LayerMask.NameToLayer("EnemyProjectile");
 
-                var p = go.GetComponent<Projectile>();
-                p.SetPool(_projPool);
-                p.SetHitSink(this);
+
+                projectile.SetHitSink(this);
 
                 int pierceFinal = def.Pierce + Pierce();
-                float speedFinal = def.ProjectileSpeed * Speed();
+                float speedFinal = def.ProjectileSpeed * Current().SpeedFactor;
 
                 // Let projectile do per-hit crits with current effective chance/mul.
-                p.ConfigureCrit(GetEffectiveCritChance(), GetEffectiveCritMultiplier(), perHit: true);
+                projectile.ConfigureCrit(Current().CritChance, Current().CritMultiplier, perHit: true);
 
-                p.Fire(fireOrigin.position, dir, speedFinal, baseDamage, pierceFinal, def.Lifetime);
+                projectile.Fire(fireOrigin.position, dir, speedFinal, baseDamage, pierceFinal, def.Lifetime,def.AreaScale);
+
             }
         }
     }

@@ -14,7 +14,7 @@ public sealed class DroneManager : MonoBehaviour
     [SerializeField] private int maxDrones = 6;
 
     [Header("Weapon Services (shared)")]
-    [SerializeField] private Transform sharedPoolRoot;
+    private Transform sharedPoolRoot;
     [SerializeField] private LayerMask enemyMask = ~0;
     [SerializeField] private float searchRadius = 12f;
 
@@ -48,11 +48,15 @@ public sealed class DroneManager : MonoBehaviour
             playerController = player.GetComponent<Survivor.Control.PlayerController>();
             playerWeaponController = player.GetComponent<WeaponController>();
         }
-        if (sharedPoolRoot == null)
-        {
-            GameObject pools = GameObject.FindWithTag("PoolRoot");
-            sharedPoolRoot = pools ? pools.transform : new GameObject("Pools").transform;
-        }
+        
+
+        GameObject poolRoot = GameObject.FindWithTag("PoolRoot");
+        if (!poolRoot) { poolRoot = new GameObject("ObjectPools"); }
+
+        sharedPoolRoot = new GameObject("WeaponPool").transform;
+        sharedPoolRoot.parent = poolRoot.transform;
+
+        
 
         //for (int i = 0; i < initialDroneCount; i++)
         //{

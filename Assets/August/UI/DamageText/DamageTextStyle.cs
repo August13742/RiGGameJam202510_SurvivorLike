@@ -20,21 +20,9 @@ namespace Survivor.UI
         [Header("Motion")]
         [Min(0f)] public float riseSpeed = 2f;        // units/sec
         [Min(0.05f)] public float lifetime = 0.7f;    // seconds
-        [Min(0f)] public float horizontalJitter = 0.25f;
+        [Min(0f)] public float horizontalJitter = 1.25f;
+        [Min(0f)] public float verticalJitter = 1f;
 
-        [Tooltip("Alpha vs lifetime (0..1). Should be monotone and within [0,1].")]
-        public AnimationCurve alphaOverLife = AnimationCurve.EaseInOut(0, 1, 1, 0);
 
-        [Tooltip("Scale vs lifetime (0..1). Elastic overshoot looks good here.")]
-        public AnimationCurve scaleOverLife; // set in OnValidate
-
-        private void OnValidate()
-        {
-            if (alphaOverLife == null || alphaOverLife.length == 0)
-                alphaOverLife = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
-
-            if (scaleOverLife == null || scaleOverLife.length == 0)
-                scaleOverLife = CurveUtility.Sample(CurveUtility.EaseOutElastic, samples: 48, clamp01: false);
-        }
     }
 }
