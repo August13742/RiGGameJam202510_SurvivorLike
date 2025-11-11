@@ -105,6 +105,10 @@ namespace Survivor.Game
             if (player == null) GetPlayerReference();
             return player.transform.position;
         }
+        public float GetCurrentExpPercent()
+        {
+            return currentExp / currentExpReq;
+        }
 
         // ---------- Public stat mutation API (authoritative) ----------
         public void IncrementEnemyDowned(int amount = 1)

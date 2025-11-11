@@ -14,24 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 4992832623426345031, guid: 3955badc9c444694490d3326e93b3aee, type: 3}
   damage: 5
-  speed: 12
+  speed: 10
   life: 4
   homing: 0
   homingDuration: 0.75
   bulletsPerWave: 24
-  ringRadius: 1.5
+  ringRadius: 3
   initialAngleDeg: 0
   windupSeconds: 0.25
   holdSeconds: 0.3
-  interWaveDelay: 0.15
+  interWaveDelay: 0.3
   steadySpinDegPerSec: 90
   spinImpulseAtFrac: 0.5
   spinImpulseDegrees: 35
   spinImpulseDuration: 0.05
+  durationBeforeFire: 0.5
   repIsProbabilistic: 1
   repetitions: 3
-  probDecayPerWave: 0.25
-  hardCap: 32
+  probDecayPerWave: 0.2
+  hardCap: 6
   healthThresholdForEnrage: 0.5
   enrageRateMul: 1.15
   enrageSpinMul: 1.25
