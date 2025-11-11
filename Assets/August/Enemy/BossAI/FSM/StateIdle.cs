@@ -27,7 +27,7 @@ namespace Survivor.Enemy.FSM
 			// Pocket and dry? keep chasing into melee (to unlock more plays)
 			if (band == RangeBand.Pocket) return typeof(StateChase);
 
-			// Melee and still dry Å® wander
+			// Melee and still dry ÔøΩÔøΩ wander
 			Vector2 wander = new Vector2(_c.GetPerlinWanderX(), _c.GetPerlinWanderY()).normalized;
 			_c.Velocity = wander * _c.Config.IdleWanderSpeed;
 			return null;

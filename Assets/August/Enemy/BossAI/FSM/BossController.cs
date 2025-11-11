@@ -1,5 +1,8 @@
+using AugustsUtility.CameraShake;
 using Survivor.Game;
+using Survivor.UI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -7,12 +10,15 @@ using Random = UnityEngine.Random;
 namespace Survivor.Enemy.FSM
 {
     public enum RangeBand { OffBand, Pocket, MeleeBand }
-    [RequireComponent(typeof(Animator),typeof(Rigidbody2D))]
+    [RequireComponent(typeof(Animator),typeof(Rigidbody2D),typeof(HealthComponent))]
     public class BossController : MonoBehaviour
     {
         [SerializeField] private BossConfig config;
 
         public Animator Animator { get; private set; }
+
+        public SpriteRenderer SR { get; private set; }
+        public HealthComponent HP { get; private set; }
         public Rigidbody2D RB { get; private set; }
         public Transform PlayerTransform { get; private set; }
         public BossConfig Config => config;
@@ -20,11 +26,12 @@ namespace Survivor.Enemy.FSM
         [Header("Component Refs")]
         [Tooltip("Optional: Assign a child object where projectiles will spawn from.")]
         [SerializeField] private Transform firePoint;
+        [SerializeField] private GameObject meleeHitbox;
         public Transform FirePoint => firePoint;
 
         // --- State Machine ---
         private IState _currentState;
-        [SerializeField] String _currentStateLabel = "";
+        [SerializeField] String _currentStateLabel = ""; //inspector debug use only
         private Dictionary<Type, IState> _states;
 
         // --- Cooldowns ---
@@ -38,15 +45,31 @@ namespace Survivor.Enemy.FSM
         // --- Perlin Noise ---
         private float _perlinNoiseOffsetX, _perlinNoiseOffsetY;
 
+        bool isDead = false;
         void Awake()
         {
+            HP = GetComponent<HealthComponent>();
+            SR = GetComponent<SpriteRenderer>();
             Animator = GetComponent<Animator>();
             RB = GetComponent<Rigidbody2D>();
             RB.bodyType = RigidbodyType2D.Kinematic;
             _perlinNoiseOffsetX = Random.Range(0f, 1000f);
-            _perlinNoiseOffsetY = Random.Range(0f, 1000f); 
+            _perlinNoiseOffsetY = Random.Range(0f, 1000f);
+            var bus = GetComponent<AnimationEventBus>();
+            if (bus != null) bus.Fired += OnAnimEvent;
         }
+        
 
+        private void OnAnimEvent(AnimationEvent e)
+        {
+            // Route by e.stringParameter / e.intParameter / e.floatParameter / e.objectReference
+            if (e.stringParameter == "hitbox_melee_on") ToggleMeleeHitbox(true);
+            else if (e.stringParameter == "hitbox_melee_off") ToggleMeleeHitbox(false); 
+        }
+        private void ToggleMeleeHitbox(bool on)
+        {
+            meleeHitbox?.SetActive(on);
+        }
         private void InitialiseStateFactory()
         {
             _states = new Dictionary<Type, IState>
@@ -60,14 +83,58 @@ namespace Survivor.Enemy.FSM
 
         void Start()
         {
+            HP.SetMaxHP(config.MaxHealth);
+            HP.ResetFull();
+            HP.Damaged += OnDamaged;
+            HP.Died += OnDied;
             FindPlayerTransform();
             InitialiseStateFactory();
             ChangeState(typeof(StateIdle));
         }
+        void OnDamaged(float amt, Vector3 pos, bool crit)
+        {
+
+            if (crit) DamageTextManager.Instance.ShowCrit(pos, amt);
+            else DamageTextManager.Instance.ShowNormal(pos, amt);
+
+            if (HP.GetCurrentPercent() < .5f) SR.color = config.EnragedColour;
+            SessionManager.Instance.IncrementDamageDealt(amt);
+
+        }
+
+        void OnDied()
+        {
+
+            //if (LootManager.Instance != null) LootManager.Instance.SpawnLoot(_def, transform.position);
+            HP.DisconnectAllSignals();
+            isDead = true;
+
+            SessionManager.Instance.IncrementEnemyDowned(1);
+
+            StartCoroutine(Die());
+            
+        }
+        private void OnTriggerEnter2D(Collider2D col)
+        {
+            if (!col.TryGetComponent<HealthComponent>(out var target)) return;
+            if (target.IsDead) return;
+
+            float dealt = config.MeleeDamage;
+
+            target.Damage(dealt);
+            if(target.CompareTag("Player"))CameraShake2D.Shake(0.3f, 2f);
+        }
+        IEnumerator Die()
+        {
+            Animator.Play("Dead");
+            yield return new WaitForSeconds(3f);
+            Destroy(gameObject);
+        }
+
 
         void Update()
         {
-            if (PlayerTransform == null) return;
+            if (PlayerTransform == null || isDead) return;
 
             TickCooldowns(Time.deltaTime);
 
@@ -80,6 +147,7 @@ namespace Survivor.Enemy.FSM
 
         void FixedUpdate()
         {
+            if (isDead) return;
             //transform.position += (Vector3)(Velocity * Time.fixedDeltaTime);
             RB.MovePosition(RB.position + Velocity * Time.fixedDeltaTime);
             UpdateFacing();
