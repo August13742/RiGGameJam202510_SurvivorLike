@@ -9,6 +9,7 @@ namespace Survivor.Game
         // Manages Session Progression(Timer, Dynamic Difficulty, etc.) Level
         private GameObject Player;
         private HealthComponent playerHealthComponent;
+        private Achievements achievements;
         public int Gold { get; private set; } = 0;
         public int PlayerLevel { get; private set; } = 0;
 
@@ -40,11 +41,14 @@ namespace Survivor.Game
         public void IncrementEnemyDowned(int amount = 1)
         {
             enemyDowned = Mathf.Max(0, enemyDowned + amount);
+            achievements.AddEnemyCount(enemyDowned);
+            Debug.Log(enemyDowned);
         }
 
         public void IncrementDamageDealt(float amount)
         {
             damageDealt = Mathf.Max(0f, damageDealt + amount);
+            achievements.AddDamageCount(damageDealt);
         }
 
         public void IncrementHeal(float amount)
@@ -55,6 +59,7 @@ namespace Survivor.Game
         public void IncrementDamageTaken(float amount)
         {
             damageTaken = Mathf.Max(0f, damageTaken + amount);
+            achievements.AddBeDamageCount(damageTaken);
         }
 
         public void IncrementGold(int amount)
@@ -94,6 +99,7 @@ namespace Survivor.Game
         {
             GetPlayerReference();
             playerHealthComponent = Player.GetComponent<HealthComponent>();
+            achievements = GetComponent<Achievements>();
             if (playerHealthComponent == null) Debug.LogError("Session Manager could not get player health component reference");
             playerHealthComponent.Damaged += OnPlayerDamaged;
             // Trigger the first level up immediately for the initial weapon unlock.
