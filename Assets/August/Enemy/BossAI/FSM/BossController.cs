@@ -122,7 +122,7 @@ namespace Survivor.Enemy.FSM
             float dealt = config.MeleeDamage;
 
             target.Damage(dealt);
-            CameraShake2D.Shake(0.3f, 2f);
+            if(target.CompareTag("Player"))CameraShake2D.Shake(0.3f, 2f);
         }
         IEnumerator Die()
         {
