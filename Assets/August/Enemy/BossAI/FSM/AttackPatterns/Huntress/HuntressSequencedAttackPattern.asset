@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackSequence:
   - animationName: Attack1
-    animationSpeedScale: 1
+    animationSpeedScale: 0.75
     activeDuration: 0.5
     breakTimeAfter: 0.1
   - animationName: Attack2
-    animationSpeedScale: 1
+    animationSpeedScale: 0.75
     activeDuration: 0.5
     breakTimeAfter: 0.1
   - animationName: AttackRanged
