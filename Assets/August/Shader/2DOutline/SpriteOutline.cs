@@ -6,11 +6,17 @@ public class SpriteOutline : MonoBehaviour
 {
     public Color color = Color.white;
 
-    [Range(0, 16)]
-    public int outlineSize = 1;
+    [Range(0,5f)]
+    public float outlineSize = 1f;
 
     private SpriteRenderer spriteRenderer;
     private MaterialPropertyBlock mpb;
+
+    private void OnValidate()
+    {
+        UpdateOutline(true);
+        UpdateOutline(false);
+    }
 
     void OnEnable()
     {
@@ -25,6 +31,7 @@ public class SpriteOutline : MonoBehaviour
 
     private void UpdateOutline(bool outline)
     {
+        if (!spriteRenderer) return;
         mpb ??= new MaterialPropertyBlock();
         spriteRenderer.GetPropertyBlock(mpb);
         mpb.SetFloat("_Outline", outline ? 1f : 0);

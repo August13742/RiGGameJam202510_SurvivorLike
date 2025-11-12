@@ -3,7 +3,7 @@ using Survivor.Game;
 
 namespace Survivor.Weapon
 {
-    public sealed class EnemyBullet2D : MonoBehaviour
+    public sealed class EnemyProjectile2D : MonoBehaviour
     {
         [Header("Damage / Motion")]
         [SerializeField] private float speed = 12f;
@@ -27,8 +27,17 @@ namespace Survivor.Weapon
         private Transform _homingTarget; // player
 
         // --- Public fire API ---
-        public void Fire(Vector2 pos, Vector2 dir, float spd, float dmg, float life,
-                         Transform target = null, float? overrideHomingSeconds = null)
+        /// <summary>
+        /// If homingOverride is null => use prefab 'homing'.
+        /// If non-null => force that value.
+        /// If homingSecondsOverride is null => use prefab 'homingDuration'.
+        /// If <= 0 => disables homing.
+        /// </summary>
+        public void Fire(
+            Vector2 pos, Vector2 dir, float spd, float dmg, float life,
+            Transform target = null,
+            bool? homingOverride = null,
+            float? homingSecondsOverride = null)
         {
             transform.position = pos;
             _dir = dir.sqrMagnitude > 0f ? dir.normalized : Vector2.right;
@@ -37,10 +46,20 @@ namespace Survivor.Weapon
             damage = dmg;
             _timeLeft = life;
 
-            _homingTarget = target;
-            _homingLeft = (homing && target != null)
-                          ? (overrideHomingSeconds ?? homingDuration)
-                          : 0f;
+            // --- Effective homing decision
+            bool effectiveHoming = homingOverride ?? homing;                // prefab default unless overridden
+            float effectiveSeconds = homingSecondsOverride ?? homingDuration;
+
+            if (!effectiveHoming || target == null || effectiveSeconds <= 0f)
+            {
+                _homingLeft = 0f;
+                _homingTarget = null;
+            }
+            else
+            {
+                _homingLeft = effectiveSeconds;
+                _homingTarget = target;
+            }
 
             OrientTo(_dir);
         }

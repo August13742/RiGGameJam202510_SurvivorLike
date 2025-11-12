@@ -73,7 +73,10 @@ namespace Survivor.Weapon
         private void OnTriggerEnter2D(Collider2D col)
         {
             if (!_isAlive) return;
-            if (!col.TryGetComponent<HealthComponent>(out var target)) return;
+            HealthComponent target;
+            target = col.GetComponent<HealthComponent>();
+            if (target == null) target = col.GetComponentInParent<HealthComponent>();
+            if (target == null) return;
             if (target.IsDead) return;
 
             float dealt = Damage;
