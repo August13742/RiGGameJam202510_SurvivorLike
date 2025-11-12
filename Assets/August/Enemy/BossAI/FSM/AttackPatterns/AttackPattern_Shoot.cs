@@ -20,7 +20,6 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private float SpreadMultiplier = 3f;     // degrees base multiplier for fan width
         [SerializeField] private bool Homing = false;
         [SerializeField] private float HomingDuration = 1.5f;
-        [SerializeField, Range(0f, 1f)] private float healthThresholdForEnrage = 0.5f;
         [SerializeField] private int Repetition = 3;
         [SerializeField] private bool RepIsProbabilistic = false;
         [SerializeField, Range(0f, 1f)] private float ProbDecayPerShot = 0.25f;
@@ -41,13 +40,8 @@ namespace Survivor.Enemy.FSM
             if (ProjectilePrefab == null)
                 yield break;
 
-            // 1) Snapshot health%
-            float healthPercent = 0.8f;
-            var hc = controller.GetComponent<HealthComponent>();
-            if (hc != null) healthPercent = hc.GetCurrentPercent();
-
-            _enraged = healthPercent <= healthThresholdForEnrage;
-            // 2) Play anim + windup
+            _enraged = controller.IsEnraged;
+            //  Play anim + windup
             var anim = controller.Animator;
             if (anim != null && !string.IsNullOrEmpty(shootAnimationName))
                 anim.Play(shootAnimationName);

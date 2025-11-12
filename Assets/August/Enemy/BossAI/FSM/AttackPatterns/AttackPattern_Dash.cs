@@ -9,6 +9,8 @@ namespace Survivor.Enemy.FSM
     {
         [Header("Dash Properties")]
         [SerializeField] private string dashAnimationName = "RapidRotate";
+        [SerializeField] private string telegraphAnimationName = "Attack1";
+        [SerializeField] private float animationSpeed = 1f;
         [SerializeField] private float telegraphTime = 0.5f;
         [SerializeField] private float dashSpeed = 20f;
         [SerializeField] private float dashDuration = 0.4f;
@@ -24,21 +26,19 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private int hardCap = 5; // safety
 
         [Header("Enrage")]
-        [SerializeField, Range(0f, 1f)] private float healthThresholdForEnrage = 0.5f;
         [SerializeField, Range(0f, 1f)] private float enrageDecayReduction = 0.5f; // 50% less decay when enraged
         [SerializeField] private float enrageSpeedMul = 1.15f;  // faster dash
         [SerializeField] private float enrageRateMul = 1.10f;   // faster telegraph/recovery cadence
-        bool _enraged = false;
+
+        private bool _enraged = false;
+
         public override IEnumerator Execute(BossController controller)
         {
             if (controller == null || controller.PlayerTransform == null)
                 yield break;
 
-            // Health snapshot
-            float hp = 1f;
-            var hc = controller.GetComponent<HealthComponent>();
-            if (hc != null) hp = hc.GetCurrentPercent();
-            _enraged = hp <= healthThresholdForEnrage;
+            _enraged = controller.IsEnraged;
+
 
             // Enrage scalars
             float speed = _enraged ? dashSpeed * enrageSpeedMul : dashSpeed;
@@ -72,21 +72,30 @@ namespace Survivor.Enemy.FSM
         {
             // 1) Telegraph
             if (controller.Animator != null)
-                controller.Animator.Play("Attack1");
-            Vector2 targetPos = controller.PlayerTransform.position; // lock target position at telegraph start
+                controller.Animator.Play(telegraphAnimationName);
+            Vector2 targetPos = controller.PlayerTransform.position; // Lock target position at telegraph start
             yield return new WaitForSeconds(telegraphTime / rateMul);
 
-            // 2) Dash
+            // 2) Dash Phase
             Vector2 dir = ((Vector2)targetPos - (Vector2)controller.transform.position).normalized;
-            controller.Velocity = dir * speed;
+
+            controller.VelocityOverride = dir * speed;
+
             if (controller.Animator != null && !string.IsNullOrEmpty(dashAnimationName))
                 controller.Animator.Play(dashAnimationName);
+            controller.Animator.speed = animationSpeed;
             yield return new WaitForSeconds(dashDuration / rateMul);
 
-            // 3) Recover
-            controller.Velocity = Vector2.zero;
+            // 3) Recovery Phase
+
+            controller.VelocityOverride = Vector2.zero;
+
             if (controller.Animator != null)
+            {
                 controller.Animator.Play("Idle");
+                controller.Animator.speed = 1f;
+            }
+
             yield return new WaitForSeconds(recoveryTime / rateMul);
         }
     }
