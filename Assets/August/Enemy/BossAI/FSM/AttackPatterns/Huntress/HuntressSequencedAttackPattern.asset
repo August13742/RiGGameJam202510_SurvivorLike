@@ -17,14 +17,30 @@ MonoBehaviour:
     animationSpeedScale: 0.75
     activeDuration: 0.5
     breakTimeAfter: 0.1
+    requiresRangeCheck: 1
+    requiredBand: 2
+    canGapClose: 1
+    gapCloseChance: 0.8
   - animationName: Attack2
     animationSpeedScale: 0.75
     activeDuration: 0.5
     breakTimeAfter: 0.1
+    requiresRangeCheck: 1
+    requiredBand: 2
+    canGapClose: 1
+    gapCloseChance: 0.8
   - animationName: AttackRanged
     animationSpeedScale: 1
     activeDuration: 0.5
     breakTimeAfter: 0.2
+    requiresRangeCheck: 0
+    requiredBand: 1
+    canGapClose: 0
+    gapCloseChance: 0.8
   finalAttackChance: 0.5
+  gapCloseAnimationName: Walk
+  gapCloseAnimationSpeed: 1
+  dashSpeedTarget: 15
   enrageRateMultiplier: 1.25
   enragedFinalAttackChance: 1
+  enragedGapcloseRateMultiplier: 2
