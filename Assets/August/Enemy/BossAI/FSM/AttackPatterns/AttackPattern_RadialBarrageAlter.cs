@@ -97,7 +97,7 @@ namespace Survivor.Enemy.FSM
         {
             // Create a transient root under the boss to host the pattern
             Transform root = GetOrCreateProjectileRoot(controller);
-            var spawned = new List<Weapon.EnemyBullet2D>(bullets);
+            var spawned = new List<Weapon.EnemyProjectile2D>(bullets);
 
             for (int i = 0; i < bullets; i++)
             {
@@ -108,10 +108,10 @@ namespace Survivor.Enemy.FSM
                 var go = Instantiate(projectilePrefab, root);
                 go.transform.SetLocalPositionAndRotation(local, Quaternion.Euler(0, 0, ang));
 
-                var bullet = go.GetComponent<Weapon.EnemyBullet2D>();
+                var bullet = go.GetComponent<Weapon.EnemyProjectile2D>();
                 if (bullet == null)
                 {
-                    Debug.LogWarning("Projectile prefab missing EnemyBullet2D; destroying.");
+                    Debug.LogWarning("Projectile prefab missing EnemyProjectile2D; destroying.");
                     Destroy(go);
                     continue;
                 }
@@ -141,7 +141,7 @@ namespace Survivor.Enemy.FSM
 
                 b.enabled = true;
 
-                b.Fire(worldPos, outward, speed, damage, life, player, overrideHomingSeconds: homing ? homingDuration : 0f);
+                b.Fire(worldPos, outward, speed, damage, life, player, homingOverride: homing, homingSecondsOverride: homingDuration);
             }
 
         }

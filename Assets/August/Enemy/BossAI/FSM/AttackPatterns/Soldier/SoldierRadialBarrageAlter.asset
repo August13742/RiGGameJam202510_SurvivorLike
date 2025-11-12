@@ -18,7 +18,7 @@ MonoBehaviour:
   life: 4
   homing: 0
   homingDuration: 0.75
-  bulletsPerWave: 24
+  bulletsPerWave: 16
   ringRadius: 1.5
   windupSeconds: 0.25
   interWaveDelay: 0.25
@@ -26,7 +26,6 @@ MonoBehaviour:
   repetitions: 3
   probDecayPerWave: 0.2
   hardCap: 6
-  healthThresholdForEnrage: 0.5
   enrageRateMul: 1.15
   enrageBulletMul: 1.1
   enrageDecayReduction: 0.5

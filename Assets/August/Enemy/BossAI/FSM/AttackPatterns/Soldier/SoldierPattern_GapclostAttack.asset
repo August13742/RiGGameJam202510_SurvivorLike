@@ -17,5 +17,5 @@ MonoBehaviour:
   attackAnimationName: Attack1
   attackAnimationSpeed: 1
   optionalAlternativeAnimName: 
-  dashSpeedTarget: 15
+  dashSpeedTarget: 10
   enrageSpeedMul: 1.2

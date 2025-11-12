@@ -52,7 +52,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   homing: 1
-  homingDuration: 1
+  homingDuration: 5
   maxTurnDegPerSec: 360
   forwardAxisIsRight: 1
 --- !u!212 &996252899388645108

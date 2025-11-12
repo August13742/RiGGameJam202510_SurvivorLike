@@ -115,17 +115,17 @@ namespace Survivor.Enemy.FSM
             var go = Object.Instantiate(ProjectilePrefab, origin, Quaternion.identity);
 
             // required
-            var bullet = go.GetComponent<Weapon.EnemyBullet2D>();
+            var bullet = go.GetComponent<Weapon.EnemyProjectile2D>();
             if (bullet == null)
             {
-                Debug.LogWarning("ProjectilePrefab missing EnemyBullet2D.");
+                Debug.LogWarning("ProjectilePrefab missing EnemyProjectile2D.");
                 Destroy(go);
                 return;
             }
 
             Transform tgt = controller.PlayerTransform;
 
-            bullet.Fire(origin, dir, Speed, Damage, Life, tgt, overrideHomingSeconds: Homing ? HomingDuration : 0f);
+            bullet.Fire(origin, dir, Speed, Damage, Life, tgt, homingOverride: Homing, homingSecondsOverride: HomingDuration);
         }
 
         private static Vector2 Rotate(Vector2 v, float radians)

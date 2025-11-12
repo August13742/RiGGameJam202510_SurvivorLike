@@ -45,11 +45,12 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private Transform firePoint;
         [SerializeField] private GameObject meleeHitbox;
         public Transform FirePoint => firePoint;
-        [SerializeField] EnemyBullet2D projectilePrefab;
+        [SerializeField] EnemyProjectile2D projectilePrefab;
         [SerializeField] float projectileDamage = 5f;
         [SerializeField] float projectileSpeed = 10f;
         [SerializeField] bool projectileIsHoming = false;
-        [SerializeField] float projectileHomingDuration = 1f;
+        [SerializeField] bool projectileHomeWhenEnraged = false;
+        [SerializeField] float projectileHomingDuration = 0.5f;
         [Header("Behavior Pivot")]
         [Tooltip("Local-space offset used as the logical center for distance checks and range gizmos.")]
         [SerializeField] private Vector2 behaviorPivotLocal = Vector2.zero;
@@ -85,7 +86,6 @@ namespace Survivor.Enemy.FSM
         void Awake()
         {
             HP = GetComponent<HealthComponent>();
-            SR = GetComponent<SpriteRenderer>();
             Animator = GetComponent<Animator>();
             if (Animator == null) Animator = GetComponentInChildren<Animator>();
             RB = GetComponent<Rigidbody2D>();
@@ -94,8 +94,9 @@ namespace Survivor.Enemy.FSM
             _perlinNoiseOffsetY = Random.Range(0f, 1000f);
             if (Visuals.TryGetComponent<AnimationEventBus>(out var bus)) bus.Fired += OnAnimEvent;
 
+            SR = Visuals.GetComponent<SpriteRenderer>();
             IsEnraged = false;
-            if (AlwaysEnraged) IsEnraged = true;
+            if (AlwaysEnraged) { IsEnraged = true; Enrage(); }
             
 
         }
@@ -164,16 +165,28 @@ namespace Survivor.Enemy.FSM
         {
             var go = Instantiate(projectilePrefab, origin, Quaternion.identity);
 
-            if (!go.TryGetComponent<EnemyBullet2D>(out var proj))
+            if (!go.TryGetComponent<EnemyProjectile2D>(out var proj))
             {
-                Debug.LogWarning("ProjectilePrefab missing EnemyBullet2D.");
+                Debug.LogWarning("ProjectilePrefab missing EnemyProjectile2D.");
                 Destroy(go);
                 return;
             }
             Transform tgt = PlayerTransform;
             Vector2 toTarget = ((Vector2)tgt.position - origin).normalized;
 
-            proj.Fire(origin, toTarget, projectileSpeed, projectileDamage, life:4f, tgt,(projectileIsHoming? projectileHomingDuration:0f));
+            bool doHome = projectileIsHoming || (projectileHomeWhenEnraged && IsEnraged);
+
+            proj.Fire(
+                origin,
+                toTarget,
+                projectileSpeed,
+                projectileDamage,
+                life: 4f,
+                PlayerTransform,
+                homingOverride: doHome,
+                homingSecondsOverride:projectileHomingDuration
+            );
+
         }
 
         private void OnTriggerEnter2D(Collider2D col)
