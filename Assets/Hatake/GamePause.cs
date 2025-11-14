@@ -10,16 +10,18 @@ public class GamePause : MonoBehaviour
     {
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            bool panelState = !panel.activeSelf;
-            panel.SetActive(panelState);
-
             if (isPause)
             {
                 ResumeGame();
+                panel.SetActive(false);
             }
             else
             {
-                PauseGame();
+                if (Time.timeScale > 0f)
+                {
+                    PauseGame();
+                    panel.SetActive(true);
+                }
             }
         }
     }
