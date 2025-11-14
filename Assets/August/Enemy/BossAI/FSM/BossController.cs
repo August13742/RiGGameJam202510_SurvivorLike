@@ -156,11 +156,10 @@ namespace Survivor.Enemy.FSM
         }
         void OnDied()
         {
-            Animator.Play("Dead");
             HP.DisconnectAllSignals();
             isDead = true;
             SessionManager.Instance.IncrementEnemyDowned(1);
-            Die();
+            StartCoroutine(Die());
         }
 
         private void SpawnProjectile(Vector2 origin)
@@ -201,9 +200,10 @@ namespace Survivor.Enemy.FSM
             if (target.CompareTag("Player")) CameraShake2D.Shake(0.2f, 1f);
         }
 
-        void Die()
+        IEnumerator Die()
         {
             ChangeState(typeof(StateIdle));
+            yield return new WaitForEndOfFrame();
             Animator.Play("Dead");
             
         }
