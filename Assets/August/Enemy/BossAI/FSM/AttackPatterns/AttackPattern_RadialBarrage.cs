@@ -1,6 +1,7 @@
 using Survivor.Game;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SearchService;
 using UnityEngine;
 
 
@@ -40,7 +41,6 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private int hardCap = 32;
 
         [Header("Enrage")]
-        [SerializeField, Range(0f, 1f)] private float healthThresholdForEnrage = 0.5f;
         [SerializeField] private float enrageRateMul = 1.15f;   // faster timeline
         [SerializeField] private float enrageSpinMul = 1.25f;   // more rotation
         [SerializeField] private float enrageBulletMul = 1.10f; // +10% bullets (rounded)
@@ -54,20 +54,15 @@ namespace Survivor.Enemy.FSM
             if (projectilePrefab == null || controller == null || controller.PlayerTransform == null)
                 yield break;
 
-            // Health snapshot
-            float hp = 1f;
-            var hc = controller.GetComponent<HealthComponent>();
-            if (hc != null) hp = hc.GetCurrentPercent();
-
-            bool enraged = hp <= healthThresholdForEnrage;
+            bool _enraged = controller.IsEnraged;
 
             // Enrage scalars
-            float rateMul = enraged ? enrageRateMul : 1f;
-            float steadySpin = steadySpinDegPerSec * (enraged ? enrageSpinMul : 1f);
-            float impulseDeg = spinImpulseDegrees * (enraged ? enrageSpinMul : 1f);
-            int bullets = Mathf.Max(1, Mathf.RoundToInt(bulletsPerWave * (enraged ? enrageBulletMul : 1f)));
+            float rateMul = _enraged ? enrageRateMul : 1f;
+            float steadySpin = steadySpinDegPerSec * (_enraged ? enrageSpinMul : 1f);
+            float impulseDeg = spinImpulseDegrees * (_enraged ? enrageSpinMul : 1f);
+            int bullets = Mathf.Max(1, Mathf.RoundToInt(bulletsPerWave * (_enraged ? enrageBulletMul : 1f)));
             float decay = repIsProbabilistic
-                ? probDecayPerWave * (enraged ? enrageDecayReduction : 1f)
+                ? probDecayPerWave * (_enraged ? enrageDecayReduction : 1f)
                 : probDecayPerWave;
 
             // Telegraph
@@ -97,16 +92,26 @@ namespace Survivor.Enemy.FSM
                 }
             }
         }
-
+        private Transform GetOrCreateProjectileRoot(BossController controller)
+        {
+            Transform rootTF = controller.transform.Find("RadialRoot");
+            if (rootTF == null)
+            {
+                rootTF = new GameObject("RadialRoot").transform;
+                rootTF.SetPositionAndRotation(controller.transform.position, Quaternion.identity);
+                rootTF.position = controller.transform.position;
+                rootTF.SetParent(controller.transform, worldPositionStays: true);
+                return rootTF.transform;
+            }
+            return rootTF;
+        }
 
         private IEnumerator FireOneWave(BossController controller, int bullets, float steadySpin, float impulseDeg, float rateMul)
         {
             // Create a transient root under the boss to host the pattern
-            var root = new GameObject("RadialRoot").transform;
-            root.SetPositionAndRotation(controller.transform.position, Quaternion.identity);
-            root.SetParent(controller.transform, worldPositionStays: true);
+            Transform root = GetOrCreateProjectileRoot(controller);
 
-            var spawned = new List<Weapon.EnemyBullet2D>(bullets);
+            var spawned = new List<Weapon.EnemyProjectile2D>(bullets);
             float step = 360f / bullets;
 
             for (int i = 0; i < bullets; i++)
@@ -118,10 +123,10 @@ namespace Survivor.Enemy.FSM
                 var go = Object.Instantiate(projectilePrefab, root);
                 go.transform.SetLocalPositionAndRotation(local, Quaternion.Euler(0, 0, ang));
 
-                var bullet = go.GetComponent<Weapon.EnemyBullet2D>();
+                var bullet = go.GetComponent<Weapon.EnemyProjectile2D>();
                 if (bullet == null)
                 {
-                    Debug.LogWarning("Projectile prefab missing EnemyBullet2D; destroying.");
+                    Debug.LogWarning("Projectile prefab missing EnemyProjectile2D; destroying.");
                     Object.Destroy(go);
                     continue;
                 }
@@ -167,13 +172,19 @@ namespace Survivor.Enemy.FSM
                 Vector2 worldPos = bt.position;
                 Vector2 outward = ((Vector2)bt.position - (Vector2)root.position).normalized;
                 bt.SetParent(null, worldPositionStays: true);
+                // kill any reflection artifacts
+                var ls = bt.localScale;
+                ls.x = Mathf.Abs(ls.x);
+                ls.y = Mathf.Abs(ls.y);
+                bt.localScale = ls;
 
                 b.enabled = true;
-
-                b.Fire(worldPos, outward, speed, damage, life, player, overrideHomingSeconds: homing ? homingDuration : 0f);
+                b.Fire(worldPos, outward, speed, damage, life, player,
+                    homingOverride:homing,
+                       homingSecondsOverride: homingDuration);
             }
 
-            Object.Destroy(root.gameObject);
+            //Object.Destroy(root.gameObject); 
         }
 
         private static Vector2 Polar(float r, float rad)

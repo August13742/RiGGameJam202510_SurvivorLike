@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47c8ae95fe260a141bef538748187a78, type: 3}
+  m_Name: FireKnightDashAttackPattern
+  m_EditorClassIdentifier: 
+  dashAnimationName: Spin
+  telegraphAnimationName: Attack1
+  animationSpeed: 2
+  telegraphTime: 0.5
+  dashSpeed: 20
+  dashDuration: 0.4
+  recoveryTime: 0.2
+  dashCount: 2
+  enragedDashCount: 3
+  repIsProbabilistic: 0
+  ProbDecayPerDash: 0.25
+  hardCap: 5
+  healthThresholdForEnrage: 0.5
+  enrageDecayReduction: 0.5
+  enrageSpeedMul: 1.15
+  enrageRateMul: 1.1
