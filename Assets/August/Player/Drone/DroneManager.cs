@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Survivor.Weapon;
+using System;
 
 public sealed class DroneManager : MonoBehaviour
 {
@@ -37,6 +38,7 @@ public sealed class DroneManager : MonoBehaviour
     private readonly List<Vector2> _slots = new (16);
     private readonly List<int> _slotIndex = new (16);
     private readonly List<(float ang, int idx)> _anglePairs = new (16);
+    public Action<WeaponDef> OnWeaponEquipped;
 
     private Vector2 _fwdSmooth = Vector2.right;
     private int _lastFacingSignX = +1;
@@ -112,6 +114,7 @@ public sealed class DroneManager : MonoBehaviour
         {
             _drones.Add(drone);
             _slotIndex.Add(_drones.Count - 1); // Assign it the next available slot index
+            OnWeaponEquipped.Invoke(def);
         }
         else
         {

@@ -15,7 +15,7 @@ MonoBehaviour:
   gapCloseAnimationName: Walk
   gapCloseAnimationSpeed: 3
   attackAnimationName: Attack1
-  attackAnimationSpeed: 0.5
+  attackAnimationSpeed: 0.7
   optionalAlternativeAnimName: Attack2
-  dashSpeedTarget: 20
+  dashSpeedTarget: 15
   enrageSpeedMul: 1.2
