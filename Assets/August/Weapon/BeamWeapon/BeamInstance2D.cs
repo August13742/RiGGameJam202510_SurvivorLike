@@ -174,9 +174,14 @@ namespace Survivor.Weapon
             _seen.Clear();
             for (int i = 0; i < count; i++)
             {
-                var c = _hits[i];
-                if (!c.TryGetComponent<HealthComponent>(out var hp)) continue;
-                if (!_seen.Add(hp)) continue; // prevent duplicate per tick
+                var col = _hits[i];
+
+                HealthComponent target;
+                target = col.GetComponent<HealthComponent>();
+                if (target == null) target = col.GetComponentInParent<HealthComponent>();
+                if (target == null) return;
+
+                if (!_seen.Add(target)) continue; // prevent duplicate per tick
 
                 float dealt = _damagePerTick;
                 bool crit = false;
@@ -186,10 +191,10 @@ namespace Survivor.Weapon
                     if (crit) dealt = Mathf.Round(dealt * _critMul * 10f) / 10f;
                 }
 
-                hp.Damage(dealt,crit);
+                target.Damage(dealt,crit);
 
-                _sink?.OnHit(dealt, c.transform.position, crit);
-                if (hp.IsDead) _sink?.OnKill(c.transform.position);
+                _sink?.OnHit(dealt, col.transform.position, crit);
+                if (target.IsDead) _sink?.OnKill(col.transform.position);
             }
         }
 

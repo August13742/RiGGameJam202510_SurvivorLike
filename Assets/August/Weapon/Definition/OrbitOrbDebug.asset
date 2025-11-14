@@ -18,17 +18,17 @@ MonoBehaviour:
   BaseDamage: 5
   BaseCooldown: 5
   TargetingMode: 0
-  AreaScale: 5
-  Projectiles: 2
+  AreaScale: 8
+  Projectiles: 3
   BaseCritChance: 0.05
   BaseCritMultiplier: 1.5
-  Radius: 2
+  Radius: 2.5
   OrbAreaBias: 0.8
   RadiusAreaBias: 0.2
   OrbScaleClamp: {x: 0.6, y: 3}
   RadiusMulClamp: {x: 0.6, y: 2.5}
-  RotationTime: 3
-  Revolutions: 1
+  RotationTime: 2
+  Revolutions: 3
   FollowOrigin: 1
   Clockwise: 1
   OrbPrefab: {fileID: 2939867143732988035, guid: 222440cf12b130c4bbbb26c063223d9b, type: 3}

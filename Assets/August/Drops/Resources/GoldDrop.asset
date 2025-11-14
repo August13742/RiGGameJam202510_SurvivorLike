@@ -15,4 +15,4 @@ MonoBehaviour:
   Prefab: {fileID: 4303593088729978649, guid: 57799d8d385f4f447b8429808544a3ec, type: 3}
   MinAmount: 1
   MaxAmount: 1
-  PrewarmCount: 8
+  PrewarmCount: 16
