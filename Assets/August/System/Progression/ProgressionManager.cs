@@ -18,7 +18,7 @@ namespace Survivor.Progression
         private OfferBuilder _builder;
 
         public Action<UpgradeCardVM[]> OfferReady; // UI subscribes
-
+        public Action OfferSelected;
         private void Awake()
         {
             _history = new SelectionHistory();
@@ -80,7 +80,7 @@ namespace Survivor.Progression
             }
 
             var changes = def.Apply(ctx);
-
+            OfferSelected.Invoke();
             if (changes.PreviewLines != null && changes.PreviewLines.Count > 0)
             {
                 Debug.Log($"<color=green>Upgrade Applied: {def.Title}</color>");
