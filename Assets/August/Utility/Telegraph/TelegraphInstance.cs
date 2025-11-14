@@ -32,7 +32,6 @@ namespace AugustsUtility.Telegraph
 
             if (fillRenderer == null)
             {
-                // Optional: allow single-renderer fallback
                 fillRenderer = outlineRenderer;
             }
 
@@ -48,42 +47,100 @@ namespace AugustsUtility.Telegraph
 
             gameObject.SetActive(true);
 
-            // Position + rotation
             transform.SetPositionAndRotation(
                 p.WorldPos,
                 Quaternion.Euler(0f, 0f, p.AngleDeg)
             );
 
-            // Target scale assuming sprite is unit radius (1 unit = radius 1)
-            float radiusScale = p.Radius * 2f;
+            switch (p.Shape)
+            {
+                case TelegraphShape.Circle:
+                    SetupCircle(p);
+                    break;
+
+                case TelegraphShape.Box:
+                    SetupBox(p);
+                    break;
+
+                default:
+                    // fallback: treat as circle
+                    SetupCircle(p);
+                    break;
+            }
+        }
+
+        private void SetupCircle(TelegraphParams p)
+        {
+            float radiusScale = p.Radius * 2f; // unit circle has diameter 2
             Vector3 targetScale = _baseOutlineScale * radiusScale;
 
-            // --- Outline: full range, static ---
+            // Outline = full range
             outlineRenderer.transform.localScale = targetScale;
             Color outlineColor = p.Color;
             outlineColor.a = 1.0f;
             outlineRenderer.color = outlineColor;
 
-            // --- Fill: starts small and faint, grows to match outline ---
+            // Fill = grow from center
             fillRenderer.transform.localScale = Vector3.zero;
 
             Color fillColor = p.Color;
             fillColor.a = startFillAlpha;
             fillRenderer.color = fillColor;
 
-            // 1) Scale tween: 0 → targetScale
+            // scale tween (0 -> full radius)
             fillRenderer.transform.TweenLocalScale(
                 targetScale,
                 _duration,
                 EasingFunctions.EaseOutCubic
             );
 
-            // 2) Alpha tween: startFillAlpha -> endFillAlpha, then finish
+            // alpha tween
             fillRenderer.TweenColorAlpha(
                 endFillAlpha,
                 _duration,
                 EasingFunctions.Linear,
-                onComplete: Finish
+                Finish
+            );
+        }
+
+        private void SetupBox(TelegraphParams p)
+        {
+            // p.Size is in world units (width, height)
+            Vector3 targetScale = new Vector3(
+                _baseOutlineScale.x * p.Size.x,
+                _baseOutlineScale.y * p.Size.y,
+                _baseOutlineScale.z
+            );
+
+            // Outline = final box immediately
+            outlineRenderer.transform.localScale = targetScale;
+            Color outlineColor = p.Color;
+            outlineColor.a = 1.0f;
+            outlineRenderer.color = outlineColor;
+
+            // Fill: horizontal bar from left to right
+            fillRenderer.transform.localScale = new Vector3(
+                0f,
+                targetScale.y,
+                targetScale.z
+            );
+
+            Color fillColor = p.Color;
+            fillColor.a = startFillAlpha;
+            fillRenderer.color = fillColor;
+
+            // scale X 0 -> full width, Y constant
+            fillRenderer.transform.TweenLocalScale(
+                targetScale,
+                _duration,
+                EasingFunctions.EaseOutCubic
+            );
+
+            fillRenderer.TweenColorAlpha(
+                endFillAlpha,
+                _duration,
+                EasingFunctions.Linear,
+                Finish
             );
         }
 
@@ -99,14 +156,12 @@ namespace AugustsUtility.Telegraph
             cb?.Invoke();
         }
 
-        // Optional: explicit cancel API if need to cut telegraph short
         public void Cancel()
         {
             if (!_active) return;
             _active = false;
             gameObject.SetActive(false);
             _onFinished = null;
-            // If start keeping tween handles, call Kill() here.
         }
     }
 }
