@@ -105,6 +105,10 @@ namespace Survivor.Game
             if (player == null) GetPlayerReference();
             return player.transform.position;
         }
+        public float GetCurrentExpPercent()
+        {
+            return currentExp / currentExpReq;
+        }
 
         // ---------- Public stat mutation API (authoritative) ----------
         public void IncrementEnemyDowned(int amount = 1)
@@ -196,7 +200,7 @@ namespace Survivor.Game
             IncrementDamageTaken(amount);
         }
 
-        public void RestorePlayerHealth(int amount)
+        public void RestorePlayerHealth(float amount)
         {
             if (player == null)
             {
@@ -252,9 +256,9 @@ namespace Survivor.Game
 
             string msg = kind switch
             {
-                "enemyDown" => number.ToString() + "�̂̓G��|����!",
-                "damage" => number.ToString() + "�_���[�W��^����!",
-                "beDamaged" => number.ToString() + "�_���[�W�������!",
+                "enemyDown" => number.ToString() + "Enemy Down!",
+                "damage" => number.ToString() + "Damage Dealt!",
+                "beDamaged" => number.ToString() + "Damage Taken!",
                 _ => number.ToString(),
             };
             Sprite icon = null;

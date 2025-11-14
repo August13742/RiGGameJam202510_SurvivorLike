@@ -5,6 +5,9 @@ namespace Survivor.Enemy.FSM
     [System.Serializable]
     public class BossConfig
     {
+        public float MaxHealth = 1000f;
+        public Color EnragedColour = Color.red;
+        public float MeleeDamage = 10f;
         [Header("Movement")]
         public float ChaseSpeed = 3.5f;
         public float IdleWanderSpeed = 1.5f;

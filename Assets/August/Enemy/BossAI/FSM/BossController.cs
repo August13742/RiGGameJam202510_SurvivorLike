@@ -1,5 +1,9 @@
+using AugustsUtility.CameraShake;
 using Survivor.Game;
+using Survivor.UI;
+using Survivor.Weapon;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -7,20 +11,59 @@ using Random = UnityEngine.Random;
 namespace Survivor.Enemy.FSM
 {
     public enum RangeBand { OffBand, Pocket, MeleeBand }
-    [RequireComponent(typeof(Animator),typeof(Rigidbody2D))]
+    [RequireComponent(typeof(Rigidbody2D), typeof(HealthComponent))]
     public class BossController : MonoBehaviour
     {
         [SerializeField] private BossConfig config;
 
         public Animator Animator { get; private set; }
+        public SpriteRenderer SR { get; private set; }
+        public HealthComponent HP { get; private set; }
         public Rigidbody2D RB { get; private set; }
         public Transform PlayerTransform { get; private set; }
         public BossConfig Config => config;
+        public bool AlwaysEnraged = false;
+        public bool IsEnraged = false; 
+        
+        
+
+        // --- NEW MOVEMENT PROPERTIES ---
+        [Header("Movement")]
+        [Tooltip("The current velocity of the boss, calculated via acceleration and friction.")]
         [field: SerializeField] public Vector2 Velocity { get; set; }
+        [Tooltip("A forced velocity for special moves like dashes, bypassing acceleration.")]
+        [field: SerializeField] public Vector2 VelocityOverride { get; set; }
+        [Tooltip("The intended direction of movement, set by the current state.")]
+        [field: SerializeField] public Vector2 Direction { get; set; }
+        [SerializeField] private float acceleration = 75f;
+        [SerializeField] private float friction = 35f;
+
+
         [Header("Component Refs")]
+        public GameObject Visuals;
         [Tooltip("Optional: Assign a child object where projectiles will spawn from.")]
         [SerializeField] private Transform firePoint;
+        [SerializeField] private GameObject meleeHitbox;
         public Transform FirePoint => firePoint;
+        [SerializeField] EnemyProjectile2D projectilePrefab;
+        [SerializeField] float projectileDamage = 5f;
+        [SerializeField] float projectileSpeed = 10f;
+        [SerializeField] bool projectileIsHoming = false;
+        [SerializeField] bool projectileHomeWhenEnraged = false;
+        [SerializeField] float projectileHomingDuration = 0.5f;
+        [Header("Behavior Pivot")]
+        [Tooltip("Local-space offset used as the logical center for distance checks and range gizmos.")]
+        [SerializeField] private Vector2 behaviorPivotLocal = Vector2.zero;
+
+        public Vector2 BehaviorPivotWorld => (Vector2)transform.TransformPoint((Vector3)behaviorPivotLocal);
+
+        public float DistanceToPlayer()
+        {
+            if (!PlayerTransform) return float.PositiveInfinity;
+            return Vector2.Distance(BehaviorPivotWorld, (Vector2)PlayerTransform.position);
+        }
+
+        public RangeBand GetBandToPlayer() => GetBand(DistanceToPlayer());
 
         // --- State Machine ---
         private IState _currentState;
@@ -29,7 +72,7 @@ namespace Survivor.Enemy.FSM
 
         // --- Cooldowns ---
         private float _globalAttackCooldownTimer;
-        private Dictionary<string, float> _attackTagCooldowns = new ();
+        private Dictionary<string, float> _attackTagCooldowns = new();
 
         // --- Facing Logic ---
         private int _facingSign = 1;
@@ -38,36 +81,134 @@ namespace Survivor.Enemy.FSM
         // --- Perlin Noise ---
         private float _perlinNoiseOffsetX, _perlinNoiseOffsetY;
 
+        bool isDead = false;
+
         void Awake()
         {
+            HP = GetComponent<HealthComponent>();
             Animator = GetComponent<Animator>();
+            if (Animator == null) Animator = GetComponentInChildren<Animator>();
             RB = GetComponent<Rigidbody2D>();
             RB.bodyType = RigidbodyType2D.Kinematic;
             _perlinNoiseOffsetX = Random.Range(0f, 1000f);
-            _perlinNoiseOffsetY = Random.Range(0f, 1000f); 
+            _perlinNoiseOffsetY = Random.Range(0f, 1000f);
+            if (Visuals.TryGetComponent<AnimationEventBus>(out var bus)) bus.Fired += OnAnimEvent;
+
+            SR = Visuals.GetComponent<SpriteRenderer>();
+            IsEnraged = false;
+            if (AlwaysEnraged) { IsEnraged = true; Enrage(); }
+            
+
         }
 
+        private void OnAnimEvent(AnimationEvent e)
+        {
+            switch (e.stringParameter)
+            {
+                case "hitbox_melee_on":  ToggleMeleeHitbox(true);break ;
+                case "hitbox_melee_off": ToggleMeleeHitbox(false);break;
+                case "projectile":
+                    SpawnProjectile(firePoint == null ? (Vector2)transform.position : (Vector2)firePoint.position);
+                    break;
+
+            }
+
+        }
+        private void ToggleMeleeHitbox(bool on)
+        {
+            meleeHitbox?.SetActive(on);
+        }
         private void InitialiseStateFactory()
         {
             _states = new Dictionary<Type, IState>
-        {
-            { typeof(StateIdle), new StateIdle(this) },
-            { typeof(StateChase), new StateChase(this) },
-            { typeof(StateAttack), new StateAttack(this) }
- 
-        };
+            {
+                { typeof(StateIdle), new StateIdle(this) },
+                { typeof(StateChase), new StateChase(this) },
+                { typeof(StateAttack), new StateAttack(this) }
+            };
         }
 
         void Start()
         {
+            HP.SetMaxHP(config.MaxHealth);
+            HP.ResetFull();
+            HP.Damaged += OnDamaged;
+            HP.Died += OnDied;
             FindPlayerTransform();
             InitialiseStateFactory();
             ChangeState(typeof(StateIdle));
         }
 
+        void OnDamaged(float amt, Vector3 pos, bool crit)
+        {
+            if (crit) DamageTextManager.Instance.ShowCrit(pos, amt);
+            else DamageTextManager.Instance.ShowNormal(pos, amt);
+
+            if (HP.GetCurrentPercent() < .5f) Enrage();
+            SessionManager.Instance.IncrementDamageDealt(amt);
+        }
+
+        public void Enrage()
+        {
+            SR.color = config.EnragedColour;
+            IsEnraged = true;
+        }
+        void OnDied()
+        {
+            HP.DisconnectAllSignals();
+            isDead = true;
+            SessionManager.Instance.IncrementEnemyDowned(1);
+            StartCoroutine(Die());
+        }
+
+        private void SpawnProjectile(Vector2 origin)
+        {
+            var go = Instantiate(projectilePrefab, origin, Quaternion.identity);
+
+            if (!go.TryGetComponent<EnemyProjectile2D>(out var proj))
+            {
+                Debug.LogWarning("ProjectilePrefab missing EnemyProjectile2D.");
+                Destroy(go);
+                return;
+            }
+            Transform tgt = PlayerTransform;
+            Vector2 toTarget = ((Vector2)tgt.position - origin).normalized;
+
+            bool doHome = projectileIsHoming || (projectileHomeWhenEnraged && IsEnraged);
+
+            proj.Fire(
+                origin,
+                toTarget,
+                projectileSpeed,
+                projectileDamage,
+                life: 4f,
+                PlayerTransform,
+                homingOverride: doHome,
+                homingSecondsOverride:projectileHomingDuration
+            );
+
+        }
+
+        private void OnTriggerEnter2D(Collider2D col)
+        {
+            if (!col.TryGetComponent<HealthComponent>(out var target)) return;
+            if (target.IsDead) return;
+
+            float dealt = config.MeleeDamage;
+            target.Damage(dealt);
+            if (target.CompareTag("Player")) CameraShake2D.Shake(0.2f, 1f);
+        }
+
+        IEnumerator Die()
+        {
+            Animator.Play("Dead");
+            yield return new WaitForSeconds(3f);
+            Destroy(gameObject);
+        }
+
         void Update()
         {
-            if (PlayerTransform == null) return;
+            if (PlayerTransform == null || isDead) return;
 
             TickCooldowns(Time.deltaTime);
 
@@ -80,8 +221,30 @@ namespace Survivor.Enemy.FSM
 
         void FixedUpdate()
         {
-            //transform.position += (Vector3)(Velocity * Time.fixedDeltaTime);
-            RB.MovePosition(RB.position + Velocity * Time.fixedDeltaTime);
+            if (isDead) return;
+
+            Vector2 finalVelocity;
+            // Priority 1: Use VelocityOverride for dashes and special moves
+            if (VelocityOverride.sqrMagnitude > 0.01f)
+            {
+                finalVelocity = VelocityOverride;
+                Velocity = finalVelocity;
+            }
+            else // Priority 2: Use standard acceleration/friction model
+            {
+                Vector2 targetVelocity = Direction * config.ChaseSpeed;
+                Velocity = Vector2.MoveTowards(Velocity, targetVelocity, acceleration * Time.fixedDeltaTime);
+
+
+                if (Direction.sqrMagnitude < 0.01f)
+                {
+                    Velocity = Vector2.MoveTowards(Velocity, Vector2.zero, friction * Time.fixedDeltaTime);
+                }
+                finalVelocity = Velocity;
+            }
+
+            // Apply the final calculated velocity to the Rigidbody
+            RB.MovePosition(RB.position + finalVelocity * Time.fixedDeltaTime);
             UpdateFacing();
         }
 
@@ -89,9 +252,18 @@ namespace Survivor.Enemy.FSM
         {
             _currentState?.Exit();
             _currentState = _states[newStateType];
+            ResetParameters();
             _currentState.Enter();
             _currentStateLabel = _currentState.ToString();
         }
+
+        private void ResetParameters()
+        {
+            VelocityOverride = Vector2.zero;
+            Direction = Vector2.zero;
+            Animator.speed = 1f;
+        }
+
         public RangeBand GetBand(float dist)
         {
             if (dist > config.AttackRange) return RangeBand.OffBand;
@@ -99,18 +271,10 @@ namespace Survivor.Enemy.FSM
             return RangeBand.MeleeBand;
         }
 
-        /// <summary>
-        /// Build attack candidates for the current distance band.
-        /// - OffBand: no attacks (force chase)
-        /// - Pocket:  ranged only
-        /// - Melee:   melee + ranged(with weight penalty)
-        /// Returns true if any candidate exists.
-        /// </summary>
         public bool TryBuildCandidatesForDistance(float dist, out List<ScriptableAttackDefinition> result)
         {
             result = null;
             var band = GetBand(dist);
-
             if (band == RangeBand.OffBand) return false;
 
             var list = new List<ScriptableAttackDefinition>();
@@ -125,18 +289,15 @@ namespace Survivor.Enemy.FSM
             }
             else // MeleeBand
             {
-                // Primary: melee
                 foreach (var def in config.AttackPatterns)
                 {
                     if (def.Category == AttackCategory.Melee && !IsAttackTagOnCooldown(def.CooldownTag))
                         list.Add(def);
                 }
-                // Secondary: ranged with weight penalty
                 foreach (var def in config.AttackPatterns)
                 {
                     if (def.Category == AttackCategory.Ranged && !IsAttackTagOnCooldown(def.CooldownTag))
                     {
-                        // clone a lightweight shadow entry with reduced weight
                         list.Add(new ScriptableAttackDefinition
                         {
                             Category = def.Category,
@@ -153,6 +314,7 @@ namespace Survivor.Enemy.FSM
             result = list;
             return true;
         }
+
         public ScriptableAttackDefinition ChooseWeighted(IReadOnlyList<ScriptableAttackDefinition> attacks)
         {
             float total = 0f;
@@ -178,7 +340,7 @@ namespace Survivor.Enemy.FSM
             {
                 SetFacing(Mathf.Sign(horizontalVelocity));
             }
-            else if (Velocity.sqrMagnitude < 0.01f) // When still, face player
+            else if (Velocity.sqrMagnitude < 0.01f)
             {
                 float directionToPlayer = PlayerTransform.position.x - transform.position.x;
                 if (Mathf.Abs(directionToPlayer) > 0.1f)
@@ -188,7 +350,6 @@ namespace Survivor.Enemy.FSM
             }
         }
 
-
         private void SetFacing(float sign)
         {
             int newSign = (int)sign;
@@ -196,9 +357,9 @@ namespace Survivor.Enemy.FSM
 
             _facingSign = newSign;
 
-            Vector3 s = transform.localScale;
+            Vector3 s = Visuals.transform.localScale;
             s.x = Mathf.Abs(s.x) * _facingSign;
-            transform.localScale = s;
+            Visuals.transform.localScale = s;
 
             _flipTimer = Config.MinFlipInterval;
         }
@@ -211,8 +372,7 @@ namespace Survivor.Enemy.FSM
                 _globalAttackCooldownTimer -= deltaTime;
             }
 
-            // C# doesn't allow modifying dictionary while iterating, so we copy keys
-            List<string> keys = new (_attackTagCooldowns.Keys);
+            List<string> keys = new(_attackTagCooldowns.Keys);
             foreach (string key in keys)
             {
                 _attackTagCooldowns[key] -= deltaTime;
@@ -254,22 +414,26 @@ namespace Survivor.Enemy.FSM
                 enabled = false;
             }
         }
+        private Quaternion GetOrientationToTarget(Vector2 direction, bool forwardAxisIsRight = true)
+        {
+            float ang = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            return Quaternion.AngleAxis(forwardAxisIsRight ? ang : (ang - 90f), Vector3.forward);
+        }
 
         void OnDrawGizmosSelected()
         {
             if (config == null) return;
 
-            // Yellow: The range at which the boss wakes up and starts chasing.
+            Vector3 c = (Vector3)BehaviorPivotWorld;
+
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, config.EngageRange);
+            Gizmos.DrawWireSphere(c, config.EngageRange);
 
-            // Red: The maximum range for any attack. The boss tries to stay within this circle.
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, config.AttackRange);
+            Gizmos.DrawWireSphere(c, config.AttackRange);
 
-            // Cyan: The "pocket" for ranged attacks. Inside this circle, the boss will switch to melee.
             Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(transform.position, config.RangedAttackMinRange);
+            Gizmos.DrawWireSphere(c, config.RangedAttackMinRange);
         }
         #endregion
     }
