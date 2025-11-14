@@ -1,11 +1,9 @@
 using UnityEngine;
-
 using AugustsUtility.AudioSystem;
 
 public class BGMPlayer : MonoBehaviour
 {
-    [SerializeField]
-    private MusicResource musicToPlay;
+    [SerializeField] private MusicResource musicToPlay;
 
     void Start()
     {
