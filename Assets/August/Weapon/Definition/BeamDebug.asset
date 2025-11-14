@@ -15,18 +15,18 @@ MonoBehaviour:
   RuntimePrefab: {fileID: 5321779039240465208, guid: b64475fc4db138849b8891fbf66fca03, type: 3}
   Id: beam
   Icon: {fileID: -4542404649790094876, guid: 5620f5e7dbe43da4f89e420358c0852a, type: 3}
-  BaseDamage: 25
+  BaseDamage: 100
   BaseCooldown: 3
-  TargetingMode: 2
-  AreaScale: 1
+  TargetingMode: 1
+  AreaScale: 3
   Projectiles: 1
-  BaseCritChance: 0.05
+  BaseCritChance: 0.1
   BaseCritMultiplier: 1.5
   BeamPrefab: {fileID: 2127994361759694393, guid: a1a7f1ec0d959dc4f93eafbd1e6a1db5, type: 3}
-  BeamLength: 10
-  BeamWidth: 0.5
+  BeamLength: 20
+  BeamWidth: 0.8
   Duration: 1
-  TicksPerSecond: 6
+  TicksPerSecond: 10
   BeamMaterial: {fileID: 2100000, guid: 4c6a0aa23046b2e4fa39dee236fa983c, type: 2}
   UVScrollRate: 6
   AlphaOverLife:
