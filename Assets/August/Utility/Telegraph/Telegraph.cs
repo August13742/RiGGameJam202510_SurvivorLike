@@ -8,11 +8,11 @@ namespace AugustsUtility.Telegraph
     public static class Telegraph
     {
         public static Coroutine Circle(MonoBehaviour host, Vector3 pos,
-                                       float radius, float duration,
-                                       Color? color = null,
-                                       Action onFinished = null)
+                                        float radius, float duration,
+                                        Color? color = null,
+                                        Action onFinished = null)
         {
-            TelegraphParams p = new()
+            TelegraphParams p = new TelegraphParams
             {
                 Shape = TelegraphShape.Circle,
                 WorldPos = pos,
@@ -20,14 +20,58 @@ namespace AugustsUtility.Telegraph
                 Radius = radius,
                 Size = Vector2.zero,
                 AngleDeg = 0f,
+                ArcDeg = 0f,
                 Color = color ?? Color.red
             };
 
             return TelegraphManager.Instance.PlayTelegraphCoroutine(host, p, onFinished);
         }
 
-        // add Box / Sector helpers similarly
+        public static Coroutine Box(MonoBehaviour host, Vector3 pos,
+                                    Vector2 size, float duration,
+                                    float angleDeg = 0f,
+                                    Color? color = null,
+                                    Action onFinished = null)
+        {
+            TelegraphParams p = new TelegraphParams
+            {
+                Shape = TelegraphShape.Box,
+                WorldPos = pos,
+                Duration = duration,
+                Radius = 0f,
+                Size = size,
+                AngleDeg = angleDeg,
+                ArcDeg = 0f,
+                Color = color ?? Color.yellow
+            };
+
+            return TelegraphManager.Instance.PlayTelegraphCoroutine(host, p, onFinished);
+        }
+
+        public static Coroutine Sector(MonoBehaviour host, Vector3 pos,
+                                        float radius, float arcDeg,
+                                        float angleDeg, float duration,
+                                        Color? color = null,
+                                        Action onFinished = null)
+        {
+            TelegraphParams p = new TelegraphParams
+            {
+                Shape = TelegraphShape.Sector,
+                WorldPos = pos,
+                Duration = duration,
+                Radius = radius,
+                Size = Vector2.zero,
+                AngleDeg = angleDeg,
+                ArcDeg = arcDeg,
+                Color = color ?? Color.cyan
+            };
+
+            return TelegraphManager.Instance.PlayTelegraphCoroutine(host, p, onFinished);
+        }
+
     }
+
+
     public sealed class TelegraphSequence
     {
         private readonly MonoBehaviour _host;

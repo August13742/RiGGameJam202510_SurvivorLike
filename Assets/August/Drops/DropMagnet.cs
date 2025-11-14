@@ -31,7 +31,7 @@ namespace Survivor.Drop
             var zone = other.GetComponent<PlayerMagnetZone>();
             if (!zone) return;
 
-            Triggered.Invoke();
+            Triggered?.Invoke();
             _target = zone.Owner ? zone.Owner : other.transform.root;
 
             transform.TweenFollowPosition(_target, tweenDuration, EasingFunctions.EaseInOutBack);

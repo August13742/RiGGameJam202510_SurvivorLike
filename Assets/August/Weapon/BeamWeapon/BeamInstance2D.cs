@@ -63,6 +63,7 @@ namespace Survivor.Weapon
                 _lr.alignment = LineAlignment.TransformZ;
                 _lr.generateLightingData = false;
                 _lr.sortingLayerName = "Projectiles";
+                _lr.sortingOrder = 0;
             }
             _colorPropID = Shader.PropertyToID("_Color");
         }
