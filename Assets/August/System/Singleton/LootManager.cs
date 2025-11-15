@@ -10,6 +10,11 @@ namespace Survivor.Game
 
         [Header("Optional preload (tables to prewarm)")]
         [SerializeField] private LootTableDef[] preloadTables;
+        
+        [Header("Spawn Settings")]
+        [SerializeField] private float spawnRadiusMin = 0.2f;
+        [SerializeField] private float spawnRadiusMax = 0.8f;
+        
         private Transform poolRoot;
 
         private readonly Dictionary<DropItemDef, ObjectPool<DropItemBase>> _pools = new();
@@ -71,7 +76,10 @@ namespace Survivor.Game
                 if (def == null || def.Prefab == null) continue;
 
                 var pool = GetOrCreatePool(def);
-                var go = pool.Rent(at, Quaternion.identity);
+                
+                // Apply random offset within a circular radius
+                Vector2 spawnPosition = at + GetRandomOffset();
+                var go = pool.Rent(spawnPosition, Quaternion.identity);
 
                 // Configure amount (stack) per spawn
                 var baseItem = go.GetComponent<DropItemBase>();
@@ -82,6 +90,21 @@ namespace Survivor.Game
                         : Random.Range(def.MinAmount, def.MaxAmount + 1);
                 }
             }
+        }
+
+        private Vector2 GetRandomOffset()
+        {
+            // Generate random angle
+            float angle = (float)(_rng.NextDouble() * 2.0 * Mathf.PI);
+            
+            // Generate random radius with square root for uniform distribution
+            float radius = Mathf.Lerp(spawnRadiusMin, spawnRadiusMax, Mathf.Sqrt((float)_rng.NextDouble()));
+            
+            // Convert polar coordinates to Cartesian
+            return new Vector2(
+                Mathf.Cos(angle) * radius,
+                Mathf.Sin(angle) * radius
+            );
         }
 
         private DropItemDef Sample(LootTableDef table)

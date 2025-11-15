@@ -92,7 +92,7 @@ namespace Survivor.Weapon
             if (!_active) return;
             _active = false;
 
-            // Instant radial impact damage (optional: set damage to 0 if you only want DoT).
+            // Instant radial impact damage (optional: set damage to 0 if only want DoT).
             ContactFilter2D _filter = new() { useTriggers = true, useDepth = false };
             _filter.SetLayerMask(hitMask);
             int hitCount = Physics2D.OverlapCircle(_targetPos, impactRadius, _filter, _hits);

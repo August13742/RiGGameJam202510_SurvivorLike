@@ -31,7 +31,7 @@ MonoBehaviour:
   meteorImpactRadius: 1.2
   meteorSpawnOffset: {x: 0, y: 10}
   hazardZonePrefab: {fileID: 5102637062721469528, guid: 250421982328d804988f9148607d489a, type: 3}
-  hazardRadius: 1
+  hazardRadius: 2
   hazardDamagePerSecond: 50
   hazardLifetime: 5
   channelAnim: Shoot

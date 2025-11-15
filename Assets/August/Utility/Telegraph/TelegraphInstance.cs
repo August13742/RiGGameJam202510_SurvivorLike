@@ -71,7 +71,8 @@ namespace AugustsUtility.Telegraph
 
         private void SetupCircle(TelegraphParams p)
         {
-            float radiusScale = p.Radius * 2f; // unit circle has diameter 2
+            // Assuming the base sprite is a unit circle with radius 1 (diameter 2)
+            float radiusScale = p.Radius;
             Vector3 targetScale = _baseOutlineScale * radiusScale;
 
             // Outline = full range
