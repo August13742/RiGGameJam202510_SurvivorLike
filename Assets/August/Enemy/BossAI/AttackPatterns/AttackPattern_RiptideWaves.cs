@@ -22,17 +22,14 @@ namespace Survivor.Enemy.FSM
 
         [Header("Geometry")]
         [SerializeField] private float waveBaseDistance = 5f;
-        [SerializeField] private float segmentSpacing = 3f;
         [SerializeField] private float blastRadius = 1.8f;
-        [SerializeField] private float spreadAngle = 60f;
 
-        [Header("Prediction")]
-        [Tooltip("How many times to sample player input during the wave spawning phase. 1 = snapshot at start. >1 = resamples periodically.")]
-        [SerializeField] private int inputResampleCount = 2;
-        [Tooltip("How strongly the wave leads the player. 0 = aims at current position, 1 = aims at fully predicted position.")]
-        [SerializeField, Range(0f, 1f)] private float predictionStrength = 0.8f;
-        [Tooltip("The assumed speed of the player when calculating the lead.")]
-        [SerializeField] private float assumedPlayerSpeed = 7f;
+        [Header("Chaining / Homing")]
+        [SerializeField] private float stepSize = 3f;                   // distance between ring centers
+        [SerializeField] private float maxTurnPerWaveDeg = 40f;         // max heading change per ring
+        [SerializeField, Range(0f, 1f)] private float majorDirWeight = 0.7f;
+        [SerializeField, Range(0f, 1f)] private float inputDirWeight = 0.2f;
+        [SerializeField, Range(0f, 1f)] private float errorDirWeight = 0.3f;
 
         [Header("Timing")]
         [SerializeField] private float waveInterval = 0.4f;
@@ -54,94 +51,135 @@ namespace Survivor.Enemy.FSM
         [Header("Enrage")]
         [SerializeField] private float enragedRateMul = 1.25f;
         [SerializeField] private float enragedDamageMul = 1.3f;
-        [SerializeField] private float enragedResampleMultiplier = 1.5f;
 
         private static readonly Collider2D[] _hits = new Collider2D[16];
         #endregion
 
         public override IEnumerator Execute(BossController controller)
         {
-            if (controller == null || controller.PlayerTransform == null) yield break;
+            if (controller == null || controller.PlayerTransform == null)
+                yield break;
 
-            // --- Setup based on enraged state ---
             bool enraged = controller.IsEnraged;
             float rateMul = enraged ? enragedRateMul : 1f;
             float dmg = damage * (enraged ? enragedDamageMul : 1f);
             float currentTelegraphTime = telegraphDuration / rateMul;
             float currentWaveInterval = waveInterval / rateMul;
-            int actualResampleCount = enraged ? Mathf.FloorToInt(inputResampleCount * enragedResampleMultiplier) : inputResampleCount;
 
             int waveCount = Random.Range(minWaveCount, maxWaveCount + 1);
-            PlayerController playerController = controller.PlayerTransform.GetComponent<PlayerController>();
+
+            PlayerController playerController =
+                controller.PlayerTransform.GetComponent<PlayerController>();
+            if (playerController == null)
+                yield break;
+
             Vector2 bossPos = controller.BehaviorPivotWorld;
 
-            // --- Resampling Setup ---
-            float totalSpawnDuration = (waveCount - 1) * currentWaveInterval;
-            float resampleInterval = (actualResampleCount > 1) ? totalSpawnDuration / (actualResampleCount - 1) : float.PositiveInfinity;
-            float nextResampleTime = 0f;
+            // --- Initial heading and center ---
+            Vector2 toPlayer0 = (Vector2)playerController.transform.position - bossPos;
+            if (toPlayer0.sqrMagnitude < 0.0001f)
+                toPlayer0 = Vector2.right;
+            toPlayer0.Normalize();
 
-            // --- Snapshot State
-            Vector2 snapshotPlayerPos = Vector2.zero;
-            Vector2 snapshotInputDir = Vector2.zero;
+            // major heading is our "memory" of direction
+            float majorAngle = Mathf.Atan2(toPlayer0.y, toPlayer0.x) * Mathf.Rad2Deg;
 
-            for (int i = 0; i < waveCount; i++)
-            {
-                float currentTime = i * currentWaveInterval;
+            // starting center: at waveBaseDistance in initial direction
+            Vector2 currentCenter = bossPos + toPlayer0 * waveBaseDistance;
 
-                // --- Check if it's time to take a new input snapshot ---
-                if (currentTime >= nextResampleTime)
-                {
-                    snapshotPlayerPos = playerController.transform.position;
-                    snapshotInputDir = playerController.InputDirection;
-                    nextResampleTime += resampleInterval;
-                }
+            // Enrage knobs on turning / step size if you want
+            float step = stepSize * (enraged ? enragedRateMul : 1f);
+            float maxTurn = maxTurnPerWaveDeg * (enraged ? enragedRateMul : 1f);
 
-                // --- Pre-calculate the path for this specific wave using the LATEST snapshot ---
-                float delay = currentTime;
-                float distance = waveBaseDistance + (segmentSpacing * i);
-                float normalizedIndex = waveCount > 1 ? (float)i / (waveCount - 1) : 0.5f;
-                float angleOffset = Mathf.Lerp(-spreadAngle / 2f, spreadAngle / 2f, normalizedIndex);
-
-                // 1. Calculate the START position (aimed at player's initial T=0 position for a smooth curve)
-                Vector2 initialDirToPlayer = ((Vector2)playerController.transform.position - bossPos).normalized;
-                Quaternion startRotation = Quaternion.Euler(0, 0, angleOffset);
-                Vector2 startDir = startRotation * initialDirToPlayer;
-                Vector2 startPos = bossPos + startDir * distance;
-
-                // 2. Calculate the PREDICTED END position (using the most recent snapshot)
-                float timeToImpact = delay + currentTelegraphTime; // This is how far in the future we predict
-                Vector2 predictedPlayerPos = snapshotPlayerPos + (assumedPlayerSpeed * timeToImpact * snapshotInputDir);
-                Vector2 centralPredictedDir = (predictedPlayerPos - bossPos).normalized;
-
-
-                // Rotate the central predicted direction to get this wave's final direction.
-                // This maintains the fan shape's integrity regardless of how much the aim changes.
-                Quaternion endRotation = Quaternion.Euler(0, 0, angleOffset);
-                Vector2 finalDir = endRotation * centralPredictedDir;
-                Vector2 predictedEndPos = bossPos + finalDir * distance;
-
-                // 3. Blend the final position based on prediction strength
-                Vector2 finalEndPos = Vector2.Lerp(startPos, predictedEndPos, predictionStrength);
-
-                // 4. Start the coroutine with the pre-calculated path
-                controller.StartCoroutine(
-                    RiptideWaveRoutine(controller, delay, currentTelegraphTime, blastRadius, dmg, startPos, finalEndPos)
-                );
-            }
-
-
+            // Channel anim once at start
             float channel = channelDuration / rateMul;
             if (channel > 0f && controller.Animator != null && !string.IsNullOrEmpty(channelAnim))
             {
                 controller.VelocityOverride = Vector2.zero;
                 controller.Animator.Play(channelAnim);
                 controller.Animator.speed = rateMul;
-                yield return new WaitForSeconds(channel);
+            }
+
+            for (int i = 0; i < waveCount; i++)
+            {
+                // 1) sample current player state
+                Vector2 playerPos = playerController.transform.position;
+                Vector2 inputDir = playerController.InputDirection;
+                if (inputDir.sqrMagnitude > 0.0001f)
+                    inputDir.Normalize();
+                else
+                    inputDir = Vector2.zero;
+
+                // distance error direction: from current ring center to player
+                Vector2 errorDir = playerPos - currentCenter;
+                if (errorDir.sqrMagnitude > 0.0001f)
+                    errorDir.Normalize();
+                else
+                    errorDir = Vector2.zero;
+
+                // major direction as unit vector
+                Vector2 majorDir = AngleToDir(majorAngle);
+
+                // 2) build desired direction (weighted sum, then normalise)
+                Vector2 desired = Vector2.zero;
+                desired += majorDir * majorDirWeight;
+                desired += inputDir * inputDirWeight;
+                desired += errorDir * errorDirWeight;
+
+                if (desired.sqrMagnitude < 0.0001f)
+                    desired = majorDir; // fallback: keep going straight
+
+                desired.Normalize();
+
+                // 3) clamp heading change before committing
+                float targetAngle = Mathf.Atan2(desired.y, desired.x) * Mathf.Rad2Deg;
+                float delta = Mathf.DeltaAngle(majorAngle, targetAngle);
+                delta = Mathf.Clamp(delta, -maxTurn, maxTurn);
+
+                majorAngle += delta;
+                Vector2 finalDir = AngleToDir(majorAngle);
+
+                // 4) constant step size hop: THIS is your "normalised V2 * stepsize"
+                Vector2 nextCenter = currentCenter + finalDir * step;
+
+                // 5) fire telegraph tween: from currentCenter ¨ nextCenter
+                controller.StartCoroutine(
+                    RiptideWaveRoutine(
+                        controller,
+                        delay: 0f,
+                        telegraphTime: currentTelegraphTime,
+                        radius: blastRadius,
+                        damage: dmg,
+                        startPos: currentCenter,
+                        endPos: nextCenter
+                    )
+                );
+
+                // advance chain
+                currentCenter = nextCenter;
+
+                // 6) wait for next wave spawn
+                if (i < waveCount - 1)
+                    yield return new WaitForSeconds(currentWaveInterval);
+            }
+
+            // Finish channel anim
+            if (channel > 0f && controller.Animator != null && !string.IsNullOrEmpty(channelAnim))
+            {
                 controller.Animator.Play("Idle");
                 controller.Animator.speed = 1f;
                 controller.VelocityOverride = Vector2.zero;
             }
         }
+
+        // helper
+        private static Vector2 AngleToDir(float deg)
+        {
+            float rad = deg * Mathf.Deg2Rad;
+            return new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
+        }
+
+
 
         private IEnumerator RiptideWaveRoutine(
             BossController controller, float delay, float telegraphTime,
@@ -183,7 +221,6 @@ namespace Survivor.Enemy.FSM
                 if (_hits[i] != null && _hits[i].TryGetComponent<HealthComponent>(out var hp) && !hp.IsDead)
                 {
                     hp.Damage(damage);
-                    Debug.Log(hp.name);
                     CameraShake2D.Shake(cameraShakeDuration, cameraShakeStrength);
                     
                 }

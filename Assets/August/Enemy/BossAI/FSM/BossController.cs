@@ -81,7 +81,9 @@ namespace Survivor.Enemy.FSM
         private float _perlinNoiseOffsetX, _perlinNoiseOffsetY;
 
         [field: SerializeField] public bool IsDead { get; private set; } = false;
-
+        private bool _deathSequenceStarted = false;
+        // Enrage special-case
+        [SerializeField] private bool _enrageActionPending = false;
         void Awake()
         {
             HP = GetComponent<HealthComponent>();
@@ -95,9 +97,9 @@ namespace Survivor.Enemy.FSM
 
             SR = Visuals.GetComponent<SpriteRenderer>();
             IsEnraged = false;
-            if (AlwaysEnraged) { IsEnraged = true; Enrage(); }
-            
+            _enrageActionPending = false;
 
+            if (AlwaysEnraged) Enrage();
         }
 
         private void OnAnimEvent(AnimationEvent e)
@@ -113,17 +115,6 @@ namespace Survivor.Enemy.FSM
 
             }
 
-        }
-        void HandleIfDead()
-        {
-            if (IsDead)
-            {
-                AnimatorStateInfo stateInfo = Animator.GetCurrentAnimatorStateInfo(0);
-                if (!stateInfo.IsName("Dead"))
-                {
-                    Animator.Play("Dead"); Animator.speed = 0.7f; return;
-                }
-            }
         }
         private void ToggleMeleeHitbox(bool on)
         {
@@ -161,13 +152,45 @@ namespace Survivor.Enemy.FSM
 
         public void Enrage()
         {
-            SR.color = config.EnragedColour;
+            if (IsEnraged) return;
+
             IsEnraged = true;
+            SR.color = config.EnragedColour;
+
+            // Queue the enrage action to be forced once,
+            // as soon as it's a valid candidate.
+            _enrageActionPending = true;
         }
         void OnDied()
         {
+            if (_deathSequenceStarted) return;
+            _deathSequenceStarted = true;
+
             HP.DisconnectAllSignals();
             IsDead = true;
+
+            // Stop all attack/state coroutines running on this controller
+            StopAllCoroutines();
+
+            // Stop movement
+            Velocity = Vector2.zero;
+            VelocityOverride = Vector2.zero;
+            Direction = Vector2.zero;
+
+            // Kill melee hitbox so it can't still damage the player while "dead"
+            ToggleMeleeHitbox(false);
+
+            // Optional: disable collider so it no longer interacts with anything
+            if (TryGetComponent<Collider2D>(out var col))
+                col.enabled = false;
+
+            // Kill FSM
+            _currentState = null;
+
+            // Force death animation once
+            Animator.Play("Dead", 0, 0f);
+            Animator.speed = 0.7f;
+
             SessionManager.Instance.IncrementEnemyDowned(1);
         }
 
@@ -213,8 +236,7 @@ namespace Survivor.Enemy.FSM
         void Update()
         {
             if (PlayerTransform == null) return;
-            HandleIfDead();
-
+            if (IsDead) return;
 
             TickCooldowns(Time.deltaTime);
 
@@ -323,9 +345,28 @@ namespace Survivor.Enemy.FSM
 
         public ScriptableAttackDefinition ChooseWeighted(IReadOnlyList<ScriptableAttackDefinition> attacks)
         {
+            // 1. Enrage guarantee: if enrage action is pending and present in candidates,
+            //    force it once and consume the pending flag.
+            if (IsEnraged && _enrageActionPending && config.EnrageAction != null)
+            {
+                for (int i = 0; i < attacks.Count; i++)
+                {
+                    // Match via Pattern so it also works with cloned ScriptableAttackDefinition
+                    if (attacks[i].Pattern == config.EnrageAction.Pattern)
+                    {
+                        _enrageActionPending = false;
+                        return attacks[i];
+                    }
+                }
+            }
+
+            // 2. Normal weighted selection
             float total = 0f;
-            for (int i = 0; i < attacks.Count; i++) total += Mathf.Max(0f, attacks[i].Weight);
-            if (total <= 0f) return attacks[attacks.Count - 1];
+            for (int i = 0; i < attacks.Count; i++)
+                total += Mathf.Max(0f, attacks[i].Weight);
+
+            if (total <= 0f)
+                return attacks[attacks.Count - 1];
 
             float r = Random.value * total;
             for (int i = 0; i < attacks.Count; i++)
@@ -334,6 +375,7 @@ namespace Survivor.Enemy.FSM
                 if (r < w) return attacks[i];
                 r -= w;
             }
+
             return attacks[attacks.Count - 1];
         }
 

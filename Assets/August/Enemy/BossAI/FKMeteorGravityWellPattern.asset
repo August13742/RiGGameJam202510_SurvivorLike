@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70676ab7ed541ea4d929b330fb9b77d6, type: 3}
+  m_Name: FKMeteorGravityWellPattern
+  m_EditorClassIdentifier: 
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 64
+  cameraShakeStrength: 3
+  cameraShakeDuration: 0.5
+  globalPauseDuration: 0.5
+  meteorPrefab: {fileID: 886214537344977299, guid: b87632f4179f5834b935755a301c4b4e, type: 3}
+  minMeteorRadius: 6
+  maxMeteorRadius: 15
+  waves: 3
+  minMeteorsPerWave: 4
+  maxMeteorsPerWave: 8
+  telegraphDuration: 1
+  meteorSpawnLead: 0.4
+  interWaveDelay: 0.25
+  pullRadius: 15
+  innerExplosionRadius: 8
+  pullRingColor: {r: 0.5, g: 0.7, b: 1, a: 1}
+  meteorRingColor: {r: 1, g: 0.8, b: 0.4, a: 1}
+  innerRingColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+  meteorImpactDamage: 25
+  meteorImpactRadius: 2
+  meteorSpawnOffset: {x: 0, y: 10}
+  hazardZonePrefab: {fileID: 5102637062721469528, guid: 250421982328d804988f9148607d489a, type: 3}
+  hazardOnlyEnraged: 1
+  hazardRadius: 2
+  hazardDamagePerSecond: 100
+  hazardLifetime: 5
+  explosionVfxPrefab: {fileID: 8622270546021668603, guid: d8f6c474b03ffe843a97ce399adbe0cf, type: 3}
+  explosionDamage: 150
+  PullOnlyWhenEnraged: 1
+  bigPullDelay: 0.75
+  bigPullRadius: 18
+  bigPullMaxTravel: 8
+  innerPullDelay: 0.3
+  pullInterval: 0.35
+  pullStepDistance: 1
+  bigPullRingColor: {r: 0.5, g: 0.9, b: 1, a: 1}
+  bigPullRingExtraLifetime: 0.15
+  channelAnim: Channel
+  releaseAnim: Grasp
+  enrageRateMul: 1.15
+  enrageMeteorCountMul: 1.25
+  enrageImpactDamageMul: 1.35
+  enrageExplosionDamageMul: 1.4
+  enrageHazardDpsMul: 1.3
+  enrageHazardSizeMul: 1.5
+  enrageExtraWaves: 3

@@ -76,14 +76,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    MaxHealth: 6000
+    MaxHealth: 5000
     EnragedColour: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
     MeleeDamage: 10
     ChaseSpeed: 3
     IdleWanderSpeed: 2
-    EngageRange: 12
-    AttackRange: 10.59
-    RangedAttackMinRange: 7.44
+    EngageRange: 18
+    AttackRange: 15
+    RangedAttackMinRange: 5.5
     GlobalAttackCooldown: 1
     MinFlipInterval: 0.5
     FacingDeadzone: 0.2
@@ -92,23 +92,55 @@ MonoBehaviour:
     - Category: 1
       Pattern: {fileID: 11400000, guid: a8c4225c21a0aef498b60717c277274b, type: 2}
       CooldownTag: dashatk
-      Cooldown: 5
-      Weight: 5
-    - Category: 1
-      Pattern: {fileID: 11400000, guid: 1e1cc4946b9fc42479c52951aa65964a, type: 2}
-      CooldownTag: a1
-      Cooldown: 5
-      Weight: 5
+      Cooldown: 7
+      Weight: 4
     - Category: 1
       Pattern: {fileID: 11400000, guid: ece13d9509978904886414a09f6ae7d1, type: 2}
       CooldownTag: a2
       Cooldown: 5
-      Weight: 5
+      Weight: 3
     - Category: 1
       Pattern: {fileID: 11400000, guid: 0e856c5152b0181429a7410ed21ab1e7, type: 2}
       CooldownTag: a3
+      Cooldown: 8
+      Weight: 2
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: 68120a7ff4069a14dbeae011acc17d7e, type: 2}
+      CooldownTag: proj
+      Cooldown: 3
+      Weight: 5
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: 1509d44dda901854ba32c04cf5bdf7d4, type: 2}
+      CooldownTag: charged_dash
+      Cooldown: 5
+      Weight: 6
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: 0fb1e4f90b98d684ab67b8e39fe75e50, type: 2}
+      CooldownTag: nuke
+      Cooldown: 10
+      Weight: 2
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: 721a5498d532f5545820efdac127ce09, type: 2}
+      CooldownTag: riptide
+      Cooldown: 5
+      Weight: 6
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: 1399dab49bedb96428ee6525cc464851, type: 2}
+      CooldownTag: srintatk1
       Cooldown: 5
       Weight: 5
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: f1dda03b14717e540bcc21e00b6b88cd, type: 2}
+      CooldownTag: srintatk2
+      Cooldown: 5
+      Weight: 5
+    EnrageAction:
+      Category: 1
+      Pattern: {fileID: 11400000, guid: 0fb1e4f90b98d684ab67b8e39fe75e50, type: 2}
+      CooldownTag: nuke
+      Cooldown: 10
+      Weight: 1
+    EnrageWeightMultiplier: 9999
   AlwaysEnraged: 0
   IsEnraged: 0
   <Velocity>k__BackingField: {x: 0, y: 0}
@@ -119,14 +151,16 @@ MonoBehaviour:
   Visuals: {fileID: 7170295868587090974}
   firePoint: {fileID: 0}
   meleeHitbox: {fileID: 7940118122619650211}
-  projectilePrefab: {fileID: 0}
-  projectileDamage: 5
-  projectileSpeed: 10
+  projectilePrefab: {fileID: 2219610313089106186, guid: dbcfa463d52ea054db7fdb285219a735, type: 3}
+  projectileDamage: 20
+  projectileSpeed: 12
   projectileIsHoming: 0
   projectileHomeWhenEnraged: 0
   projectileHomingDuration: 1
   behaviorPivotLocal: {x: 0, y: 0}
   _currentStateLabel: 
+  <IsDead>k__BackingField: 0
+  _enrageActionPending: 0
 --- !u!114 &4222170593676161919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,9 +205,9 @@ GameObject:
   - component: {fileID: 5837787203522714410}
   - component: {fileID: 3853457246764249875}
   - component: {fileID: 4620950460637509971}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Visuals
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -236,8 +270,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1560946809
-  m_SortingLayer: 4
-  m_SortingOrder: 0
+  m_SortingLayer: 3
+  m_SortingOrder: 9
   m_Sprite: {fileID: 21300000, guid: 478b156c545a3124b919b502332f0d51, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -342,11 +376,11 @@ GameObject:
   m_Component:
   - component: {fileID: 7659201987765644507}
   - component: {fileID: 5106849355525233614}
-  - component: {fileID: 4641434598486120079}
-  - component: {fileID: 3889693781792282488}
+  - component: {fileID: 4010218963684759238}
+  - component: {fileID: 2189007666678597232}
   m_Layer: 8
   m_Name: MeleeHitbox
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -361,7 +395,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 2.0714047, y: -4.1541777, z: 0.084741235}
-  m_LocalScale: {x: 10, y: 10, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8649960935168265797}
@@ -412,7 +446,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.5, y: 0.5}
   m_EdgeRadius: 0
---- !u!120 &4641434598486120079
+--- !u!120 &4010218963684759238
 LineRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
@@ -519,7 +553,7 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
---- !u!114 &3889693781792282488
+--- !u!114 &2189007666678597232
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -531,6 +565,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 891c17c2b05db5146b5bc07d0c87ca2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _lineColor: {r: 1, g: 0, b: 0.108383656, a: 1}
+  _lineColor: {r: 0, g: 1, b: 0, a: 1}
   _lineWidth: 0.05
   _sortingOrder: 10
