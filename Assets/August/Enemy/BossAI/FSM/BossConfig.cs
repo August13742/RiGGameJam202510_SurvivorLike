@@ -27,6 +27,9 @@ namespace Survivor.Enemy.FSM
         [Header("Facing Logic")]
         public float MinFlipInterval = 0.5f;
         [Range(0f, 1f)] public float FacingDeadzone = 0.2f;
+        [Header("Range Hysteresis")]
+        [Tooltip("Half-width of the buffer zone between Pocket and Melee to prevent jitter.")]
+        public float MeleePocketHysteresis = 0.5f;
 
         [Header("Selection Weights")]
         [Tooltip("Applied to ranged attacks when the boss is in melee range.")]
@@ -40,7 +43,7 @@ namespace Survivor.Enemy.FSM
         [Tooltip("Special attack that should be forced once after the boss becomes enraged.")]
         public ScriptableAttackDefinition EnrageAction;
 
-        [Tooltip("Only used if you want to bias instead of hard-force. Not strictly needed.")]
+        [Tooltip("Only used if we want to bias instead of hard-force. Not strictly needed.")]
         public float EnrageWeightMultiplier = 9999f;
     }
 }

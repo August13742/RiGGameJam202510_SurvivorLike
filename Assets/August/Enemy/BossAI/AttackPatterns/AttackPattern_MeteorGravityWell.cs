@@ -281,7 +281,7 @@ namespace Survivor.Enemy.FSM
             controller.VelocityOverride = Vector2.zero;
         }
 
-        // ----------------- WAVE + METEOR LOGIC (unchanged core) -----------------
+        // ----------------- WAVE + METEOR -----------------
 
         private void FireMeteorWave(
             BossController controller,
@@ -394,6 +394,7 @@ namespace Survivor.Enemy.FSM
                         float radius,
                         float maxTravel)
         {
+             // This part is very ugly but it's... easier to implement based on current PC design
             if (controller == null) return;
             Transform playerTf = controller.PlayerTransform;
             if (playerTf == null) return;
@@ -405,7 +406,7 @@ namespace Survivor.Enemy.FSM
             Vector3 toCenter = center - start;
             float dist = toCenter.magnitude;
 
-            // Outside influence or already basically at center → do nothing
+            // Outside influence or already basically at center -> do nothing
             if (dist <= 0.05f || dist > radius)
                 return;
 

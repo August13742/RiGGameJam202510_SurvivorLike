@@ -15,7 +15,7 @@ namespace Survivor.Enemy.FSM
     public class BossController : MonoBehaviour
     {
         [SerializeField] private BossConfig config;
-
+        public RangeBand CurrentBand { get; private set; } = RangeBand.OffBand;
         public Animator Animator { get; private set; }
         public SpriteRenderer SR { get; private set; }
         public HealthComponent HP { get; private set; }
@@ -238,6 +238,9 @@ namespace Survivor.Enemy.FSM
             if (PlayerTransform == null) return;
             if (IsDead) return;
 
+            float dist = DistanceToPlayer();
+            CurrentBand = GetBandWithHysteresis(dist);
+
             TickCooldowns(Time.deltaTime);
 
             Type nextStateType = _currentState?.Tick(Time.deltaTime);
@@ -245,6 +248,22 @@ namespace Survivor.Enemy.FSM
             {
                 ChangeState(nextStateType);
             }
+        }
+        private RangeBand GetBandWithHysteresis(float dist)
+        {
+            // Off-band as before
+            if (dist > config.AttackRange)
+                return RangeBand.OffBand;
+
+            float min = config.RangedAttackMinRange;
+            float h = config.MeleePocketHysteresis;
+
+            // Clear cases:
+            if (dist > min + h) return RangeBand.Pocket;
+            if (dist < min - h) return RangeBand.MeleeBand;
+
+            // In the buffer zone ¨ keep previous band
+            return CurrentBand;
         }
 
         void FixedUpdate()

@@ -51,6 +51,7 @@ namespace Survivor.Enemy.FSM
         [Header("Enrage")]
         [SerializeField] private float enragedRateMul = 1.25f;
         [SerializeField] private float enragedDamageMul = 1.3f;
+        [SerializeField] private float enragedCountMul = 2f;
 
         private static readonly Collider2D[] _hits = new Collider2D[16];
         #endregion
@@ -62,11 +63,37 @@ namespace Survivor.Enemy.FSM
 
             bool enraged = controller.IsEnraged;
             float rateMul = enraged ? enragedRateMul : 1f;
+
+            // Fire-and-forget the *real* riptide driver.
+            controller.StartCoroutine(RiptideDriver(controller, enraged, rateMul));
+
+            // Fixed channel window (what actually glocksh the boss / plays anim)
+            float channel = channelDuration / rateMul;
+            if (channel > 0f && controller.Animator != null && !string.IsNullOrEmpty(channelAnim))
+            {
+                controller.VelocityOverride = Vector2.zero;
+                controller.Animator.Play(channelAnim);
+                controller.Animator.speed = rateMul;
+
+                // Boss is considered casting only for this fixed window.
+                yield return new WaitForSeconds(channel);
+
+                controller.Animator.Play("Idle");
+                controller.Animator.speed = 1f;
+                controller.VelocityOverride = Vector2.zero;
+            }
+        }
+        private IEnumerator RiptideDriver(BossController controller, bool enraged, float rateMul)
+        {
+            if (controller == null || controller.PlayerTransform == null)
+                yield break;
+
             float dmg = damage * (enraged ? enragedDamageMul : 1f);
             float currentTelegraphTime = telegraphDuration / rateMul;
             float currentWaveInterval = waveInterval / rateMul;
 
             int waveCount = Random.Range(minWaveCount, maxWaveCount + 1);
+            if (enraged) waveCount = (int)(enragedCountMul * waveCount);
 
             PlayerController playerController =
                 controller.PlayerTransform.GetComponent<PlayerController>();
@@ -81,24 +108,11 @@ namespace Survivor.Enemy.FSM
                 toPlayer0 = Vector2.right;
             toPlayer0.Normalize();
 
-            // major heading is our "memory" of direction
             float majorAngle = Mathf.Atan2(toPlayer0.y, toPlayer0.x) * Mathf.Rad2Deg;
-
-            // starting center: at waveBaseDistance in initial direction
             Vector2 currentCenter = bossPos + toPlayer0 * waveBaseDistance;
 
-            // Enrage knobs on turning / step size if you want
             float step = stepSize * (enraged ? enragedRateMul : 1f);
             float maxTurn = maxTurnPerWaveDeg * (enraged ? enragedRateMul : 1f);
-
-            // Channel anim once at start
-            float channel = channelDuration / rateMul;
-            if (channel > 0f && controller.Animator != null && !string.IsNullOrEmpty(channelAnim))
-            {
-                controller.VelocityOverride = Vector2.zero;
-                controller.Animator.Play(channelAnim);
-                controller.Animator.speed = rateMul;
-            }
 
             for (int i = 0; i < waveCount; i++)
             {
@@ -110,28 +124,25 @@ namespace Survivor.Enemy.FSM
                 else
                     inputDir = Vector2.zero;
 
-                // distance error direction: from current ring center to player
                 Vector2 errorDir = playerPos - currentCenter;
                 if (errorDir.sqrMagnitude > 0.0001f)
                     errorDir.Normalize();
                 else
                     errorDir = Vector2.zero;
 
-                // major direction as unit vector
                 Vector2 majorDir = AngleToDir(majorAngle);
 
-                // 2) build desired direction (weighted sum, then normalise)
+                // 2) blended desired direction
                 Vector2 desired = Vector2.zero;
                 desired += majorDir * majorDirWeight;
                 desired += inputDir * inputDirWeight;
                 desired += errorDir * errorDirWeight;
 
                 if (desired.sqrMagnitude < 0.0001f)
-                    desired = majorDir; // fallback: keep going straight
-
+                    desired = majorDir;
                 desired.Normalize();
 
-                // 3) clamp heading change before committing
+                // 3) clamp heading change
                 float targetAngle = Mathf.Atan2(desired.y, desired.x) * Mathf.Rad2Deg;
                 float delta = Mathf.DeltaAngle(majorAngle, targetAngle);
                 delta = Mathf.Clamp(delta, -maxTurn, maxTurn);
@@ -139,10 +150,10 @@ namespace Survivor.Enemy.FSM
                 majorAngle += delta;
                 Vector2 finalDir = AngleToDir(majorAngle);
 
-                // 4) constant step size hop: THIS is your "normalised V2 * stepsize"
+                // 4) step
                 Vector2 nextCenter = currentCenter + finalDir * step;
 
-                // 5) fire telegraph tween: from currentCenter ¨ nextCenter
+                // 5) fire telegraph tween for this ring
                 controller.StartCoroutine(
                     RiptideWaveRoutine(
                         controller,
@@ -155,20 +166,11 @@ namespace Survivor.Enemy.FSM
                     )
                 );
 
-                // advance chain
                 currentCenter = nextCenter;
 
-                // 6) wait for next wave spawn
+                // 6) real-time chaining: wait before next sample
                 if (i < waveCount - 1)
                     yield return new WaitForSeconds(currentWaveInterval);
-            }
-
-            // Finish channel anim
-            if (channel > 0f && controller.Animator != null && !string.IsNullOrEmpty(channelAnim))
-            {
-                controller.Animator.Play("Idle");
-                controller.Animator.speed = 1f;
-                controller.VelocityOverride = Vector2.zero;
             }
         }
 

@@ -107,14 +107,14 @@ namespace Survivor.Weapon
             }
 
             // VFX for impact
-            if (impactVfxPrefab == null) return;
+            if (impactVfxPrefab != null) { 
 
-            GameObject vfx = Object.Instantiate(impactVfxPrefab, _targetPos, Quaternion.identity);
+                GameObject vfx = Object.Instantiate(impactVfxPrefab, _targetPos, Quaternion.identity);
 
-            // Scale VFX based on inner explosion radius
-            float scale = impactRadius;
-            vfx.transform.localScale = new Vector3(scale, scale, 1f);
-
+                // Scale VFX based on inner explosion radius
+                float scale = impactRadius;
+                vfx.transform.localScale = new Vector3(scale, scale, 1f);
+            }
             // Spawn hazard zone if configured
             if (spawnHazardOnImpact && hazardZonePrefab != null && hazardLifetime > 0f && hazardRadius > 0f)
             {

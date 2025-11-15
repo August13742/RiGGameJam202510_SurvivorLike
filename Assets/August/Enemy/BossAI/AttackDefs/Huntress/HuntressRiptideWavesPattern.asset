@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraShakeStrength: 1
   cameraShakeDuration: 0.3
-  minWaveCount: 5
-  maxWaveCount: 10
+  minWaveCount: 8
+  maxWaveCount: 32
   waveBaseDistance: 1.5
-  segmentSpacing: 2
   blastRadius: 1.5
-  spreadAngle: 60
-  inputResampleCount: 2
-  predictionStrength: 0.8
-  assumedPlayerSpeed: 7
+  stepSize: 3
+  maxTurnPerWaveDeg: 40
+  majorDirWeight: 0.5
+  inputDirWeight: 0.2
+  errorDirWeight: 0.5
   waveInterval: 0.2
   telegraphDuration: 0.75
   damage: 20
@@ -36,4 +36,4 @@ MonoBehaviour:
   channelDuration: 1
   enragedRateMul: 1.25
   enragedDamageMul: 1.3
-  enragedResampleMultiplier: 1.5
+  enragedCountMul: 2
