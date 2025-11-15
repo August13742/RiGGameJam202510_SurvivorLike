@@ -15,7 +15,7 @@ namespace AugustsUtility.Telegraph
         [SerializeField] private float startFillAlpha = 0.25f;
         [SerializeField] private float endFillAlpha = 1.0f;
 
-        private float _duration;
+        [SerializeField] private float _duration;
         private Action _onFinished;
 
         private Vector3 _baseOutlineScale;
@@ -106,7 +106,7 @@ namespace AugustsUtility.Telegraph
         private void SetupBox(TelegraphParams p)
         {
             // p.Size is in world units (width, height)
-            Vector3 targetScale = new Vector3(
+            Vector3 targetScale = new (
                 _baseOutlineScale.x * p.Size.x,
                 _baseOutlineScale.y * p.Size.y,
                 _baseOutlineScale.z

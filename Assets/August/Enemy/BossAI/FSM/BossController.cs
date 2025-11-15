@@ -27,7 +27,6 @@ namespace Survivor.Enemy.FSM
         
         
 
-        // --- NEW MOVEMENT PROPERTIES ---
         [Header("Movement")]
         [Tooltip("The current velocity of the boss, calculated via acceleration and friction.")]
         [field: SerializeField] public Vector2 Velocity { get; set; }
@@ -51,7 +50,7 @@ namespace Survivor.Enemy.FSM
         [SerializeField] bool projectileIsHoming = false;
         [SerializeField] bool projectileHomeWhenEnraged = false;
         [SerializeField] float projectileHomingDuration = 0.5f;
-        [Header("Behavior Pivot")]
+        [Header("Behaviour Pivot")]
         [Tooltip("Local-space offset used as the logical center for distance checks and range gizmos.")]
         [SerializeField] private Vector2 behaviorPivotLocal = Vector2.zero;
 
@@ -81,7 +80,7 @@ namespace Survivor.Enemy.FSM
         // --- Perlin Noise ---
         private float _perlinNoiseOffsetX, _perlinNoiseOffsetY;
 
-        bool isDead = false;
+        [field: SerializeField] public bool IsDead { get; private set; } = false;
 
         void Awake()
         {
@@ -157,9 +156,9 @@ namespace Survivor.Enemy.FSM
         void OnDied()
         {
             HP.DisconnectAllSignals();
-            isDead = true;
+            IsDead = true;
             SessionManager.Instance.IncrementEnemyDowned(1);
-            StartCoroutine(Die());
+            Die();
         }
 
         private void SpawnProjectile(Vector2 origin)
@@ -200,17 +199,15 @@ namespace Survivor.Enemy.FSM
             if (target.CompareTag("Player")) CameraShake2D.Shake(0.2f, 1f);
         }
 
-        IEnumerator Die()
+        void Die()
         {
             ChangeState(typeof(StateIdle));
-            yield return new WaitForEndOfFrame();
-            Animator.Play("Dead");
             
         }
 
         void Update()
         {
-            if (PlayerTransform == null || isDead) return;
+            if (PlayerTransform == null || IsDead) return;
 
             TickCooldowns(Time.deltaTime);
 
@@ -223,7 +220,7 @@ namespace Survivor.Enemy.FSM
 
         void FixedUpdate()
         {
-            if (isDead) return;
+            if (IsDead) return;
 
             Vector2 finalVelocity;
             // Priority 1: Use VelocityOverride for dashes and special moves
@@ -245,7 +242,7 @@ namespace Survivor.Enemy.FSM
                 finalVelocity = Velocity;
             }
 
-            // Apply the final calculated velocity to the Rigidbody
+            // Apply the final calculated velocity
             RB.MovePosition(RB.position + finalVelocity * Time.fixedDeltaTime);
             UpdateFacing();
         }

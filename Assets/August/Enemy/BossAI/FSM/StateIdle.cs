@@ -7,11 +7,21 @@ namespace Survivor.Enemy.FSM
 		private readonly BossController _c;
 		public StateIdle(BossController c) { _c = c; }
 
-		public void Enter() { _c.Animator.Play("Idle"); }
+		public void Enter() 
+		{
+            _c.Animator.Play("Idle"); 
+			HandleIfDead();
+		}
 
+		void HandleIfDead()
+		{
+            if (_c.IsDead) { _c.Animator.Play("Dead"); _c.Animator.speed = 0.7f; return; }
+        }
 		public Type Tick(float deltaTime)
 		{
-			float dist = Vector2.Distance(_c.transform.position, _c.PlayerTransform.position);
+			HandleIfDead();
+
+            float dist = Vector2.Distance(_c.transform.position, _c.PlayerTransform.position);
 			var band = _c.GetBand(dist);
 
 			// If we can play now, do it

@@ -108,3 +108,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   impactVfxPrefab: {fileID: 0}
+  hazardZonePrefab: {fileID: 5102637062721469528, guid: 250421982328d804988f9148607d489a, type: 3}
+  hazardRadius: 2
+  hazardDamagePerSecond: 5
+  hazardLifetime: 3
+  spawnHazardOnImpact: 1
