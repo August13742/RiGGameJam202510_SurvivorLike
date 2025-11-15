@@ -45,11 +45,12 @@ namespace Survivor.Enemy.FSM
         [Tooltip("Base impact damage per meteor (scaled by enrage).")]
         [SerializeField] private float meteorImpactDamage = 25f;
         [SerializeField] private float meteorImpactRadius = 1.2f;
-        [SerializeField] private Vector2 meteorSpawnOffset = new Vector2(0f, 10f);
+        [SerializeField] private Vector2 meteorSpawnOffset = new (0f, 10f);
 
         [Header("Hazard Zone (optional)")]
         [Tooltip("If assigned, a hazard zone will be spawned where each meteor lands.")]
         [SerializeField] private GameObject hazardZonePrefab;
+        [SerializeField] private bool hazardOnlyEnraged = true;
         [SerializeField] private float hazardRadius = 2f;
         [SerializeField] private float hazardDamagePerSecond = 8f;
         [SerializeField] private float hazardLifetime = 3f;
@@ -66,14 +67,14 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private float enrageHazardSizeMul = 1.5f;
         [SerializeField, Range(0f, 1f)] private float enrageDecayReduction = 0.5f;
         [SerializeField] private int enragedWaveCountBonus = 1; // extra deterministic reps
-
+        bool isEnraged;
         public override IEnumerator Execute(BossController controller)
         {
             if (controller == null || meteorPrefab == null || controller.PlayerTransform == null)
                 yield break;
 
-            bool enraged = controller.IsEnraged;
-            float rateMul = enraged ? enrageRateMul : 1f;
+            isEnraged = controller.IsEnraged;
+            float rateMul = isEnraged ? enrageRateMul : 1f;
 
             // Scale core timings by rate
             float windup = windupSeconds / rateMul;
@@ -87,17 +88,17 @@ namespace Survivor.Enemy.FSM
 
             // Enrage scalars
             float decay = repIsProbabilistic
-                ? probDecayPerWave * (enraged ? enrageDecayReduction : 1f)
+                ? probDecayPerWave * (isEnraged ? enrageDecayReduction : 1f)
                 : probDecayPerWave;
 
             // Meteor count
-            int minCount = Mathf.Max(1, Mathf.RoundToInt(minMeteorsPerWave * (enraged ? enrageMeteorCountMul : 1f)));
-            int maxCount = Mathf.Max(minCount, Mathf.RoundToInt(maxMeteorsPerWave * (enraged ? enrageMeteorCountMul : 1f)));
+            int minCount = Mathf.Max(1, Mathf.RoundToInt(minMeteorsPerWave * (isEnraged ? enrageMeteorCountMul : 1f)));
+            int maxCount = Mathf.Max(minCount, Mathf.RoundToInt(maxMeteorsPerWave * (isEnraged ? enrageMeteorCountMul : 1f)));
 
             // Damage scaling
-            float finalImpactDamage = meteorImpactDamage * (enraged ? enrageImpactDamageMul : 1f);
-            float finalHazardDps = hazardDamagePerSecond * (enraged ? enrageHazardDpsMul : 1f);
-            float finalHazardSize = hazardRadius * (enraged ? enrageHazardSizeMul : 1f);
+            float finalImpactDamage = meteorImpactDamage * (isEnraged ? enrageImpactDamageMul : 1f);
+            float finalHazardDps = hazardDamagePerSecond * (isEnraged ? enrageHazardDpsMul : 1f);
+            float finalHazardSize = hazardRadius * (isEnraged ? enrageHazardSizeMul : 1f);
 
             Transform bossTf = controller.transform;
 
@@ -139,7 +140,7 @@ namespace Survivor.Enemy.FSM
             }
             else
             {
-                int reps = Mathf.Max(0, repetitions + (enraged ? enragedWaveCountBonus : 0));
+                int reps = Mathf.Max(0, repetitions + (isEnraged ? enragedWaveCountBonus : 0));
                 for (int i = 0; i < reps; i++)
                 {
                     FireOneWave(
@@ -249,8 +250,10 @@ namespace Survivor.Enemy.FSM
             }
 
             // Configure hazard behaviour for this meteor (optional)
-            if (hazardZonePrefab != null && hazardLifetime > 0f && hazardSize > 0f)
+            if ((hazardZonePrefab != null && hazardLifetime > 0f && hazardSize > 0f)
+                && !(hazardOnlyEnraged && !isEnraged))
             {
+
                 meteor.ConfigureHazard(
                     hazardZonePrefab,
                     hazardSize,

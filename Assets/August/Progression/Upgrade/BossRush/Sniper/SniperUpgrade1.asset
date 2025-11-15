@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0696a57667dc02f4fbb6e62b6083fe44, type: 3}
+  m_Name: SniperUpgrade1
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponLevelUpgradeDef
+  WeaponDef: {fileID: 11400000, guid: 4e35ef32968c35242839648f51500f49, type: 2}
+  ConstantBonusPerPick:
+    DamageMultiplierBonus: 0.05
+    CooldownReduction: 0.05
+    AreaScaleBonus: 0.05
+    SpeedMultiplierBonus: 0
+    ProjectileCountBonus: 0
+    PierceCountBonus: 0
+    CritChanceBonus: 0.05
+    CritDamageMultiplierBonus: 0
+  Levels:
+  - DamageMultiplierBonus: 0.1
+    CooldownReduction: 0.1
+    AreaScaleBonus: 0.5
+    SpeedMultiplierBonus: 0.1
+    ProjectileCountBonus: 0
+    PierceCountBonus: 1
+    CritChanceBonus: 0.05
+    CritDamageMultiplierBonus: 0
+  - DamageMultiplierBonus: 0.1
+    CooldownReduction: 0.1
+    AreaScaleBonus: 0.5
+    SpeedMultiplierBonus: 0.1
+    ProjectileCountBonus: 0
+    PierceCountBonus: 1
+    CritChanceBonus: 0.05
+    CritDamageMultiplierBonus: 0
+  - DamageMultiplierBonus: 0.1
+    CooldownReduction: 0.1
+    AreaScaleBonus: 0.5
+    SpeedMultiplierBonus: 0.1
+    ProjectileCountBonus: 0
+    PierceCountBonus: 1
+    CritChanceBonus: 0.05
+    CritDamageMultiplierBonus: 0
+  MaxLevel: 3

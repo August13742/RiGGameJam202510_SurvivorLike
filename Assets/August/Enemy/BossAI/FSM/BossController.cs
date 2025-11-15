@@ -114,6 +114,17 @@ namespace Survivor.Enemy.FSM
             }
 
         }
+        void HandleIfDead()
+        {
+            if (IsDead)
+            {
+                AnimatorStateInfo stateInfo = Animator.GetCurrentAnimatorStateInfo(0);
+                if (!stateInfo.IsName("Dead"))
+                {
+                    Animator.Play("Dead"); Animator.speed = 0.7f; return;
+                }
+            }
+        }
         private void ToggleMeleeHitbox(bool on)
         {
             meleeHitbox?.SetActive(on);
@@ -158,7 +169,6 @@ namespace Survivor.Enemy.FSM
             HP.DisconnectAllSignals();
             IsDead = true;
             SessionManager.Instance.IncrementEnemyDowned(1);
-            Die();
         }
 
         private void SpawnProjectile(Vector2 origin)
@@ -199,15 +209,12 @@ namespace Survivor.Enemy.FSM
             if (target.CompareTag("Player")) CameraShake2D.Shake(0.2f, 1f);
         }
 
-        void Die()
-        {
-            ChangeState(typeof(StateIdle));
-            
-        }
 
         void Update()
         {
-            if (PlayerTransform == null || IsDead) return;
+            if (PlayerTransform == null) return;
+            HandleIfDead();
+
 
             TickCooldowns(Time.deltaTime);
 

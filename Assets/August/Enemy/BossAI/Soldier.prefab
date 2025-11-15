@@ -79,8 +79,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1560946809
-  m_SortingLayer: 4
-  m_SortingOrder: 0
+  m_SortingLayer: 3
+  m_SortingOrder: 9
   m_Sprite: {fileID: -3291933047493928793, guid: da8f83bacc8899042b2de5a2301b7f6d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -251,13 +251,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    MaxHealth: 6000
+    MaxHealth: 9000
     EnragedColour: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
     MeleeDamage: 10
     ChaseSpeed: 4
     IdleWanderSpeed: 2
-    EngageRange: 10
-    AttackRange: 8.5
+    EngageRange: 18
+    AttackRange: 16
     RangedAttackMinRange: 2.75
     GlobalAttackCooldown: 1
     MinFlipInterval: 0.5
@@ -299,6 +299,11 @@ MonoBehaviour:
       CooldownTag: gapclose
       Cooldown: 5
       Weight: 5
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: 4cac9770bd6f07948a1624d08d37bd30, type: 2}
+      CooldownTag: hazard
+      Cooldown: 5
+      Weight: 3
   AlwaysEnraged: 0
   IsEnraged: 0
   <Velocity>k__BackingField: {x: 0, y: 0}
@@ -317,6 +322,7 @@ MonoBehaviour:
   projectileHomingDuration: 1
   behaviorPivotLocal: {x: 0, y: 0}
   _currentStateLabel: 
+  <IsDead>k__BackingField: 0
 --- !u!114 &8569725421451740116
 MonoBehaviour:
   m_ObjectHideFlags: 0

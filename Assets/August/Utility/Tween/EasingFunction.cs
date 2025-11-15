@@ -53,6 +53,10 @@ public static class EasingFunctions
         float t = 1f - x;
         return 1f - t * t * t;
     }
+    public static float EaseOutQuad(float x)
+    {
+        return 1 - Mathf.Pow((1 - x),2);
+    }
 
     public static float EaseInOutCirc(float x)
     {

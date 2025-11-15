@@ -10,16 +10,11 @@ namespace Survivor.Enemy.FSM
 		public void Enter() 
 		{
             _c.Animator.Play("Idle"); 
-			HandleIfDead();
 		}
 
-		void HandleIfDead()
-		{
-            if (_c.IsDead) { _c.Animator.Play("Dead"); _c.Animator.speed = 0.7f; return; }
-        }
+		
 		public Type Tick(float deltaTime)
 		{
-			HandleIfDead();
 
             float dist = Vector2.Distance(_c.transform.position, _c.PlayerTransform.position);
 			var band = _c.GetBand(dist);
