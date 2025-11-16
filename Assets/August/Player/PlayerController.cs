@@ -27,9 +27,9 @@ namespace Survivor.Control
         private Rigidbody2D rb;
         private KinematicMotor2D motor;
         private PlayerStatsComponent statComponent;
-        private EffectivePlayerStats stats;
+        private EffectivePlayerStats Stats => statComponent.EffectiveStats;
 
-        private float MoveSpeed => stats.MoveSpeed;
+        private float MoveSpeed => Stats.MoveSpeed;
 
         private void Awake()
         {
@@ -38,7 +38,6 @@ namespace Survivor.Control
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
             motor = GetComponent<KinematicMotor2D>();
             statComponent = GetComponent<PlayerStatsComponent>();
-            stats = statComponent.EffectiveStats;
         }
 
         private void OnEnable()
@@ -67,10 +66,6 @@ namespace Survivor.Control
 
         private void FixedUpdate()
         {
-            if (inputDirection.sqrMagnitude > 0.01f)
-            {
-                Debug.Log($"[Player] inputDir={inputDirection} MoveSpeed={MoveSpeed} IsFrozen={IsFrozen} timeScale={Time.timeScale}");
-            }
 
             if (IsFrozen)
             {
