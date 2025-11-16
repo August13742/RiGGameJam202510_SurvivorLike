@@ -24,12 +24,12 @@ https://github.com/user-attachments/assets/2499db02-f374-4282-9ad3-88a6ecd5aff7
 すべてのボスは互いの攻撃が使え, 重み ・ ScriptableObjectで定義されているパラメーターを調整することで, パーソナリティを付けることができる.
 
 
-credits:
-https://chierit.itch.io/elementals-fire-knight         	(free version)
-https://luizmelo.itch.io/huntress
-https://zerie.itch.io/tiny-rpg-character-asset-pack     (free version)
-https://ragnapixel.itch.io/particle-fx 			(by Raphael Hatencia)
-https://sscary.itch.io/the-adventurer-female
-https://ansimuz.itch.io/explosion-animations-pack
-https://karsiori.itch.io/pixel-art-potion-pack-animated
-https://jellyfish0.itch.io/textures-for-particles
+##### credits:
+https://chierit.itch.io/elementals-fire-knight         	(free version)\
+https://luizmelo.itch.io/huntress\
+https://zerie.itch.io/tiny-rpg-character-asset-pack     (free version)\
+https://ragnapixel.itch.io/particle-fx 			(by Raphael Hatencia)\
+https://sscary.itch.io/the-adventurer-female\
+https://ansimuz.itch.io/explosion-animations-pack\
+https://karsiori.itch.io/pixel-art-potion-pack-animated\
+https://jellyfish0.itch.io/textures-for-particle\
