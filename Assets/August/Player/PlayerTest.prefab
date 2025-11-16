@@ -76,7 +76,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1560946809
-  m_SortingLayer: 4
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: -4542404649790094876, guid: 5620f5e7dbe43da4f89e420358c0852a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -297,7 +297,7 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 6144
-  skin: 0.05
+  skin: 0.1
   maxCasts: 2
 --- !u!70 &152034367600551103
 CapsuleCollider2D:
@@ -384,7 +384,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.PlayerStatsComponent
   baseMoveSpeed: 6
   basePickupRadius: 2
-  baseMaxHP: 100
+  baseMaxHP: 300
 --- !u!114 &5806806840443530406
 MonoBehaviour:
   m_ObjectHideFlags: 0
