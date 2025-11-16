@@ -49,21 +49,26 @@ namespace Survivor.Game
                 SessionManager.Instance.ResetRun(startingLevel: 0, startingGold: 0);
             }
 
-            SpawnStartingLevelUpItems();
+            StartCoroutine(SpawnStartingLevelUpItemsRoutine());
         }
 
-        private void SpawnStartingLevelUpItems()
+        private IEnumerator SpawnStartingLevelUpItemsRoutine()
         {
             if (LootManager.Instance == null || levelUpDropDef == null)
             {
                 Debug.LogWarning("[SingleBoss] Missing LootManager or levelUpDropDef.");
-                return;
+                yield break;
             }
 
             var sm = SessionManager.Instance;
-            if (sm == null) return;
+            if (sm == null) yield break;
 
-            Vector2 center = sm.GetPlayerPosition();
+            // Delay so we don't fight with crossfade
+            yield return new WaitForSeconds(1f);
+
+            Vector2 center = bossSpawnPoint != null
+                ? (Vector2)bossSpawnPoint.position
+                : sm.GetPlayerPosition();
 
             int count = Mathf.Max(1, _targetLevel);
             for (int i = 0; i < count; i++)
@@ -79,15 +84,14 @@ namespace Survivor.Game
         private void Update()
         {
             if (_bossStarted || _runFinished) return;
+
             var sm = SessionManager.Instance;
             if (!sm) return;
 
-            if (sm.PlayerLevel >= _targetLevel)
+            // Auto-start once player reaches target level AND game is not paused
+            if (sm.PlayerLevel >= _targetLevel && Time.timeScale > 0.01f)
             {
-                if (Input.GetKeyDown(KeyCode.F))
-                {
-                    StartBossWithCountdown();
-                }
+                StartBossWithCountdown();
             }
         }
 
@@ -106,7 +110,7 @@ namespace Survivor.Game
                 var cd = Instantiate(countdownPrefab, uiCanvas);
                 cd.StartCountdown(startCountdownSeconds, useUnscaled: false);
 
-                // scaled time so countdown pauses with upgrades
+                // Uses scaled time so it also pauses if player somehow pauses during countdown
                 yield return new WaitForSeconds(startCountdownSeconds);
             }
 
@@ -130,7 +134,16 @@ namespace Survivor.Game
             if (_runFinished) return;
             _runFinished = true;
             Debug.Log("<color=cyan>Single Boss defeated.</color>");
-            GameModeManager.Instance?.ReturnToMenu();
+
+            var menu = FindFirstObjectByType<UI.SimplePauseMenu>();
+            if (menu != null)
+            {
+                menu.ShowVictory();
+            }
+            else
+            {
+                GameModeManager.Instance?.ReturnToMenu();
+            }
         }
     }
 }

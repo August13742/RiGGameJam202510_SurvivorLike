@@ -251,9 +251,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    MaxHealth: 12000
+    MaxHealth: 15000
     EnragedColour: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
-    MeleeDamage: 10
+    MeleeDamage: 15
     ChaseSpeed: 4
     IdleWanderSpeed: 2
     EngageRange: 18
@@ -323,7 +323,7 @@ MonoBehaviour:
   firePoint: {fileID: 0}
   meleeHitbox: {fileID: 7554204438367727322}
   projectilePrefab: {fileID: 6667655376519033802, guid: 3955badc9c444694490d3326e93b3aee, type: 3}
-  projectileDamage: 5
+  projectileDamage: 15
   projectileSpeed: 10
   projectileIsHoming: 0
   projectileHomeWhenEnraged: 0
