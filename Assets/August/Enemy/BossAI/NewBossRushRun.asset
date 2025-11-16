@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: NewBossRushRun
   m_EditorClassIdentifier: 
   sequence:
-  - {fileID: 11400000, guid: 9091f9b637d317e45947c73d5188ee19, type: 2}
   - {fileID: 11400000, guid: 5ad1a60d54d604c4c8a03965ef8887ca, type: 2}
+  - {fileID: 11400000, guid: 9091f9b637d317e45947c73d5188ee19, type: 2}
   - {fileID: 11400000, guid: b19440ea744276c4a96221faa3e8fa28, type: 2}
   startingLevels: 0
   startingGold: 0
+  enableHpScaling: 1
+  hpScalePerIndex: 0.3

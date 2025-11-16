@@ -25,7 +25,7 @@ namespace Survivor.Game
         public GameMode Mode { get; private set; }
 
         public BossDef SelectedBoss { get; private set; }                 // for SingleBoss
-        public int SelectedBossStartingLevels { get; private set; } = 5;
+        public int SelectedBossStartingLevels { get; private set; } = 4;
 
         public BossRushRunDef SelectedBossRushRun { get; private set; }   // for BossRush
 

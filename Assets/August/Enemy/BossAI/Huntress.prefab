@@ -252,9 +252,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    MaxHealth: 9000
+    MaxHealth: 15000
     EnragedColour: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
-    MeleeDamage: 15
+    MeleeDamage: 20
     ChaseSpeed: 5
     IdleWanderSpeed: 2
     EngageRange: 15

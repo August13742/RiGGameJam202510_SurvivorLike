@@ -29,6 +29,10 @@ namespace Survivor.Game
         private int _currentIndex = -1;
         private BossController _currentBoss;
 
+        // cached from BossRushRunDef (or defaults)
+        private bool _enableHpScaling;
+        private float _hpScalePerIndex;
+
         private void Start()
         {
             var gm = GameModeManager.Instance;
@@ -40,27 +44,44 @@ namespace Survivor.Game
                 return;
             }
 
-            // Resolve run data
             var run = gm.SelectedBossRushRun;
+
             if (run != null && run.Sequence != null && run.Sequence.Length > 0)
             {
                 _sequence = run.Sequence;
                 sm?.ResetRun(run.StartingLevels, run.StartingGold);
+
+                // pull scaling config from SO
+                _enableHpScaling = run.EnableHpScaling;
+                _hpScalePerIndex = run.HpScalePerIndex;
             }
             else
             {
                 _sequence = fallbackSequence;
                 sm?.ResetRun(fallbackStartingLevels, fallbackStartingGold);
+
+                // sensible defaults if no run def
+                _enableHpScaling = false;
+                _hpScalePerIndex = 0f;
             }
 
-            // Starting level-up orb
-            if (LootManager.Instance != null && initialLevelUpDropDef != null && sm != null)
+            StartCoroutine(BossRushRoutine());
+        }
+
+        private IEnumerator BossRushRoutine()
+        {
+            var sm = SessionManager.Instance;
+
+            // Small delay to not fight crossfade
+            yield return new WaitForSeconds(1f);
+
+            // Starting level-up orb at boss spawn
+            if (LootManager.Instance != null && initialLevelUpDropDef != null && sm != null && bossSpawnPoint != null)
             {
-                Vector2 p = sm.GetPlayerPosition();
-                LootManager.Instance.SpawnSingle(initialLevelUpDropDef, p);
+                LootManager.Instance.SpawnSingle(initialLevelUpDropDef, bossSpawnPoint.position);
             }
 
-            StartCoroutine(SpawnNextBossRoutine());
+            yield return StartCoroutine(SpawnNextBossRoutine());
         }
 
         private IEnumerator SpawnNextBossRoutine()
@@ -81,7 +102,7 @@ namespace Survivor.Game
             {
                 Debug.LogWarning($"[BossRush] BossDef at index {_currentIndex} is null.");
                 yield return null;
-                StartCoroutine(SpawnNextBossRoutine());
+                yield return StartCoroutine(SpawnNextBossRoutine());
                 yield break;
             }
 
@@ -90,24 +111,43 @@ namespace Survivor.Game
             {
                 var cd = Instantiate(countdownPrefab, uiCanvas);
                 cd.StartCountdown(bossCountdownSeconds, useUnscaled: false);
-
-                // Use scaled time so countdown pauses with the game.
                 yield return new WaitForSeconds(bossCountdownSeconds);
             }
 
             _currentBoss = Instantiate(def.Prefab, bossSpawnPoint.position, Quaternion.identity);
             _currentBoss.HP.Died += OnBossDied;
+
+            // ---- HP SCALING FROM RUN DEF ----
+            if (_enableHpScaling && _currentBoss.HP != null)
+            {
+                float baseMax = _currentBoss.HP.Max;
+                float scale = 1f + _hpScalePerIndex * _currentIndex;
+                if (scale < 0f) scale = 0f; // in case someone sets negative values for experiments
+
+                float newMax = baseMax * scale;
+                _currentBoss.HP.SetMaxHP(newMax, resetCurrent: true, raiseEvent: true);
+
+                Debug.Log($"[BossRush] Boss {_currentIndex} '{def.name}' HP scaled: {baseMax} -> {newMax} (x{scale:0.00})");
+            }
         }
 
         private void OnBossDied()
         {
+            StartCoroutine(BossDeathRoutine());
+        }
+
+        private IEnumerator BossDeathRoutine()
+        {
             var sm = SessionManager.Instance;
-            if (LootManager.Instance != null && fullHealDropDef != null && sm != null)
+
+            yield return new WaitForSeconds(1f);
+
+            if (LootManager.Instance != null && fullHealDropDef != null && sm != null && bossSpawnPoint != null)
             {
-                LootManager.Instance.SpawnSingle(fullHealDropDef, sm.GetPlayerPosition());
+                LootManager.Instance.SpawnSingle(fullHealDropDef, bossSpawnPoint.position);
             }
 
-            StartCoroutine(SpawnNextBossRoutine());
+            yield return StartCoroutine(SpawnNextBossRoutine());
         }
 
         private void OnBossRushCompleted()
@@ -124,6 +164,5 @@ namespace Survivor.Game
                 GameModeManager.Instance?.ReturnToMenu();
             }
         }
-
     }
 }
