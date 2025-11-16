@@ -76,7 +76,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    MaxHealth: 5000
+    MaxHealth: 15000
     EnragedColour: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
     MeleeDamage: 10
     ChaseSpeed: 3
@@ -87,6 +87,7 @@ MonoBehaviour:
     GlobalAttackCooldown: 1
     MinFlipInterval: 0.5
     FacingDeadzone: 0.2
+    MeleePocketHysteresis: 0.5
     RangedInMeleeWeightMultiplier: 0.35
     AttackPatterns:
     - Category: 1

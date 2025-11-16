@@ -10,6 +10,7 @@ namespace Survivor.Progression.UI
         [Header("Refs or Prefabs")]
         [SerializeField] private ProgressionManager progression;   // optional: auto-find
         [SerializeField] private UpgradeMenuUI menu;               // optional: scene ref
+        [SerializeField] private Canvas canvas;
         [SerializeField] private UpgradeMenuUI menuPrefab;         // optional: lazy instantiate
 
         private void Awake()
@@ -65,9 +66,10 @@ namespace Survivor.Progression.UI
             }
 
             // Ensure Canvas + EventSystem exist
-            var canvas = FindFirstObjectByType<Canvas>();
-            if (!canvas)
+            if (canvas==null) canvas = FindFirstObjectByType<Canvas>();
+            if (canvas == null)
             {
+
                 var canvasGO = new GameObject("UpgradeCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
                 var c = canvasGO.GetComponent<Canvas>();
                 c.renderMode = RenderMode.ScreenSpaceOverlay;

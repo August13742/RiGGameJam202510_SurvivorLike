@@ -91,6 +91,40 @@ namespace Survivor.Game
                 }
             }
         }
+        public void SpawnFromTable(LootTableDef table, Vector2 at, int rolls = 1)
+        {
+            if (!table || table.Entries == null || table.Entries.Length == 0)
+                return;
+
+            for (int r = 0; r < Mathf.Max(1, rolls); r++)
+            {
+                var def = Sample(table);
+                if (def == null || def.Prefab == null) continue;
+
+                var pool = GetOrCreatePool(def);
+
+                Vector2 spawnPosition = at + GetRandomOffset();
+                var go = pool.Rent(spawnPosition, Quaternion.identity);
+
+                var baseItem = go.GetComponent<DropItemBase>();
+                if (baseItem)
+                {
+                    baseItem.amount = (def.MinAmount == def.MaxAmount)
+                        ? def.MinAmount
+                        : Random.Range(def.MinAmount, def.MaxAmount + 1);
+                }
+            }
+        }
+        public DropItemBase SpawnSingle(DropItemDef def, Vector2 at)
+        {
+            if (!def || def.Prefab == null)
+                return null;
+
+            var pool = GetOrCreatePool(def);
+            var go = pool.Rent(at+ GetRandomOffset(), Quaternion.identity);
+
+            return go.GetComponent<DropItemBase>();
+        }
 
         private Vector2 GetRandomOffset()
         {

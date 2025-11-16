@@ -199,17 +199,18 @@ namespace AugustsUtility.AudioSystem
         #endregion
 
         #region Public: Mixer & Volume Control
-        public void SetMasterVolume(float linear) => SetBusLinear(masterVolParam, linear);
-        public void SetSFXVolume(float linear) => SetBusLinear(SFXVolParam, linear);
-        public void SetMusicBusVolume(float linear) => SetBusLinear(musicVolParam, linear);
+        public void SetMasterVolume(float linear) => SetBusVolumeLinear(masterVolParam, linear);
+        public void SetSFXVolume(float linear) => SetBusVolumeLinear(SFXVolParam, linear);
+        public void SetMusicBusVolume(float linear) => SetBusVolumeLinear(musicVolParam, linear);
 
-        private void SetBusLinear(string param, float linear)
+        private void SetBusVolumeLinear(string busName, float linear)
         {
-            if (mixer == null || string.IsNullOrEmpty(param))
+            if (mixer == null || string.IsNullOrEmpty(busName))
                 return;
             float db = linear > 0.001f ? 20f * Mathf.Log10(Mathf.Clamp01(linear)) : -80f;
-            mixer.SetFloat(param, db);
+            mixer.SetFloat(busName, db);
         }
+
         #endregion
 
         #region Public: SFX

@@ -67,6 +67,11 @@ namespace Survivor.Control
 
         private void FixedUpdate()
         {
+            if (inputDirection.sqrMagnitude > 0.01f)
+            {
+                Debug.Log($"[Player] inputDir={inputDirection} MoveSpeed={MoveSpeed} IsFrozen={IsFrozen} timeScale={Time.timeScale}");
+            }
+
             if (IsFrozen)
             {
                 // Still apply external displacement

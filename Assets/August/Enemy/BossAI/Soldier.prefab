@@ -251,7 +251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    MaxHealth: 9000
+    MaxHealth: 12000
     EnragedColour: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
     MeleeDamage: 10
     ChaseSpeed: 4
@@ -262,6 +262,7 @@ MonoBehaviour:
     GlobalAttackCooldown: 1
     MinFlipInterval: 0.5
     FacingDeadzone: 0.2
+    MeleePocketHysteresis: 0.5
     RangedInMeleeWeightMultiplier: 0.35
     AttackPatterns:
     - Category: 1
@@ -304,6 +305,13 @@ MonoBehaviour:
       CooldownTag: hazard
       Cooldown: 5
       Weight: 3
+    EnrageAction:
+      Category: 0
+      Pattern: {fileID: 0}
+      CooldownTag: 
+      Cooldown: 3
+      Weight: 1
+    EnrageWeightMultiplier: 9999
   AlwaysEnraged: 0
   IsEnraged: 0
   <Velocity>k__BackingField: {x: 0, y: 0}
@@ -323,6 +331,7 @@ MonoBehaviour:
   behaviorPivotLocal: {x: 0, y: 0}
   _currentStateLabel: 
   <IsDead>k__BackingField: 0
+  _enrageActionPending: 0
 --- !u!114 &8569725421451740116
 MonoBehaviour:
   m_ObjectHideFlags: 0

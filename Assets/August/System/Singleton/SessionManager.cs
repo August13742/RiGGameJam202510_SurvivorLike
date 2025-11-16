@@ -15,11 +15,13 @@ namespace Survivor.Game
         [SerializeField] private GameObject player;
         private HealthComponent _playerHealth;
 
+        [SerializeField] SimplePauseMenu pauseMenu;
         public int Gold { get; private set; } = 0;
         public int PlayerLevel { get; private set; } = 0;
 
         [SerializeField] private int currentExp = 20;
         [SerializeField] private int currentExpReq = 5;
+        [SerializeField] private int baseExpReq = 5;
         public int ExpGrowthPerLevel = 5;
 
         public Action LevelUp;
@@ -66,7 +68,7 @@ namespace Survivor.Game
                 return;
             }
             Instance = this;
-            DontDestroyOnLoad(this);
+            //DontDestroyOnLoad(this);
         }
 
         private void Start()
@@ -82,11 +84,47 @@ namespace Survivor.Game
                 else
                 {
                     _playerHealth.Damaged += OnPlayerDamaged;
+                    _playerHealth.Died += OnPlayerDied;
                 }
             }
 
             // Kick an initial level-up after systems are awake.
-            Invoke(nameof(TriggerLevelUp), 0.1f);
+            //Invoke(nameof(TriggerLevelUp), 0.1f);
+        }
+        private void OnDestroy()
+        {
+            if (_playerHealth != null)
+            {
+                _playerHealth.Damaged -= OnPlayerDamaged;
+                _playerHealth.Died -= OnPlayerDied;
+            }
+        }
+        // ---------- Run bootstrap helpers ----------
+
+        /// Hard reset between runs / scenes.
+        /// Does NOT touch the player GameObject, only session values.
+        public void ResetRun(int startingLevel = 0, int startingGold = 0)
+        {
+            // XP & level
+            PlayerLevel = 0;
+            currentExp = 0;
+            currentExpReq = baseExpReq;
+
+            // Currency
+            Gold = Mathf.Max(0, startingGold);
+            GoldChanged?.Invoke(Gold);
+
+            // Stats / achievements
+            ResetAllStats();
+
+            // Pre-grant levels (this fires LevelUp and thus ProgressionManager)
+            if (startingLevel > 0)
+            {
+                for (int i = 0; i < startingLevel; i++)
+                {
+                    TriggerLevelUp();
+                }
+            }
         }
 
         // ---------- Player reference ----------
@@ -105,8 +143,41 @@ namespace Survivor.Game
         }
         public float GetCurrentExpPercent()
         {
-            return currentExp / currentExpReq;
+            if (currentExpReq <= 0) return 0f;
+            return (float)currentExp / (float)currentExpReq;
         }
+
+        private void OnPlayerDamaged(float amount, Vector3 pos, bool isCrit)
+        {
+            AugustsUtility.CameraShake.CameraShake2D.Shake(strength: 0.1f);
+            IncrementDamageTaken(amount);
+            VFX.ScreenDamageOverlay.Instance?.Flash();
+        }
+
+        private void OnPlayerDied()
+        {
+            // Full red overlay
+            Survivor.VFX.ScreenDamageOverlay.Instance?.ShowFull();
+
+            // Turn off player control just in case something uses unscaled time
+            if (player != null)
+            {
+                var controller = player.GetComponent<Survivor.Control.PlayerController>();
+                if (controller) controller.enabled = false;
+            }
+
+            // Show Game Over menu
+            if (pauseMenu != null)
+            {
+                pauseMenu.ShowGameOver();
+            }
+            else
+            {
+                Debug.LogWarning("SessionManager: SimplePauseMenu not found for Game Over.");
+            }
+        }
+
+
 
         // ---------- Public stat mutation API (authoritative) ----------
         public void IncrementEnemyDowned(int amount = 1)
@@ -191,12 +262,6 @@ namespace Survivor.Game
             LevelUp?.Invoke();
         }
 
-        // ---------- Player damage hook ----------
-        private void OnPlayerDamaged(float amount, Vector3 pos, bool isCrit)
-        {
-            AugustsUtility.CameraShake.CameraShake2D.Shake(strength: 0.1f);
-            IncrementDamageTaken(amount);
-        }
 
         public void RestorePlayerHealth(float amount)
         {
