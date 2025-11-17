@@ -38,8 +38,8 @@ namespace Survivor.Control
         [SerializeField] private float stuckTimeBeforeUnstuck = 1.0f;   // how long of "trying but not moving" before rescue
 
         [Header("Unstuck Placement")]
-        [SerializeField] private float unstuckProbeRadius = 0.3f;       // radius of overlap check
-        [SerializeField] private float unstuckSearchRadius = 1.0f;      // how far around to search
+        [SerializeField] private float unstuckProbeRadius = 1f;       // radius of overlap check
+        [SerializeField] private float unstuckSearchRadius = 2.0f;      // how far around to search
         [SerializeField] private int unstuckRays = 8;                   // number of directions (8 = N/NE/E/... etc)
         [SerializeField] private LayerMask unstuckObstaclesMask;        // if zero, we’ll default to motor.collisionMask
 
@@ -168,7 +168,7 @@ namespace Survivor.Control
             // Reset velocity – we don’t want to immediately slam back into the same wall.
             velocity = Vector2.zero;
             externalDisplacement = Vector2.zero;
-
+            Debug.Log($"[PlayerController] Trying to Unstuck");
             // Check current position first – if for some reason Overlap says it's free, just reset timers.
             if (IsPositionFree(currentPos))
             {
