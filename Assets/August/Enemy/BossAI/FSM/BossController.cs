@@ -292,7 +292,7 @@ namespace Survivor.Enemy.FSM
 
             // Apply the final calculated velocity
             RB.MovePosition(RB.position + finalVelocity * Time.fixedDeltaTime);
-            UpdateFacing();
+            if(_currentState?.GetType() != typeof(StateAttack)) UpdateFacing();
         }
 
         public void ChangeState(Type newStateType)
