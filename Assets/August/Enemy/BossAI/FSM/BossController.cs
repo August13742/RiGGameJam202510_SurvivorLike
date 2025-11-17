@@ -262,7 +262,7 @@ namespace Survivor.Enemy.FSM
             if (dist > min + h) return RangeBand.Pocket;
             if (dist < min - h) return RangeBand.MeleeBand;
 
-            // In the buffer zone ¨ keep previous band
+            // In the buffer zone ï¿½ï¿½ keep previous band
             return CurrentBand;
         }
 

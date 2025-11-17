@@ -36,6 +36,10 @@ public static class EasingFunctions
         return Mathf.Pow(x, 3);
     }
 
+    public static float EaseInQuad(float x)
+    {
+        return x * x;
+    }
     public static float EaseOutElastic(float x)
     {
         const float c4 = (2f * Mathf.PI) / 3f;
@@ -44,6 +48,7 @@ public static class EasingFunctions
         return Mathf.Pow(2f, -10f * x) * Mathf.Sin((x * 10f - 0.75f) * c4) + 1f;
     }
 
+    
     public static float ExpEaseOut(float x)
     {
         const float k = 4f;
