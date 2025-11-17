@@ -18,12 +18,12 @@ MonoBehaviour:
   castMinDistance: 3
   castMaxDistance: 10
   initialDelay: 0.5
-  castInterval: 1.6
-  telegraphDuration: 0.6
-  stepSize: 3.5
-  blastRadius: 1.8
-  inputPriority: 1
-  maxAngleJitter: 20
+  castInterval: 2.5
+  telegraphDuration: 1
+  stepSize: 4
+  blastRadius: 1.5
+  inputPriority: 0.7
+  maxAngleJitter: 15
   damage: 6
   hitMask:
     serializedVersion: 2
@@ -34,4 +34,4 @@ MonoBehaviour:
   cameraShakeDuration: 0.2
   telegraphColor: {r: 0, g: 1, b: 1, a: 1}
   lifeTime: 30
-  maxHP: 1000
+  maxHP: 500
