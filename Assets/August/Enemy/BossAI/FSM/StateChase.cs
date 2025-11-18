@@ -15,7 +15,7 @@ namespace Survivor.Enemy.FSM
         public Type Tick(float deltaTime)
         {
             float dist = _controller.DistanceToPlayer();
-            var band = _controller.GetBand(dist);
+            var band = _controller.CurrentBand;
 
             // Decision
             if (band != RangeBand.OffBand && !_controller.IsGlobalAttackOnCooldown())

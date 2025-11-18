@@ -24,7 +24,6 @@ MonoBehaviour:
   repIsProbabilistic: 0
   ProbDecayPerDash: 0.25
   hardCap: 5
-  healthThresholdForEnrage: 0.5
   enrageDecayReduction: 0.5
   enrageSpeedMul: 1.15
   enrageRateMul: 1.1

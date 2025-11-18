@@ -1,0 +1,141 @@
+using Survivor.Game;
+using UnityEngine;
+
+namespace Survivor.Weapon
+{
+    public sealed class MeteorProjectile2D : MonoBehaviour
+    {
+        [Header("Motion")]
+        [SerializeField] private float speed = 18f;
+        [SerializeField] private float maxLifetime = 5f;
+
+        [Header("Impact (instant damage)")]
+        [SerializeField] private float impactRadius = 1.5f;
+        [SerializeField] private float damage = 10f;
+        [SerializeField] private LayerMask hitMask;
+        [SerializeField] private GameObject impactVfxPrefab;
+
+        [Header("Hazard (optional)")]
+        [SerializeField] private GameObject hazardZonePrefab;
+        [SerializeField] private float hazardRadius = 2f;
+        [SerializeField] private float hazardDamagePerSecond = 5f;
+        [SerializeField] private float hazardLifetime = 3f;
+        [SerializeField] private bool spawnHazardOnImpact = false;
+
+        private Vector2 _targetPos;
+        private bool _active;
+        private float _lifeLeft;
+
+        private static readonly Collider2D[] _hits = new Collider2D[8];
+
+        /// <summary>
+        /// Configure hazard zone behaviour for this meteor. Call before Launch().
+        /// </summary>
+        public void ConfigureHazard(
+            GameObject prefab,
+            float radius,
+            float dps,
+            float life,
+            bool enable)
+        {
+            hazardZonePrefab = prefab;
+            hazardRadius = radius;
+            hazardDamagePerSecond = dps;
+            hazardLifetime = life;
+            spawnHazardOnImpact = enable;
+        }
+
+        /// <summary>
+        /// Launch a meteor from (impactPos + spawnOffset) towards impactPos.
+        /// </summary>
+        public void Launch(Vector2 impactPos, Vector2 spawnOffset, float spd, float dmg, float radius)
+        {
+            _targetPos = impactPos;
+            transform.position = impactPos + spawnOffset;
+
+            speed = spd;
+            damage = dmg;
+            impactRadius = radius;
+
+            _lifeLeft = maxLifetime;
+            _active = true;
+        }
+
+        private void FixedUpdate()
+        {
+            if (!_active) return;
+
+            _lifeLeft -= Time.fixedDeltaTime;
+            if (_lifeLeft <= 0f)
+            {
+                Explode();
+                return;
+            }
+
+            Vector2 current = transform.position;
+            Vector2 toTarget = _targetPos - current;
+            float dist = toTarget.magnitude;
+
+            if (dist <= speed * Time.fixedDeltaTime)
+            {
+                transform.position = _targetPos;
+                Explode();
+                return;
+            }
+
+            Vector2 dir = toTarget / dist;
+            transform.position = current + dir * (speed * Time.fixedDeltaTime);
+        }
+
+        private void Explode()
+        {
+            if (!_active) return;
+            _active = false;
+
+            // Instant radial impact damage (optional: set damage to 0 if only want DoT).
+            ContactFilter2D _filter = new() { useTriggers = true, useDepth = false };
+            _filter.SetLayerMask(hitMask);
+            int hitCount = Physics2D.OverlapCircle(_targetPos, impactRadius, _filter, _hits);
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                if (_hits[i] == null) continue;
+                if (!_hits[i].TryGetComponent<HealthComponent>(out var hp)) continue;
+                if (hp.IsDead) continue;
+
+                hp.Damage(damage);
+            }
+
+            // VFX for impact
+            if (impactVfxPrefab != null) { 
+
+                GameObject vfx = Object.Instantiate(impactVfxPrefab, _targetPos, Quaternion.identity);
+
+                // Scale VFX based on inner explosion radius
+                float scale = impactRadius;
+                vfx.transform.localScale = new Vector3(scale, scale, 1f);
+            }
+            // Spawn hazard zone if configured
+            if (spawnHazardOnImpact && hazardZonePrefab != null && hazardLifetime > 0f && hazardRadius > 0f)
+            {
+                GameObject hzObj = Instantiate(hazardZonePrefab, _targetPos, Quaternion.identity);
+                if (hzObj.TryGetComponent<HazardZone2D>(out var hz))
+                {
+                    hz.Activate(_targetPos, hazardRadius, hazardDamagePerSecond, hazardLifetime);
+                }
+                else
+                {
+                    Debug.LogWarning("HazardZone2D component missing on hazardZonePrefab.");
+                }
+            }
+
+            Destroy(gameObject);
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(_targetPos, impactRadius);
+        }
+    }
+}

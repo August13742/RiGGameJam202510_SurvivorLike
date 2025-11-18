@@ -1,23 +1,29 @@
-using UnityEngine;
 using System;
+using UnityEngine;
+using UnityEngine.InputSystem.XR;
 namespace Survivor.Enemy.FSM
 {
 	public class StateIdle : IState
 	{
-		private readonly BossController _c;
-		public StateIdle(BossController c) { _c = c; }
+		private readonly BossController _controller;
+		public StateIdle(BossController c) { _controller = c; }
 
-		public void Enter() { _c.Animator.Play("Idle"); }
+		public void Enter() 
+		{
+            _controller.Animator.Play("Idle"); 
+		}
 
+		
 		public Type Tick(float deltaTime)
 		{
-			float dist = Vector2.Distance(_c.transform.position, _c.PlayerTransform.position);
-			var band = _c.GetBand(dist);
 
-			// If we can play now, do it
-			if (band != RangeBand.OffBand && !_c.IsGlobalAttackOnCooldown())
+            float dist = Vector2.Distance(_controller.transform.position, _controller.PlayerTransform.position);
+            var band = _controller.CurrentBand;
+
+            // If we can play now, do it
+            if (band != RangeBand.OffBand && !_controller.IsGlobalAttackOnCooldown())
 			{
-				if (_c.TryBuildCandidatesForDistance(dist, out var _))
+				if (_controller.TryBuildCandidatesForDistance(dist, out var _))
 					return typeof(StateAttack);
 			}
 
@@ -28,12 +34,12 @@ namespace Survivor.Enemy.FSM
 			if (band == RangeBand.Pocket) return typeof(StateChase);
 
 			// Melee and still dry �� wander
-			Vector2 wander = new Vector2(_c.GetPerlinWanderX(), _c.GetPerlinWanderY()).normalized;
-			_c.Velocity = wander * _c.Config.IdleWanderSpeed;
+			Vector2 wander = new Vector2(_controller.GetPerlinWanderX(), _controller.GetPerlinWanderY()).normalized;
+			_controller.Velocity = wander * _controller.Config.IdleWanderSpeed;
 			return null;
 		}
 
-		public void Exit() { _c.Velocity = Vector2.zero; }
+		public void Exit() { _controller.Velocity = Vector2.zero; }
 		public override String ToString()
 		{
 			return "Idle";

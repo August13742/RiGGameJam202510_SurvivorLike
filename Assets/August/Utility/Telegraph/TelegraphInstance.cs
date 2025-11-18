@@ -8,34 +8,29 @@ namespace AugustsUtility.Telegraph
     public sealed class TelegraphInstance : MonoBehaviour
     {
         [Header("Renderers")]
-        [SerializeField] private SpriteRenderer outlineRenderer;   // final range
-        [SerializeField] private SpriteRenderer fillRenderer;      // growing part
+        [SerializeField] private SpriteRenderer outlineRenderer;
+        [SerializeField] private SpriteRenderer fillRenderer;
 
         [Header("Visual Tuning")]
         [SerializeField] private float startFillAlpha = 0.25f;
         [SerializeField] private float endFillAlpha = 1.0f;
 
+        // State fields
         private float _duration;
         private Action _onFinished;
+        private bool _active;
+
+        // Dynamic position fields
+        private Func<Vector3> _posProvider;
+        private bool _isDynamic;
 
         private Vector3 _baseOutlineScale;
         private Vector3 _baseFillScale;
 
-        private bool _active;
-
         private void Awake()
         {
-            if (outlineRenderer == null)
-            {
-                outlineRenderer = GetComponent<SpriteRenderer>();
-            }
-
-            if (fillRenderer == null)
-            {
-                // Optional: allow single-renderer fallback
-                fillRenderer = outlineRenderer;
-            }
-
+            if (outlineRenderer == null) outlineRenderer = GetComponent<SpriteRenderer>();
+            if (fillRenderer == null) fillRenderer = outlineRenderer;
             _baseOutlineScale = outlineRenderer.transform.localScale;
             _baseFillScale = fillRenderer.transform.localScale;
         }
@@ -44,54 +39,48 @@ namespace AugustsUtility.Telegraph
         {
             _duration = Mathf.Max(0.01f, p.Duration);
             _onFinished = onFinished;
+            _posProvider = p.WorldPosProvider;
+            _isDynamic = p.IsDynamic;
             _active = true;
 
             gameObject.SetActive(true);
 
-            // Position + rotation
+            // Set initial position and rotation from the provider
             transform.SetPositionAndRotation(
-                p.WorldPos,
+                _posProvider(),
                 Quaternion.Euler(0f, 0f, p.AngleDeg)
             );
 
-            // Target scale assuming sprite is unit radius (1 unit = radius 1)
-            float radiusScale = p.Radius * 2f;
-            Vector3 targetScale = _baseOutlineScale * radiusScale;
+            switch (p.Shape)
+            {
+                case TelegraphShape.Circle:
+                    SetupCircle(p);
+                    break;
+                case TelegraphShape.Box:
+                    SetupBox(p);
+                    break;
+                default:
+                    SetupCircle(p);
+                    break;
+            }
+        }
+        private void Update()
+        {
+            if (!_active || !_isDynamic || _posProvider == null) return;
 
-            // --- Outline: full range, static ---
-            outlineRenderer.transform.localScale = targetScale;
-            Color outlineColor = p.Color;
-            outlineColor.a = 1.0f;
-            outlineRenderer.color = outlineColor;
-
-            // --- Fill: starts small and faint, grows to match outline ---
-            fillRenderer.transform.localScale = Vector3.zero;
-
-            Color fillColor = p.Color;
-            fillColor.a = startFillAlpha;
-            fillRenderer.color = fillColor;
-
-            // 1) Scale tween: 0 → targetScale
-            fillRenderer.transform.TweenLocalScale(
-                targetScale,
-                _duration,
-                EasingFunctions.EaseOutCubic
-            );
-
-            // 2) Alpha tween: startFillAlpha -> endFillAlpha, then finish
-            fillRenderer.TweenColorAlpha(
-                endFillAlpha,
-                _duration,
-                EasingFunctions.Linear,
-                onComplete: Finish
-            );
+            // Poll the provider for the current position
+            transform.position = _posProvider();
         }
 
         private void Finish()
         {
             if (!_active) return;
-
             _active = false;
+
+            // Reset state for object pool
+            _posProvider = null;
+            _isDynamic = false;
+
             gameObject.SetActive(false);
 
             Action cb = _onFinished;
@@ -99,14 +88,49 @@ namespace AugustsUtility.Telegraph
             cb?.Invoke();
         }
 
-        // Optional: explicit cancel API if need to cut telegraph short
         public void Cancel()
         {
             if (!_active) return;
             _active = false;
+
+            // Reset state for object pool
+            _posProvider = null;
+            _isDynamic = false;
+
             gameObject.SetActive(false);
             _onFinished = null;
-            // If start keeping tween handles, call Kill() here.
+        }
+
+        // --- Setup Methods (SetupCircle, SetupBox) have no changes ---
+        private void SetupCircle(TelegraphParams p)
+        {
+            float radiusScale = p.Radius;
+            Vector3 targetScale = _baseOutlineScale * radiusScale;
+            outlineRenderer.transform.localScale = targetScale;
+            Color outlineColor = p.Color;
+            outlineColor.a = 1.0f;
+            outlineRenderer.color = outlineColor;
+            fillRenderer.transform.localScale = Vector3.zero;
+            Color fillColor = p.Color;
+            fillColor.a = startFillAlpha;
+            fillRenderer.color = fillColor;
+            fillRenderer.transform.TweenLocalScale(targetScale, _duration, EasingFunctions.EaseOutCubic);
+            fillRenderer.TweenColorAlpha(endFillAlpha, _duration, EasingFunctions.Linear, Finish);
+        }
+
+        private void SetupBox(TelegraphParams p)
+        {
+            Vector3 targetScale = new Vector3(_baseOutlineScale.x * p.Size.x, _baseOutlineScale.y * p.Size.y, _baseOutlineScale.z);
+            outlineRenderer.transform.localScale = targetScale;
+            Color outlineColor = p.Color;
+            outlineColor.a = 1.0f;
+            outlineRenderer.color = outlineColor;
+            fillRenderer.transform.localScale = new Vector3(0f, targetScale.y, targetScale.z);
+            Color fillColor = p.Color;
+            fillColor.a = startFillAlpha;
+            fillRenderer.color = fillColor;
+            fillRenderer.transform.TweenLocalScale(targetScale, _duration, EasingFunctions.EaseOutCubic);
+            fillRenderer.TweenColorAlpha(endFillAlpha, _duration, EasingFunctions.Linear, Finish);
         }
     }
 }
