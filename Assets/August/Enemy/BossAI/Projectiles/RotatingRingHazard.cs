@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using AugustsUtility.Tween;
 using Survivor.Game;
+using System.Collections;
 using UnityEngine;
+using AugustsUtility.CameraShake;
 
 [DisallowMultipleComponent]
 public sealed class RotatingRingHazard : MonoBehaviour
@@ -13,10 +15,16 @@ public sealed class RotatingRingHazard : MonoBehaviour
     [Tooltip("Reporter attached to the INNER safe-zone collider (child object).")]
     [SerializeField] private ColliderReporter2D innerReporter;
 
+    [SerializeField] private ColliderReporter2D starsReporter;
+
     [Header("Damage")]
     [SerializeField] private float baseDamagePerTick = 5f;
     [SerializeField] private float tickInterval = 0.25f;
     [SerializeField] private LayerMask targetMask;
+    [SerializeField] private float starsDamage = 10f;
+
+    [SerializeField] float starCameraShakeStrength = 1.5f;
+    [SerializeField] float starCameraShakeDuration = 0.3f;
 
     [Header("Rings (Visual / Orbit Layers)")]
     [Tooltip("Each entry represents one visual ring/orbit around the boss.")]
@@ -35,6 +43,7 @@ public sealed class RotatingRingHazard : MonoBehaviour
     private float _tickTimer;
     private float _effectiveDamagePerTick;
     private Vector3 _baseScale;
+    private ValueTween<Vector3> _radiusTween;
 
     // Global spin multiplier (for patterns like "enrage → all rings spin faster")
     private float _globalSpinMultiplier = 1f;
@@ -79,6 +88,10 @@ public sealed class RotatingRingHazard : MonoBehaviour
             outerReporter.TriggerEnter += OnOuterEnter;
             outerReporter.TriggerExit += OnOuterExit;
         }
+        if(starsReporter != null)
+        {
+            starsReporter.TriggerEnter += OnStarsEnter;
+        }
         else
         {
             Debug.LogWarning("RotatingRingHazard: outerReporter not assigned.", this);
@@ -109,6 +122,10 @@ public sealed class RotatingRingHazard : MonoBehaviour
         {
             innerReporter.TriggerEnter -= OnInnerEnter;
             innerReporter.TriggerExit -= OnInnerExit;
+        }
+        if (starsReporter != null)
+        {
+            starsReporter.TriggerEnter -= OnStarsEnter;
         }
     }
 
@@ -152,6 +169,54 @@ public sealed class RotatingRingHazard : MonoBehaviour
             hp.Damage(_effectiveDamagePerTick);
         }
     }
+    /// <summary>
+    /// Fire-and-forget version of PulseToLevelAndBack.
+    /// Expands to targetLevel, holds, then returns to base (level 0),
+    /// without the caller needing to yield on it.
+    /// </summary>
+    public IEnumerator PulseToLevelAndBack(
+        int targetLevel,
+        float shrinkDuration,
+        float holdDuration,
+        float expandDuration,
+        System.Func<float, float> easeShrink = null,
+        System.Func<float, float> easeExpand = null)
+    {
+        // shrink
+        yield return TweenToLevelRoutine(targetLevel, shrinkDuration, easeShrink);
+
+        if (holdDuration > 0f)
+        {
+            yield return new WaitForSeconds(holdDuration);
+        }
+
+        // expand back to level 0 (assumed base)
+        yield return TweenToLevelRoutine(0, expandDuration, easeExpand);
+    }
+    /// <summary>
+    /// Fire-and-forget version of PulseToLevelAndBack.
+    /// Expands to targetLevel, holds, then returns to base (level 0),
+    /// without the caller needing to yield on it.
+    /// </summary>
+    public void PlayPulseToLevelAndBack(
+        int targetLevel,
+        float shrinkDuration,
+        float holdDuration,
+        float expandDuration,
+        System.Func<float, float> easeShrink = null,
+        System.Func<float, float> easeExpand = null)
+    {
+        StartCoroutine(PulseToLevelAndBack(
+            targetLevel,
+            shrinkDuration,
+            holdDuration,
+            expandDuration,
+            easeShrink,
+            easeExpand));
+    }
+
+
+
 
     #region Collision / Target bookkeeping
 
@@ -237,6 +302,13 @@ public sealed class RotatingRingHazard : MonoBehaviour
             _innerCounts[hp] = count;
         }
     }
+    
+    private void OnStarsEnter(Collider2D self, Collider2D other)
+    {
+        if (!IsValidTarget(other, out HealthComponent hp)) return;
+        hp.Damage(starsDamage);
+        CameraShake2D.Shake(starCameraShakeDuration, starCameraShakeStrength);
+    }
 
     #endregion
 
@@ -286,12 +358,28 @@ public sealed class RotatingRingHazard : MonoBehaviour
     /// Returns the tween so callers can chain/kill/yield.
     /// </summary>
     public ValueTween<Vector3> TweenToLevel(int levelIndex, float duration,
-        System.Func<float, float> ease = null,
-        System.Action onComplete = null)
+    System.Func<float, float> ease = null,
+    System.Action onComplete = null)
     {
         Vector3 targetScale = GetScaleForLevel(levelIndex);
-        return transform.TweenLocalScale(targetScale, duration, ease, onComplete);
+
+        // Kill any existing radius tween so we don't have two writers.
+        if (_radiusTween != null && _radiusTween.IsActive)
+        {
+            _radiusTween.Kill();
+            _radiusTween = null;
+        }
+
+        _radiusTween = transform.TweenLocalScale(targetScale, duration, ease, () =>
+        {
+            onComplete?.Invoke();
+            // tween is done; clear handle
+            _radiusTween = null;
+        });
+
+        return _radiusTween;
     }
+
 
     /// <summary>
     /// Coroutine wrapper for TweenToLevel so attack patterns can do:
@@ -303,33 +391,10 @@ public sealed class RotatingRingHazard : MonoBehaviour
         ValueTween<Vector3> tween = TweenToLevel(levelIndex, duration, ease);
         if (tween != null)
         {
-            yield return tween; // CustomYieldInstruction: waits while IsActive
+            yield return tween; // waits while IsActive
         }
     }
 
-    /// <summary>
-    /// Convenience "pulse" across levels: from current → targetLevel → hold → back to base (level 0).
-    /// Assumes level 0 is your 'design' full size.
-    /// </summary>
-    public System.Collections.IEnumerator PulseToLevelAndBack(
-        int targetLevel,
-        float shrinkDuration,
-        float holdDuration,
-        float expandDuration,
-        System.Func<float, float> easeShrink = null,
-        System.Func<float, float> easeExpand = null)
-    {
-        // shrink
-        yield return TweenToLevelRoutine(targetLevel, shrinkDuration, easeShrink);
-
-        if (holdDuration > 0f)
-        {
-            yield return new WaitForSeconds(holdDuration);
-        }
-
-        // expand back to level 0 (assumed base)
-        yield return TweenToLevelRoutine(0, expandDuration, easeExpand);
-    }
 
     #endregion
 

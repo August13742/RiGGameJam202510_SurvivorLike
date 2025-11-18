@@ -1,4 +1,5 @@
 using AugustsUtility.CameraShake;
+using AugustsUtility.Tween;
 using Survivor.Game;
 using Survivor.UI;
 using Survivor.Weapon;
@@ -54,6 +55,15 @@ namespace Survivor.Enemy.FSM
         [Tooltip("Local-space offset used as the logical center for distance checks and range gizmos.")]
         [SerializeField] private Vector2 behaviorPivotLocal = Vector2.zero;
 
+        [Header("Attack Telegraph")]
+        [Tooltip("Optional: telegraph visual (e.g., circle or aura) that scales in/out on attack windup.")]
+        [SerializeField] private Transform attackTelegraphRoot;
+        [SerializeField] private float telegraphScaleInDuration = 0.25f;
+        [SerializeField] private float telegraphScaleOutDuration = 0.2f;
+
+        private Vector3 _telegraphBaseScale = Vector3.one;
+        private ITween _telegraphTween;
+
         public Vector2 BehaviorPivotWorld => (Vector2)transform.TransformPoint((Vector3)behaviorPivotLocal);
 
         public float DistanceToPlayer()
@@ -93,29 +103,103 @@ namespace Survivor.Enemy.FSM
             RB.bodyType = RigidbodyType2D.Kinematic;
             _perlinNoiseOffsetX = Random.Range(0f, 1000f);
             _perlinNoiseOffsetY = Random.Range(0f, 1000f);
-            if (Visuals.TryGetComponent<AnimationEventBus>(out var bus)) bus.Fired += OnAnimEvent;
+
+            if (Visuals.TryGetComponent<AnimationEventBus>(out var bus))
+                bus.Fired += OnAnimEvent;
 
             SR = Visuals.GetComponent<SpriteRenderer>();
             IsEnraged = false;
             _enrageActionPending = false;
 
+            // --- Telegraph setup ---
+            if (attackTelegraphRoot != null)
+            {
+                _telegraphBaseScale = attackTelegraphRoot.localScale;
+                attackTelegraphRoot.localScale = Vector3.zero;
+                attackTelegraphRoot.gameObject.SetActive(false);
+            }
+
             if (AlwaysEnraged) Enrage();
         }
+
 
         private void OnAnimEvent(AnimationEvent e)
         {
             switch (e.stringParameter)
             {
-                case "hitbox_melee_on":  ToggleMeleeHitbox(true);break ;
-                case "hitbox_melee_off": ToggleMeleeHitbox(false);break;
+                case "hitbox_melee_on":
+                    ToggleMeleeHitbox(true);
+                    break;
+
+                case "hitbox_melee_off":
+                    ToggleMeleeHitbox(false);
+                    break;
+
                 case "projectile":
                     SpawnProjectile(firePoint == null ? (Vector2)transform.position : (Vector2)firePoint.position);
                     break;
-                case "dead": Destroy(gameObject); break;
 
+                case "attack_start":
+                    HandleAttackTelegraphBegin();
+                    break;
+
+                case "attack_end":
+                    HandleAttackTelegraphEnd();
+                    break;
+
+                case "dead":
+                    Destroy(gameObject);
+                    break;
             }
-
         }
+        private void KillTelegraphTween()
+        {
+            if (_telegraphTween != null && _telegraphTween.IsActive)
+            {
+                _telegraphTween.Kill();
+                _telegraphTween = null;
+            }
+        }
+
+        private void HandleAttackTelegraphBegin()
+        {
+            if (attackTelegraphRoot == null) return;
+
+            attackTelegraphRoot.gameObject.SetActive(true);
+
+            KillTelegraphTween();
+
+            // Start from zero so the pop is consistent even if reused quickly.
+            attackTelegraphRoot.localScale = Vector3.zero;
+
+            _telegraphTween = attackTelegraphRoot.TweenLocalScale(
+                _telegraphBaseScale,
+                telegraphScaleInDuration,
+                EasingFunctions.EaseOutQuad,
+                onComplete: null
+            );
+        }
+
+        private void HandleAttackTelegraphEnd()
+        {
+            if (attackTelegraphRoot == null) return;
+
+            KillTelegraphTween();
+
+            _telegraphTween = attackTelegraphRoot.TweenLocalScale(
+                Vector3.zero,
+                telegraphScaleOutDuration,
+                EasingFunctions.EaseInQuad,
+                onComplete: () =>
+                {
+                    if (attackTelegraphRoot != null)
+                    {
+                        attackTelegraphRoot.gameObject.SetActive(false);
+                    }
+                }
+            );
+        }
+
         private void ToggleMeleeHitbox(bool on)
         {
             meleeHitbox?.SetActive(on);
@@ -166,6 +250,9 @@ namespace Survivor.Enemy.FSM
             if (_deathSequenceStarted) return;
             _deathSequenceStarted = true;
 
+            HandleAttackTelegraphEnd();
+            KillTelegraphTween();
+
             HP.DisconnectAllSignals();
             IsDead = true;
 
@@ -177,7 +264,7 @@ namespace Survivor.Enemy.FSM
             VelocityOverride = Vector2.zero;
             Direction = Vector2.zero;
 
-            // Kill melee hitbox so it can't still damage the player while "dead"
+            // Kill melee hitbox so it can't still damage the player while dead
             ToggleMeleeHitbox(false);
 
             // Optional: disable collider so it no longer interacts with anything
@@ -298,6 +385,10 @@ namespace Survivor.Enemy.FSM
         public void ChangeState(Type newStateType)
         {
             _currentState?.Exit();
+
+            // Any time we change states, make sure the telegraph isn't stuck on.
+            HandleAttackTelegraphEnd();
+
             _currentState = _states[newStateType];
             ResetParameters();
             _currentState.Enter();

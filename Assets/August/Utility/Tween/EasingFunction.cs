@@ -48,7 +48,10 @@ public static class EasingFunctions
         return Mathf.Pow(2f, -10f * x) * Mathf.Sin((x * 10f - 0.75f) * c4) + 1f;
     }
 
-    
+    public static float EaseInOutQuad(float x)
+    {
+        return x < 0.5 ? (2 * x * x) : (1 - Mathf.Pow(-2 * x + 2, 2) / 2f);
+    }
     public static float ExpEaseOut(float x)
     {
         const float k = 4f;
