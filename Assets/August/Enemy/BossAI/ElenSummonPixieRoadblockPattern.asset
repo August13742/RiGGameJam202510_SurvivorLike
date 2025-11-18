@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54736cc49fa419e4098dadce1f3002c6, type: 3}
+  m_Name: ElenSummonPixieRoadblockPattern
+  m_EditorClassIdentifier: 
+  pixiePrefab: {fileID: 1580645500870824219, guid: 5dbcb921eaae2ce41b6b4e75d8c8174a, type: 3}
+  pixieConfig: {fileID: 11400000, guid: 021a875b89888fa4c90782194ac1b05d, type: 2}
+  maxSimultaneousPixies: 2
+  spawnRadius: 2.5

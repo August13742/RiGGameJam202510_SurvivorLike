@@ -13,14 +13,6 @@ MonoBehaviour:
   m_Name: FKSequencedAttackPatternSprintAttack2
   m_EditorClassIdentifier: 
   attackSequence:
-  - animationName: Empty
-    animationSpeedScale: 1
-    activeDuration: 0.01
-    breakTimeAfter: 0.2
-    requiresRangeCheck: 1
-    requiredBand: 1
-    canGapClose: 1
-    gapCloseChance: 1
   - animationName: Attack1
     animationSpeedScale: 1
     activeDuration: 0.5
