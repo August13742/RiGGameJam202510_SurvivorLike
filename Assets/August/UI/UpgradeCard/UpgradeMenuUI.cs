@@ -43,6 +43,7 @@ namespace Survivor.Progression.UI
         {
             _onPick = onPick;
 
+            //emerge UpgradeMenuUI
             if (root) root.SetActive(true);
             if (headerText) headerText.text = header;
 
@@ -51,6 +52,7 @@ namespace Survivor.Progression.UI
             for (int i = 0; i < vms.Length; i++)
             {
                 UpgradeCardUI card = Instantiate(cardPrefab, cardParent);
+
                 _spawned.Add(card);
                 card.Configure(vms[i], CloseWithPick);
             }
