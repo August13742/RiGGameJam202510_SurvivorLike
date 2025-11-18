@@ -2,15 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using Survivor.Game;
 using AugustsUtility.Tween;
-using System;
+
 
 namespace Survivor.Weapon
 {
-    [RequireComponent(typeof(PrefabStamp), typeof(Collider2D), typeof(Renderer))]
+    [RequireComponent(typeof(PrefabStamp))]
     [DisallowMultipleComponent]
     public sealed class RotatingOrbitOrb : MonoBehaviour, IPoolable
     {
-        [SerializeField] private Collider2D _col;
+        [SerializeField] private Collider2D _collider;
         [SerializeField] private Renderer _renderer;
         [SerializeField] private Transform _visualRoot;
 
@@ -65,7 +65,6 @@ namespace Survivor.Weapon
         )
         {
             _orbitTween?.Kill();
-
             _pivot = pivot;
             _radius = Mathf.Max(0.001f, radius);
             _startAngRad = startAngleRad;
@@ -87,7 +86,7 @@ namespace Survivor.Weapon
 
             if (toggleVis)
             {
-                if (_col) _col.enabled = true;
+                if (_collider) _collider.enabled = true;
                 if (_renderer) _renderer.enabled = true;
             }
 
@@ -121,15 +120,19 @@ namespace Survivor.Weapon
         private Vector2 CurrentCenter() => _followOrigin && _pivot ? (Vector2)_pivot.position : _center0;
         private static Vector2 Polar(float ang) => new(Mathf.Cos(ang), Mathf.Sin(ang));
 
-        private void OnTriggerEnter2D(Collider2D other)
+        private void OnTriggerEnter2D(Collider2D col)
         {
-            if (!other || !other.TryGetComponent<HealthComponent>(out var hp)) return;
-            if (hp.IsDead) return;
+            HealthComponent target;
+            target = col.GetComponent<HealthComponent>();
+            if (target == null) target = col.GetComponentInParent<HealthComponent>();
+            if (target == null) return; 
+
+            if (target.IsDead) return;
 
             if (_maxHitsPerTarget > 0)
             {
-                if (_hitSet.Contains(hp)) return;
-                _hitSet.Add(hp);
+                if (_hitSet.Contains(target)) return;
+                _hitSet.Add(target);
                 if (_hitSet.Count > _maxHitsPerTarget) return;
             }
 
@@ -137,15 +140,15 @@ namespace Survivor.Weapon
             bool crit = false;
             if (_critPerHit)
             {
-                crit = (UnityEngine.Random.value < _critChance);
+                crit = (Random.value < _critChance);
                 if (crit) dealt = Mathf.Round(dealt * _critMul * 10f) / 10f;
             }
 
-            hp.Damage(dealt, crit);
-            VFX.VFXManager.Instance?.ShowHitEffect(other.gameObject.transform.position, crit);
+            target.Damage(dealt, crit);
+            VFX.VFXManager.Instance?.ShowHitEffect(col.gameObject.transform.position, crit);
 
             _sink?.OnHit(dealt, transform.position, crit);
-            if (hp.IsDead) _sink?.OnKill(transform.position);
+            if (target.IsDead) _sink?.OnKill(transform.position);
         }
 
         private void Despawn()
@@ -166,7 +169,7 @@ namespace Survivor.Weapon
             _orbitTween?.Kill();
             _orbitTween = null;
 
-            if (_col) _col.enabled = false;
+            if (_collider) _collider.enabled = false;
             if (_renderer) _renderer.enabled = false;
             _pivot = null;
         }

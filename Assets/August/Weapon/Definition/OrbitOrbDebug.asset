@@ -15,20 +15,20 @@ MonoBehaviour:
   RuntimePrefab: {fileID: 8060733332101865006, guid: 27a58cb41e9f09a4fadd7ea8fa3ce47f, type: 3}
   Id: orb
   Icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  BaseDamage: 5
+  BaseDamage: 8
   BaseCooldown: 5
   TargetingMode: 0
-  AreaScale: 5
-  Projectiles: 2
+  AreaScale: 1
+  Projectiles: 3
   BaseCritChance: 0.05
   BaseCritMultiplier: 1.5
-  Radius: 2
+  Radius: 5
   OrbAreaBias: 0.8
   RadiusAreaBias: 0.2
   OrbScaleClamp: {x: 0.6, y: 3}
   RadiusMulClamp: {x: 0.6, y: 2.5}
-  RotationTime: 3
-  Revolutions: 1
+  RotationTime: 2
+  Revolutions: 2
   FollowOrigin: 1
   Clockwise: 1
   OrbPrefab: {fileID: 2939867143732988035, guid: 222440cf12b130c4bbbb26c063223d9b, type: 3}

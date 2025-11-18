@@ -57,7 +57,7 @@ namespace AugustsUtility.CameraShake
             if (_receiverCached is Component c && c != null && c.gameObject.activeInHierarchy)
                 return _receiverCached;
 
-            // Try: main cameraÅfs receiver
+            // Try: main cameraÔøΩfs receiver
             Camera cam = Camera.main;
             if (cam != null)
             {
@@ -98,7 +98,7 @@ namespace AugustsUtility.CameraShake
                 return;
             }
 
-            float dt = Time.deltaTime;
+            float dt = Time.unscaledDeltaTime;
             if (r == null)
             {
                 DecayJobs(dt);

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15bc7911dfd86a94d959db08a0116c32, type: 3}
+  m_Name: RangedHealthSlime
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Enemy.ChaserEnemyDef
+  Prefab: {fileID: 1036449216494695409, guid: 2df3f63681ede734fbeeeb25cf473ad1, type: 3}
+  BaseHP: 25
+  MoveSpeed: 3
+  Acceleration: 50
+  ContactDamage: 5
+  XPValue: 1
+  PrewarmCount: 16
+  DropChance: 1
+  Rolls: 5
+  LootTable: {fileID: 11400000, guid: 21c7edd1c299ca14891c7aee16cca82f, type: 2}

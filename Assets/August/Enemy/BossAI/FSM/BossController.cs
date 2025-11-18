@@ -110,6 +110,7 @@ namespace Survivor.Enemy.FSM
                 case "projectile":
                     SpawnProjectile(firePoint == null ? (Vector2)transform.position : (Vector2)firePoint.position);
                     break;
+                case "dead": Destroy(gameObject); break;
 
             }
 
@@ -155,10 +156,11 @@ namespace Survivor.Enemy.FSM
         }
         void OnDied()
         {
+            Animator.Play("Dead");
             HP.DisconnectAllSignals();
             isDead = true;
             SessionManager.Instance.IncrementEnemyDowned(1);
-            StartCoroutine(Die());
+            Die();
         }
 
         private void SpawnProjectile(Vector2 origin)
@@ -199,11 +201,11 @@ namespace Survivor.Enemy.FSM
             if (target.CompareTag("Player")) CameraShake2D.Shake(0.2f, 1f);
         }
 
-        IEnumerator Die()
+        void Die()
         {
+            ChangeState(typeof(StateIdle));
             Animator.Play("Dead");
-            yield return new WaitForSeconds(3f);
-            Destroy(gameObject);
+            
         }
 
         void Update()

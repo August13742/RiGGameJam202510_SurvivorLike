@@ -22,10 +22,15 @@ public static class Targeting
 
         for (int i = 0; i < hitCount; i++)
         {
-            var c = _overlap[i];
-            if (!c) continue;
-            if (c && c.GetComponentInParent<HealthComponent>() is { } hp && !hp.IsDead)
-                _valid.Add(hp.transform);
+            var col = _overlap[i];
+            if (!col) continue;
+            HealthComponent target;
+            target = col.GetComponent<HealthComponent>();
+            if (target == null) target = col.GetComponentInParent<HealthComponent>();
+            if (target == null) return null;
+            if (target.IsDead) return null;
+
+            _valid.Add(target.transform);
         }
         if (_valid.Count == 0) return null;
 
@@ -54,13 +59,17 @@ public static class Targeting
 
         for (int i = 0; i < hitCount; i++)
         {
-            var c = _overlap[i];
-            if (!c) continue;
-            if (c.TryGetComponent<HealthComponent>(out var hp) && !hp.IsDead)
-            {
-                if (_seenHealthComponents.Add(hp))
-                    _valid.Add(hp.transform);
-            }
+            var col = _overlap[i];
+            if (!col) continue;
+            HealthComponent target;
+            target = col.GetComponent<HealthComponent>();
+            if (target == null) target = col.GetComponentInParent<HealthComponent>();
+            if (target == null) return null;
+            if (target.IsDead) return null;
+
+            if (_seenHealthComponents.Add(target))
+                _valid.Add(target.transform);
+
         }
         if (_valid.Count == 0) return null;
 

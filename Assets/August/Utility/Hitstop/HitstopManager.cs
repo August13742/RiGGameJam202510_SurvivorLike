@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// A singleton manager for creating "hitstop" effects.
+/// Handles per-target hitstop AND global hitstop (with independent durations).
+/// Global hitstop uses unscaled time and stacks logically: longest request wins.
 /// </summary>
-public class HitstopManager : MonoBehaviour
+public sealed class HitstopManager : MonoBehaviour
 {
-    // ---- Singleton Pattern ----
     private static HitstopManager _instance;
     public static HitstopManager Instance
     {
@@ -15,74 +15,109 @@ public class HitstopManager : MonoBehaviour
         {
             if (_instance == null)
             {
-                GameObject go = new ("HitstopManager");
+                GameObject go = new("HitstopManager");
                 _instance = go.AddComponent<HitstopManager>();
             }
             return _instance;
         }
     }
 
-    private readonly Dictionary<GameObject, Coroutine> _activeHitstops = new Dictionary<GameObject, Coroutine>();
+    // ---- Per-target hitstop ----
+    private readonly Dictionary<GameObject, Coroutine> _activeLocal = new();
+
+    // ---- Global hitstop ----
+    private readonly List<Coroutine> _activeGlobal = new();
+    private bool _isGlobalPaused = false;
+    private float _savedTimeScale = 1f;
 
     private void Awake()
     {
         if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
+            return;
         }
-        else
-        {
-            _instance = this;
-        }
+
+        _instance = this;
     }
 
-    /// <summary>
-    /// Requests a hitstop effect on a specific target GameObject and its children.
-    /// </summary>
-    /// <param name="duration">The length of the freeze in seconds.</param>
-    /// <param name="target">The root GameObject to freeze.</param>
+    // ============================================================
+    //  LOCAL HITSTOP (per object)
+    // ============================================================
     public void Request(float duration, GameObject target)
     {
-        if (duration <= 0.0f || target == null) return;
+        if (duration <= 0f || target == null) return;
 
-        // If this target is already in hitstop, stop the old coroutine to start a new one.
-        // This allows new hits to "refresh" the hitstop duration.
-        if (_activeHitstops.TryGetValue(target, out Coroutine existingCoroutine))
+        // Refresh existing
+        if (_activeLocal.TryGetValue(target, out Coroutine existing))
         {
-            StopCoroutine(existingCoroutine);
+            StopCoroutine(existing);
         }
 
-        _activeHitstops[target] = StartCoroutine(HitstopCoroutine(duration, target));
+        var c = StartCoroutine(LocalHitstopCoroutine(duration, target));
+        _activeLocal[target] = c;
     }
 
-    private IEnumerator HitstopCoroutine(float duration, GameObject target)
+    private IEnumerator LocalHitstopCoroutine(float duration, GameObject target)
     {
-        // Find all components on the target and its children that can be stopped.
         IHitstoppable[] stoppables = target.GetComponentsInChildren<IHitstoppable>();
 
-        // Start hitstop on all of them.
-        foreach (var stoppable in stoppables)
-        {
-            stoppable.OnHitstopStart();
-        }
+        foreach (var s in stoppables)
+            s.OnHitstopStart();
 
-        // Wait for the duration. Use unscaled time so global timeScale changes don't affect it.
         yield return new WaitForSecondsRealtime(duration);
 
-        // End hitstop on all of them, checking if the object was destroyed in the meantime.
         if (target != null)
         {
-            foreach (var stoppable in stoppables)
-            {
-                // The component reference could be null if its GameObject was destroyed
-                if (stoppable as Object != null)
-                {
-                    stoppable.OnHitstopEnd();
-                }
-            }
+            foreach (var s in stoppables)
+                if (s as Object != null)
+                    s.OnHitstopEnd();
         }
 
-        // Clean up the entry from our tracking dictionary.
-        _activeHitstops.Remove(target);
+        _activeLocal.Remove(target);
+    }
+
+    // ============================================================
+    //  GLOBAL HITSTOP (true freeze-frame)
+    // ============================================================
+    /// <summary>
+    /// Public API: triggers global hitstop for 'duration' seconds (unscaled).
+    /// Multiple calls stack: global pause ends only when ALL timers finish.
+    /// </summary>
+    public void RequestGlobal(float duration)
+    {
+        if (duration <= 0f) return;
+
+        Coroutine c = StartCoroutine(GlobalHitstopCoroutine(duration));
+        _activeGlobal.Add(c);
+
+        if (!_isGlobalPaused)
+            BeginGlobalPause();
+    }
+
+    private IEnumerator GlobalHitstopCoroutine(float duration)
+    {
+        yield return new WaitForSecondsRealtime(duration);
+
+        _activeGlobal.RemoveAt(0); // remove THIS coroutine
+
+        if (_activeGlobal.Count == 0)
+            EndGlobalPause();
+    }
+
+    // ============================================================
+    //  GLOBAL CONTROL
+    // ============================================================
+    private void BeginGlobalPause()
+    {
+        _savedTimeScale = Time.timeScale;
+        Time.timeScale = 0f;
+        _isGlobalPaused = true;
+    }
+
+    private void EndGlobalPause()
+    {
+        Time.timeScale = _savedTimeScale;
+        _isGlobalPaused = false;
     }
 }

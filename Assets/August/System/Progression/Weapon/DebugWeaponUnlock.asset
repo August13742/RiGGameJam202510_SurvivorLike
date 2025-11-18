@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc98546cef3c5bc4f98ade4cf03b0259, type: 3}
   m_Name: DebugWeaponUnlock
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.UpgradeDef
-  Id: debug_unlock
-  Title: Unlock Debug
+  Id: projectile_unlock
+  Title: Unlock Projectile
   Description: x
   Icon: {fileID: 0}
   Rarity: 0
   Kind: 0
-  IsInfinite: 0
+  IsRepeatable: 0
   MaxPicks: 0
-  BaseWeight: 99
+  BaseWeight: 1
   Rules:
   - {fileID: 11400000, guid: efd923a34d8c52049b306bc056762b55, type: 2}
   Action: {fileID: 11400000, guid: a5aa78787865a6e4795b86d56f4ae21b, type: 2}

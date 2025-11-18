@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7773698741058526254}
   - component: {fileID: 4397794084699417633}
   - component: {fileID: 2047761880723466136}
+  - component: {fileID: 8326722640880561159}
   m_Layer: 0
   m_Name: BulletProjectile
   m_TagString: PlayerProjectile
@@ -29,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 2, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -54,8 +55,6 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -77,12 +76,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1243512787
-  m_SortingLayer: 4
+  m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.119205475, g: 1, b: 0, a: 1}
+  m_Sprite: {fileID: 2009410003007727163, guid: 5d359bcfff888fc43bd0e5ffbc3d0205, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -104,7 +102,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d688292ddc1f8d4980886b9c0269527, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.Projectile
-  forwardAxis: 1
+  forwardAxis: 0
+  _lifeTime: 0
+  _isAlive: 0
 --- !u!70 &2047761880723466136
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -139,6 +139,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.2, y: 0.2}
-  m_Direction: 0
+  m_Offset: {x: 0, y: 0.08}
+  m_Size: {x: 1.17, y: 0.53}
+  m_Direction: 1
+--- !u!114 &8326722640880561159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2056179235282298931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cfdb64496ae9ca46b8b9e75892219d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
