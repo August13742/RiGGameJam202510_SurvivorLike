@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df94e398daa9c834aae31a91892e2ed5, type: 3}
   m_Name: ElenBlinkRepositionPattern
   m_EditorClassIdentifier: 
-  minBlinkDistance: 5
-  maxBlinkDistance: 15
+  minBlinkDistance: 3
+  maxBlinkDistance: 8
   fadeOutDuration: 0.5
   fadeInDuration: 0.5
   invisibleHoldDuration: 0.2

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SoldierRadialBarragePattern
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 4992832623426345031, guid: 3955badc9c444694490d3326e93b3aee, type: 3}
-  damage: 15
+  damage: 25
   speed: 10
   life: 4
   homing: 0

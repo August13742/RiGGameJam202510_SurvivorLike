@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b10c7563eafbaa47a5f358b0417603a, type: 3}
   m_Name: ElenBlinkTeleportPattern
   m_EditorClassIdentifier: 
-  minBlinkDistance: 4
-  maxBlinkDistance: 15
+  minBlinkDistance: 3
+  maxBlinkDistance: 8
   fadeOutDuration: 0.4
   fadeInDuration: 0.4
   invisibleHoldDuration: 0.5

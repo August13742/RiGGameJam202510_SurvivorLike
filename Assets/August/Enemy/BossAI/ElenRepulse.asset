@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 640d5fa37291c7642ae251608bee506b, type: 3}
+  m_Name: ElenRepulse
+  m_EditorClassIdentifier: 
+  effectRadius: 12
+  chanceToBeAttractInstead: 0.35
+  maxTravel: 20
+  delay: 0.75
+  telegraphColor: {r: 1, g: 0.6, b: 0.4, a: 1}
+  onlyWhenEnraged: 0
+  enrageRadiusMul: 1.2
+  enrageTravelMul: 1.4
+  enrageRateMul: 1.2
