@@ -12,17 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73b7fe1285d3ddf4abac477848051418, type: 3}
   m_Name: FKRiptideWavesPattern
   m_EditorClassIdentifier: 
-  segmentSpacing: 2
-  maxDistance: 100
+  cameraShakeStrength: 1
+  cameraShakeDuration: 0.3
+  minWaveCount: 12
+  maxWaveCount: 48
+  waveBaseDistance: 1.5
   blastRadius: 1.5
-  waveInterval: 0.25
-  telegraphDuration: 1
-  damage: 8
+  stepSize: 3
+  maxTurnPerWaveDeg: 60
+  majorDirWeight: 0.5
+  inputDirWeight: 0.2
+  errorDirWeight: 0.5
+  waveInterval: 0.2
+  telegraphDuration: 0.75
+  damage: 20
   hitMask:
     serializedVersion: 2
     m_Bits: 64
-  telegraphColor: {r: 0, g: 1, b: 1, a: 1}
-  channelAnim: AttackRanged
+  showVFX: 1
+  VFXPrefab: {fileID: 8622270546021668603, guid: d8f6c474b03ffe843a97ce399adbe0cf, type: 3}
+  telegraphColor: {r: 1, g: 0, b: 0.07257748, a: 1}
+  channelAnim: Grasp
   channelDuration: 1
   enragedRateMul: 1.25
   enragedDamageMul: 1.3
+  enragedCountMul: 2

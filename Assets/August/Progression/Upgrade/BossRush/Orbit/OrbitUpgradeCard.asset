@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc98546cef3c5bc4f98ade4cf03b0259, type: 3}
+  m_Name: OrbitUpgradeCard
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Progression.UpgradeDef
+  Id: Orb Upgrade
+  Title: Orb Level
+  Description: xxx
+  Icon: {fileID: -164082725380277428, guid: 285ec911bd2d1a0448c3170e3e570fd0, type: 3}
+  Rarity: 0
+  Kind: 1
+  IsRepeatable: 1
+  MaxPicks: 0
+  BaseWeight: 1
+  Rules:
+  - {fileID: 11400000, guid: 57e580e9bd691434dbe264a3f1f7d91c, type: 2}
+  Action: {fileID: 11400000, guid: c2ef6438df6d8554abefd37e2b0b2adb, type: 2}

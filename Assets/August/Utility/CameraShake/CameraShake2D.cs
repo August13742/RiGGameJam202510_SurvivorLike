@@ -24,7 +24,7 @@ namespace AugustsUtility.CameraShake
             }
             Instance = this;
             // Optional
-             DontDestroyOnLoad(gameObject);
+             //DontDestroyOnLoad(gameObject);
         }
 
         [Serializable]

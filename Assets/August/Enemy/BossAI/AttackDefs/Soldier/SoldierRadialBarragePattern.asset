@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SoldierRadialBarragePattern
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 4992832623426345031, guid: 3955badc9c444694490d3326e93b3aee, type: 3}
-  damage: 5
+  damage: 15
   speed: 10
   life: 4
   homing: 0
@@ -33,7 +33,6 @@ MonoBehaviour:
   repetitions: 3
   probDecayPerWave: 0.2
   hardCap: 6
-  healthThresholdForEnrage: 0.5
   enrageRateMul: 1.15
   enrageSpinMul: 1.25
   enrageBulletMul: 1.1

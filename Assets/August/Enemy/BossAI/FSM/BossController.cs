@@ -15,7 +15,7 @@ namespace Survivor.Enemy.FSM
     public class BossController : MonoBehaviour
     {
         [SerializeField] private BossConfig config;
-
+        public RangeBand CurrentBand { get; private set; } = RangeBand.OffBand;
         public Animator Animator { get; private set; }
         public SpriteRenderer SR { get; private set; }
         public HealthComponent HP { get; private set; }
@@ -27,7 +27,6 @@ namespace Survivor.Enemy.FSM
         
         
 
-        // --- NEW MOVEMENT PROPERTIES ---
         [Header("Movement")]
         [Tooltip("The current velocity of the boss, calculated via acceleration and friction.")]
         [field: SerializeField] public Vector2 Velocity { get; set; }
@@ -51,7 +50,7 @@ namespace Survivor.Enemy.FSM
         [SerializeField] bool projectileIsHoming = false;
         [SerializeField] bool projectileHomeWhenEnraged = false;
         [SerializeField] float projectileHomingDuration = 0.5f;
-        [Header("Behavior Pivot")]
+        [Header("Behaviour Pivot")]
         [Tooltip("Local-space offset used as the logical center for distance checks and range gizmos.")]
         [SerializeField] private Vector2 behaviorPivotLocal = Vector2.zero;
 
@@ -81,8 +80,10 @@ namespace Survivor.Enemy.FSM
         // --- Perlin Noise ---
         private float _perlinNoiseOffsetX, _perlinNoiseOffsetY;
 
-        bool isDead = false;
-
+        [field: SerializeField] public bool IsDead { get; private set; } = false;
+        private bool _deathSequenceStarted = false;
+        // Enrage special-case
+        [SerializeField] private bool _enrageActionPending = false;
         void Awake()
         {
             HP = GetComponent<HealthComponent>();
@@ -96,9 +97,9 @@ namespace Survivor.Enemy.FSM
 
             SR = Visuals.GetComponent<SpriteRenderer>();
             IsEnraged = false;
-            if (AlwaysEnraged) { IsEnraged = true; Enrage(); }
-            
+            _enrageActionPending = false;
 
+            if (AlwaysEnraged) Enrage();
         }
 
         private void OnAnimEvent(AnimationEvent e)
@@ -151,16 +152,46 @@ namespace Survivor.Enemy.FSM
 
         public void Enrage()
         {
-            SR.color = config.EnragedColour;
+            if (IsEnraged) return;
+
             IsEnraged = true;
+            SR.color = config.EnragedColour;
+
+            // Queue the enrage action to be forced once,
+            // as soon as it's a valid candidate.
+            _enrageActionPending = true;
         }
         void OnDied()
         {
-            Animator.Play("Dead");
+            if (_deathSequenceStarted) return;
+            _deathSequenceStarted = true;
+
             HP.DisconnectAllSignals();
-            isDead = true;
+            IsDead = true;
+
+            // Stop all attack/state coroutines running on this controller
+            StopAllCoroutines();
+
+            // Stop movement
+            Velocity = Vector2.zero;
+            VelocityOverride = Vector2.zero;
+            Direction = Vector2.zero;
+
+            // Kill melee hitbox so it can't still damage the player while "dead"
+            ToggleMeleeHitbox(false);
+
+            // Optional: disable collider so it no longer interacts with anything
+            if (TryGetComponent<Collider2D>(out var col))
+                col.enabled = false;
+
+            // Kill FSM
+            _currentState = null;
+
+            // Force death animation once
+            Animator.Play("Dead", 0, 0f);
+            Animator.speed = 0.7f;
+
             SessionManager.Instance.IncrementEnemyDowned(1);
-            Die();
         }
 
         private void SpawnProjectile(Vector2 origin)
@@ -201,16 +232,14 @@ namespace Survivor.Enemy.FSM
             if (target.CompareTag("Player")) CameraShake2D.Shake(0.2f, 1f);
         }
 
-        void Die()
-        {
-            ChangeState(typeof(StateIdle));
-            Animator.Play("Dead");
-            
-        }
 
         void Update()
         {
-            if (PlayerTransform == null || isDead) return;
+            if (PlayerTransform == null) return;
+            if (IsDead) return;
+
+            float dist = DistanceToPlayer();
+            CurrentBand = GetBandWithHysteresis(dist);
 
             TickCooldowns(Time.deltaTime);
 
@@ -220,10 +249,26 @@ namespace Survivor.Enemy.FSM
                 ChangeState(nextStateType);
             }
         }
+        private RangeBand GetBandWithHysteresis(float dist)
+        {
+            // Off-band as before
+            if (dist > config.AttackRange)
+                return RangeBand.OffBand;
+
+            float min = config.RangedAttackMinRange;
+            float h = config.MeleePocketHysteresis;
+
+            // Clear cases:
+            if (dist > min + h) return RangeBand.Pocket;
+            if (dist < min - h) return RangeBand.MeleeBand;
+
+            // In the buffer zone ¨ keep previous band
+            return CurrentBand;
+        }
 
         void FixedUpdate()
         {
-            if (isDead) return;
+            if (IsDead) return;
 
             Vector2 finalVelocity;
             // Priority 1: Use VelocityOverride for dashes and special moves
@@ -245,7 +290,7 @@ namespace Survivor.Enemy.FSM
                 finalVelocity = Velocity;
             }
 
-            // Apply the final calculated velocity to the Rigidbody
+            // Apply the final calculated velocity
             RB.MovePosition(RB.position + finalVelocity * Time.fixedDeltaTime);
             UpdateFacing();
         }
@@ -319,9 +364,28 @@ namespace Survivor.Enemy.FSM
 
         public ScriptableAttackDefinition ChooseWeighted(IReadOnlyList<ScriptableAttackDefinition> attacks)
         {
+            // 1. Enrage guarantee: if enrage action is pending and present in candidates,
+            //    force it once and consume the pending flag.
+            if (IsEnraged && _enrageActionPending && config.EnrageAction != null)
+            {
+                for (int i = 0; i < attacks.Count; i++)
+                {
+                    // Match via Pattern so it also works with cloned ScriptableAttackDefinition
+                    if (attacks[i].Pattern == config.EnrageAction.Pattern)
+                    {
+                        _enrageActionPending = false;
+                        return attacks[i];
+                    }
+                }
+            }
+
+            // 2. Normal weighted selection
             float total = 0f;
-            for (int i = 0; i < attacks.Count; i++) total += Mathf.Max(0f, attacks[i].Weight);
-            if (total <= 0f) return attacks[attacks.Count - 1];
+            for (int i = 0; i < attacks.Count; i++)
+                total += Mathf.Max(0f, attacks[i].Weight);
+
+            if (total <= 0f)
+                return attacks[attacks.Count - 1];
 
             float r = Random.value * total;
             for (int i = 0; i < attacks.Count; i++)
@@ -330,6 +394,7 @@ namespace Survivor.Enemy.FSM
                 if (r < w) return attacks[i];
                 r -= w;
             }
+
             return attacks[attacks.Count - 1];
         }
 

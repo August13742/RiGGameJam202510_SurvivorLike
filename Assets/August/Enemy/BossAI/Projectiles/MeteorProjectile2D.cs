@@ -9,17 +9,41 @@ namespace Survivor.Weapon
         [SerializeField] private float speed = 18f;
         [SerializeField] private float maxLifetime = 5f;
 
-        [Header("Impact")]
+        [Header("Impact (instant damage)")]
         [SerializeField] private float impactRadius = 1.5f;
         [SerializeField] private float damage = 10f;
         [SerializeField] private LayerMask hitMask;
         [SerializeField] private GameObject impactVfxPrefab;
+
+        [Header("Hazard (optional)")]
+        [SerializeField] private GameObject hazardZonePrefab;
+        [SerializeField] private float hazardRadius = 2f;
+        [SerializeField] private float hazardDamagePerSecond = 5f;
+        [SerializeField] private float hazardLifetime = 3f;
+        [SerializeField] private bool spawnHazardOnImpact = false;
 
         private Vector2 _targetPos;
         private bool _active;
         private float _lifeLeft;
 
         private static readonly Collider2D[] _hits = new Collider2D[8];
+
+        /// <summary>
+        /// Configure hazard zone behaviour for this meteor. Call before Launch().
+        /// </summary>
+        public void ConfigureHazard(
+            GameObject prefab,
+            float radius,
+            float dps,
+            float life,
+            bool enable)
+        {
+            hazardZonePrefab = prefab;
+            hazardRadius = radius;
+            hazardDamagePerSecond = dps;
+            hazardLifetime = life;
+            spawnHazardOnImpact = enable;
+        }
 
         /// <summary>
         /// Launch a meteor from (impactPos + spawnOffset) towards impactPos.
@@ -67,7 +91,9 @@ namespace Survivor.Weapon
         {
             if (!_active) return;
             _active = false;
-            ContactFilter2D _filter = new () { useTriggers = true, useDepth = false };
+
+            // Instant radial impact damage (optional: set damage to 0 if only want DoT).
+            ContactFilter2D _filter = new() { useTriggers = true, useDepth = false };
             _filter.SetLayerMask(hitMask);
             int hitCount = Physics2D.OverlapCircle(_targetPos, impactRadius, _filter, _hits);
 
@@ -80,10 +106,27 @@ namespace Survivor.Weapon
                 hp.Damage(damage);
             }
 
-            // VFX
-            if (impactVfxPrefab != null)
+            // VFX for impact
+            if (impactVfxPrefab != null) { 
+
+                GameObject vfx = Object.Instantiate(impactVfxPrefab, _targetPos, Quaternion.identity);
+
+                // Scale VFX based on inner explosion radius
+                float scale = impactRadius;
+                vfx.transform.localScale = new Vector3(scale, scale, 1f);
+            }
+            // Spawn hazard zone if configured
+            if (spawnHazardOnImpact && hazardZonePrefab != null && hazardLifetime > 0f && hazardRadius > 0f)
             {
-                Instantiate(impactVfxPrefab, _targetPos, Quaternion.identity);
+                GameObject hzObj = Instantiate(hazardZonePrefab, _targetPos, Quaternion.identity);
+                if (hzObj.TryGetComponent<HazardZone2D>(out var hz))
+                {
+                    hz.Activate(_targetPos, hazardRadius, hazardDamagePerSecond, hazardLifetime);
+                }
+                else
+                {
+                    Debug.LogWarning("HazardZone2D component missing on hazardZonePrefab.");
+                }
             }
 
             Destroy(gameObject);

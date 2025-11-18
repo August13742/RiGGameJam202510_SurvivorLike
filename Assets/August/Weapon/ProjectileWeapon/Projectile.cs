@@ -1,11 +1,10 @@
 using UnityEngine;
 using Survivor.Game;
 using Survivor.VFX;
-using System.Collections.Generic;
 
 namespace Survivor.Weapon
 {
-    [RequireComponent(typeof(PrefabStamp),typeof(Collider2D))]
+    [RequireComponent(typeof(PrefabStamp))]
     public sealed class Projectile : MonoBehaviour,IPoolable
     {
         public float Damage { get; private set; }

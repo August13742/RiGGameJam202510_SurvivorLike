@@ -80,7 +80,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1560946809
-  m_SortingLayer: 4
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 4723107735738678597, guid: 7760586b956072e46bcab3c5cacb6dc4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -252,40 +252,63 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    MaxHealth: 6000
+    MaxHealth: 15000
     EnragedColour: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
-    MeleeDamage: 10
+    MeleeDamage: 20
     ChaseSpeed: 5
     IdleWanderSpeed: 2
-    EngageRange: 12
-    AttackRange: 10
+    EngageRange: 15
+    AttackRange: 13
     RangedAttackMinRange: 5
     GlobalAttackCooldown: 1
     MinFlipInterval: 0.5
     FacingDeadzone: 0.2
+    MeleePocketHysteresis: 0.5
     RangedInMeleeWeightMultiplier: 0.35
     AttackPatterns:
     - Category: 1
       Pattern: {fileID: 11400000, guid: 820c0a19b6ee3834791b7ebf4c6a428b, type: 2}
       CooldownTag: gapclose_atk
-      Cooldown: 3
+      Cooldown: 5
       Weight: 5
     - Category: 1
       Pattern: {fileID: 11400000, guid: 0d243805f65a895448050aefd28d672e, type: 2}
       CooldownTag: attack_sequence
-      Cooldown: 3
+      Cooldown: 5
       Weight: 5
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: bba1967f44dd9c941b4ced9c59491e1e, type: 2}
+      CooldownTag: meteor
+      Cooldown: 5
+      Weight: 5
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: 6e7774d23dc48d940a4e7b210f20a02f, type: 2}
+      CooldownTag: riptide
+      Cooldown: 5
+      Weight: 5
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: c29a5bda7051d914691d947d11df994b, type: 2}
+      CooldownTag: charge
+      Cooldown: 5
+      Weight: 10
+    EnrageAction:
+      Category: 0
+      Pattern: {fileID: 0}
+      CooldownTag: 
+      Cooldown: 3
+      Weight: 1
+    EnrageWeightMultiplier: 9999
   AlwaysEnraged: 0
   IsEnraged: 0
   <Velocity>k__BackingField: {x: 0, y: 0}
   <VelocityOverride>k__BackingField: {x: 0, y: 0}
   <Direction>k__BackingField: {x: 0, y: 0}
-  acceleration: 75
-  friction: 35
+  acceleration: 100
+  friction: 1000
   Visuals: {fileID: 922839007414656169}
   firePoint: {fileID: 0}
   meleeHitbox: {fileID: 8548918785926560727}
-  projectilePrefab: {fileID: 2219610313089106186, guid: 6bb535abf04bdb444ae73e84b069fca0, type: 3}
+  projectilePrefab: {fileID: 2219610313089106186, guid: ba3273511099fd34ea0ac54a71f30282, type: 3}
   projectileDamage: 5
   projectileSpeed: 12
   projectileIsHoming: 0
@@ -293,6 +316,8 @@ MonoBehaviour:
   projectileHomingDuration: 0.3
   behaviorPivotLocal: {x: 0, y: 0}
   _currentStateLabel: 
+  <IsDead>k__BackingField: 0
+  _enrageActionPending: 0
 --- !u!114 &1376036947245460620
 MonoBehaviour:
   m_ObjectHideFlags: 0

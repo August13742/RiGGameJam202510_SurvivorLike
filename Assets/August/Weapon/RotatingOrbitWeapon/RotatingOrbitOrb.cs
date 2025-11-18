@@ -153,6 +153,7 @@ namespace Survivor.Weapon
 
         private void Despawn()
         {
+            if (gameObject == null) return;
             _orbitTween?.Kill();
             _orbitTween = null;
 
