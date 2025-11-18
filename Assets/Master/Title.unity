@@ -198,6 +198,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &237238897 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9061611374895052832, guid: 516f3402b4184144192bfe97410490d1, type: 3}
+  m_PrefabInstance: {fileID: 687921890}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &687921890
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -206,6 +211,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1561387068}
     m_Modifications:
+    - target: {fileID: -3261015396726913279, guid: 516f3402b4184144192bfe97410490d1, type: 3}
+      propertyPath: root
+      value: 
+      objectReference: {fileID: 237238897}
     - target: {fileID: -3261015396726913279, guid: 516f3402b4184144192bfe97410490d1, type: 3}
       propertyPath: previousMenuRoot
       value: 
@@ -1319,6 +1328,14 @@ PrefabInstance:
       propertyPath: bossSelectMenu
       value: 
       objectReference: {fileID: 687921892}
+    - target: {fileID: 2154578447496553887, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
+      propertyPath: availableBosses.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2154578447496553887, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
+      propertyPath: 'availableBosses.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: adeaa7042d493a54e85097cdc1a3b612, type: 2}
     - target: {fileID: 2205160528367113163, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1369,11 +1386,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2562528759597653134, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2562528759597653134, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2562528759597653134, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
       propertyPath: m_LocalPosition.x
