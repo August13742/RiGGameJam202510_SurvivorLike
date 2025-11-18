@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfda9703fcef69441974877660e91276, type: 3}
+  m_Name: ElenFlamethrowerPattern
+  m_EditorClassIdentifier: 
+  flamethrowerPrefab: {fileID: 8736669970641011215, guid: 9ee56b371dc84e447ab7f50e7b40b90e, type: 3}
+  minDuration: 1
+  maxDuration: 3
+  damagePerSecond: 20
+  enragedDamageMultiplier: 1.2
+  tickInterval: 0.25
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 64
+  basePrefabLength: 1
+  minRange: 12
+  maxRange: 15
+  lengthGrowSpeed: 20
+  thicknessGrowSpeed: 10
+  targetThicknessMul: 20
+  maxTurnRateDeg: 35
+  initialAimRadiusMin: 1
+  initialAimRadiusMax: 3
+  windupAnim: Attack1
+  windupTime: 0.3
+  loopAnim: Idle
+  endAnim: Idle
+  lockMovement: 1

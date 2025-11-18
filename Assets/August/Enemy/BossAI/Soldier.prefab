@@ -253,7 +253,7 @@ MonoBehaviour:
   config:
     MaxHealth: 15000
     EnragedColour: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
-    MeleeDamage: 15
+    MeleeDamage: 20
     ChaseSpeed: 4
     IdleWanderSpeed: 2
     EngageRange: 18
@@ -323,12 +323,15 @@ MonoBehaviour:
   firePoint: {fileID: 0}
   meleeHitbox: {fileID: 7554204438367727322}
   projectilePrefab: {fileID: 6667655376519033802, guid: 3955badc9c444694490d3326e93b3aee, type: 3}
-  projectileDamage: 15
-  projectileSpeed: 10
+  projectileDamage: 30
+  projectileSpeed: 12
   projectileIsHoming: 0
   projectileHomeWhenEnraged: 0
   projectileHomingDuration: 1
   behaviorPivotLocal: {x: 0, y: 0}
+  attackTelegraphRoot: {fileID: 0}
+  telegraphScaleInDuration: 0.25
+  telegraphScaleOutDuration: 0.2
   _currentStateLabel: 
   <IsDead>k__BackingField: 0
   _enrageActionPending: 0
