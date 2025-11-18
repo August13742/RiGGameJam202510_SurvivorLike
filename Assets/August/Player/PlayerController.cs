@@ -1,4 +1,4 @@
-using Survivor.Progression;
+﻿using Survivor.Progression;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -31,6 +31,22 @@ namespace Survivor.Control
 
         private float MoveSpeed => Stats.MoveSpeed;
 
+        // ---------- Unstuck / emergency rescue ----------
+        [Header("Unstuck Detection")]
+        [SerializeField] private float stuckMoveThreshold = 0.01f;      // min distance to consider "actually moved"
+        [SerializeField] private float stuckCheckInterval = 0.25f;      // seconds between position samples
+        [SerializeField] private float stuckTimeBeforeUnstuck = 1.0f;   // how long of "trying but not moving" before rescue
+
+        [Header("Unstuck Placement")]
+        [SerializeField] private float unstuckProbeRadius = 1f;       // radius of overlap check
+        [SerializeField] private float unstuckSearchRadius = 2.0f;      // how far around to search
+        [SerializeField] private int unstuckRays = 8;                   // number of directions (8 = N/NE/E/... etc)
+        [SerializeField] private LayerMask unstuckObstaclesMask;        // if zero, we’ll default to motor.collisionMask
+
+        private Vector2 lastStuckCheckPosition;
+        private float stuckCheckTimer;
+        private float stuckAccumulatedTime;
+
         private void Awake()
         {
             input = new();
@@ -38,6 +54,14 @@ namespace Survivor.Control
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
             motor = GetComponent<KinematicMotor2D>();
             statComponent = GetComponent<PlayerStatsComponent>();
+
+            lastStuckCheckPosition = rb.position;
+
+            // If not set in inspector, default to whatever the motor collides with.
+            if (unstuckObstaclesMask == 0)
+            {
+                unstuckObstaclesMask = motor.collisionMask;
+            }
         }
 
         private void OnEnable()
@@ -66,7 +90,6 @@ namespace Survivor.Control
 
         private void FixedUpdate()
         {
-
             if (IsFrozen)
             {
                 // Still apply external displacement
@@ -91,6 +114,101 @@ namespace Survivor.Control
 
             motor.Move(delta);
             externalDisplacement = Vector2.zero; // consumed this frame
+
+            UpdateStuckDetection(Time.fixedDeltaTime);
+        }
+
+        // ---------- Stuck detection / rescue ----------
+
+        private void UpdateStuckDetection(float dt)
+        {
+            // No intention to move -> do not consider it being "stuck"
+            if (inputDirection.sqrMagnitude < 0.01f)
+            {
+                stuckAccumulatedTime = 0f;
+                stuckCheckTimer = 0f;
+                lastStuckCheckPosition = rb.position;
+                return;
+            }
+
+            stuckCheckTimer += dt;
+            if (stuckCheckTimer < stuckCheckInterval)
+                return;
+
+            stuckCheckTimer = 0f;
+
+            Vector2 currentPos = rb.position;
+            float dist = (currentPos - lastStuckCheckPosition).sqrMagnitude;
+
+            if (dist < stuckMoveThreshold * stuckMoveThreshold)
+            {
+                stuckAccumulatedTime += stuckCheckInterval;
+
+                if (stuckAccumulatedTime >= stuckTimeBeforeUnstuck)
+                {
+                    if (TryUnstuck(currentPos))
+                    {
+                        // reset timers after successful rescue
+                        stuckAccumulatedTime = 0f;
+                        stuckCheckTimer = 0f;
+                        lastStuckCheckPosition = rb.position;
+                    }
+                }
+            }
+            else
+            {
+                // We did move -> reset
+                stuckAccumulatedTime = 0f;
+                lastStuckCheckPosition = currentPos;
+            }
+        }
+
+        private bool TryUnstuck(Vector2 currentPos)
+        {
+            // Reset velocity – we don’t want to immediately slam back into the same wall.
+            velocity = Vector2.zero;
+            externalDisplacement = Vector2.zero;
+            Debug.Log($"[PlayerController] Trying to Unstuck");
+            // Check current position first – if for some reason Overlap says it's free, just reset timers.
+            if (IsPositionFree(currentPos))
+            {
+                return true;
+            }
+
+            // Sample around in a circle
+            int rays = Mathf.Max(4, unstuckRays);
+            float maxR = Mathf.Max(unstuckSearchRadius, unstuckProbeRadius * 1.1f);
+
+            for (int ring = 1; ring <= 3; ring++)
+            {
+                float r = maxR * (ring / 3f);
+                for (int i = 0; i < rays; i++)
+                {
+                    float angle = (Mathf.PI * 2f * i) / rays;
+                    Vector2 dir = new(Mathf.Cos(angle), Mathf.Sin(angle));
+                    Vector2 candidate = currentPos + dir * r;
+
+                    if (IsPositionFree(candidate))
+                    {
+                        rb.position = candidate;
+                        lastStuckCheckPosition = candidate;
+                        Debug.Log($"[PlayerController] Unstuck to {candidate}");
+                        return true;
+                    }
+                }
+            }
+
+            // No valid position found. We tried.
+            Debug.LogWarning("[PlayerController] Tried to unstuck, but found no free position.");
+            return false;
+        }
+
+        private bool IsPositionFree(Vector2 pos)
+        {
+            // Approximate the player collider with a circle.
+            // swap to OverlapBox with collider extents for tighter fit
+            Collider2D hit = Physics2D.OverlapCircle(pos, unstuckProbeRadius, unstuckObstaclesMask);
+            return hit == null;
         }
 
         #region Hitstop
