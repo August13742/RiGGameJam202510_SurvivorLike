@@ -17,6 +17,11 @@ namespace Survivor.Progression
         private SelectionHistory _history;
         private OfferBuilder _builder;
 
+        // --- STATE TRACKING ---
+        private int _pendingLevels = 0;
+        private bool _isChoosing = false;
+
+
         public Action<UpgradeCardVM[]> OfferReady; // UI subscribes
         private void Awake()
         {
@@ -37,24 +42,36 @@ namespace Survivor.Progression
             if (sm) sm.LevelUp -= OnLevelUp;
             if (isDebugAutoPick) OfferReady -= HandleDebugAutoPick;
         }
-
         private void OnLevelUp()
         {
+            _pendingLevels++;
+
+            // Attempt to process. If we are already choosing, this does nothing.
+            TryProcessNextLevelUp();
+        }
+        private void TryProcessNextLevelUp()
+        {
+            // Stop if we are already showing a menu OR if there are no levels pending
+            if (_isChoosing || _pendingLevels <= 0) return;
+
             var sm = SessionManager.Instance;
-            if (!sm)
-            {
-                Debug.LogWarning("[Progression] No SessionManager.Instance.");
-                return;
-            }
+            if (!sm) return;
+
+            // Consume one level from queue
+            _pendingLevels--;
+            _isChoosing = true;
 
             var player = sm.GetPlayerReference();
             var dm = player ? player.GetComponent<DroneManager>() : null;
             var ctx = new ProgressionContext(sm, player, dm, _history);
 
             var cards = _builder.BuildOffer(ctx, UpgradePool, cardsPerLevel);
+
             if (cards == null || cards.Length == 0)
             {
-                Debug.LogWarning("[Progression] No available upgrades in pool.");
+                Debug.LogWarning("[Progression] No available upgrades. Skipping level.");
+                _isChoosing = false;
+                TryProcessNextLevelUp(); // Recursively check if we have more levels to skip through
                 return;
             }
 
@@ -89,6 +106,8 @@ namespace Survivor.Progression
             {
                 Debug.Log($"<color=green>Upgrade Applied: {def.Title}</color> (no details)");
             }
+            _isChoosing = false;
+            TryProcessNextLevelUp();
         }
 
         /// Optional: pick by index from current offer (useful for debug/autopick).

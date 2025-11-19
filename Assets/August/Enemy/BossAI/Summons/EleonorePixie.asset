@@ -29,9 +29,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   showVFX: 1
-  vfxPrefab: {fileID: 0}
+  vfxPrefab: {fileID: 886214537344977299, guid: 023e5d93baab104478ebfac0647a291d, type: 3}
   cameraShakeStrength: 2
   cameraShakeDuration: 0.2
   telegraphColor: {r: 0, g: 1, b: 1, a: 1}
   lifeTime: 30
-  maxHP: 500
+  maxHP: 2000

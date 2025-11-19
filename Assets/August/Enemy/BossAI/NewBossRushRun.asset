@@ -20,4 +20,4 @@ MonoBehaviour:
   startingLevels: 0
   startingGold: 0
   enableHpScaling: 1
-  hpScalePerIndex: 0.3
+  hpScalePerIndex: 0.5

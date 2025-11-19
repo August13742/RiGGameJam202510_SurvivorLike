@@ -27,8 +27,8 @@ public static class Targeting
             HealthComponent target;
             target = col.GetComponent<HealthComponent>();
             if (target == null) target = col.GetComponentInParent<HealthComponent>();
-            if (target == null) return null;
-            if (target.IsDead) return null;
+            if (target == null) continue;
+            if (target.IsDead) continue;
 
             _valid.Add(target.transform);
         }

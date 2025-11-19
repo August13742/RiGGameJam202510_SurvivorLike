@@ -134,7 +134,12 @@ namespace Survivor.Game
             if (_runFinished) return;
             _runFinished = true;
             Debug.Log("<color=cyan>Single Boss defeated.</color>");
-
+            StartCoroutine(ShowMenuAfterDelay());
+            
+        }
+        private IEnumerator ShowMenuAfterDelay()
+        {
+            yield return new WaitForSeconds(2f);
             var menu = FindFirstObjectByType<UI.SimplePauseMenu>();
             if (menu != null)
             {

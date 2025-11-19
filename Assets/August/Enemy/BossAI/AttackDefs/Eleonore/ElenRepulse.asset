@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   effectRadius: 12
   chanceToBeAttractInstead: 0.35
-  maxTravel: 20
+  maxTravel: 30
   delay: 0.75
   telegraphColor: {r: 1, g: 0.6, b: 0.4, a: 1}
   onlyWhenEnraged: 0

@@ -15,7 +15,7 @@ MonoBehaviour:
   shootAnimationName: Attack1
   ProjectilePrefab: {fileID: 886214537344977299, guid: dbcfa463d52ea054db7fdb285219a735, type: 3}
   Damage: 15
-  Speed: 14
+  Speed: 10
   Life: 5
   ArrowPerRep: 1
   SpreadMultiplier: 3
