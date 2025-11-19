@@ -150,7 +150,7 @@ MonoBehaviour:
       Pattern: {fileID: 11400000, guid: d226aa58c1075444abb1ce031f03a910, type: 2}
       CooldownTag: repulse_shoot
       Cooldown: 10
-      Weight: 5
+      Weight: 3
     EnrageAction:
       Category: 0
       Pattern: {fileID: 11400000, guid: 3e57ea8277021104a82feb150e0f1d56, type: 2}

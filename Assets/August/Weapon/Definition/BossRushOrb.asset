@@ -15,8 +15,10 @@ MonoBehaviour:
   RuntimePrefab: {fileID: 8060733332101865006, guid: 27a58cb41e9f09a4fadd7ea8fa3ce47f, type: 3}
   Id: orb_br
   Icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  fireSFX: {fileID: 11400000, guid: 2bb8e5810c327c246929d9c1a36d536c, type: 2}
+  equipSFX: {fileID: 0}
   BaseDamage: 8
-  BaseCooldown: 5
+  BaseCooldown: 3
   TargetingMode: 0
   AreaScale: 1
   Projectiles: 2
@@ -27,8 +29,8 @@ MonoBehaviour:
   RadiusAreaBias: 0.2
   OrbScaleClamp: {x: 0.6, y: 3}
   RadiusMulClamp: {x: 0.6, y: 2.5}
-  RotationTime: 2
-  Revolutions: 2
+  RotationTime: 1.25
+  Revolutions: 1
   FollowOrigin: 1
   Clockwise: 1
   OrbPrefab: {fileID: 2939867143732988035, guid: 222440cf12b130c4bbbb26c063223d9b, type: 3}

@@ -134,6 +134,7 @@ namespace Survivor.Weapon
                 alphaOverLife: def.AlphaOverLife,
                 followOrigin: def.FollowOrigion
             );
+            AugustsUtility.AudioSystem.AudioManager.Instance?.PlaySFX(def.fireSFX);
         }
 
     }

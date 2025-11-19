@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-
+using AugustsUtility.AudioSystem;
 namespace Survivor.Weapon
 {
     public enum Team { Player, Enemy }
@@ -11,6 +11,8 @@ namespace Survivor.Weapon
         [SerializeField] protected TDef def;
         [SerializeField] protected Transform fireOrigin;
         [SerializeField] protected WeaponModDef[] mods;
+        [SerializeField] protected SFXResource fireSFX;
+        [SerializeField] protected SFXResource equipSFX;
 
         protected WeaponContext ctx;
         protected float cooldown;
@@ -37,6 +39,9 @@ namespace Survivor.Weapon
 
             def = typed;
             ctx = context;
+
+            AudioManager.Instance?.PlaySFX(equipSFX);
+
             OnEquipped();
         }
 

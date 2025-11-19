@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-
+using AugustsUtility.AudioSystem;
 namespace Survivor.Enemy.FSM
 {
     [CreateAssetMenu(
@@ -8,6 +8,10 @@ namespace Survivor.Enemy.FSM
         menuName = "Defs/Boss Attacks/Flamethrower")]
     public sealed class AttackPattern_Flamethrower : AttackPattern
     {
+        [Header("SFX")]
+        [SerializeField] private SFXResource fireSFX;
+        [SerializeField] private SFXResource holdSFX;
+        
         [Header("Prefab")]
         [SerializeField] private GameObject flamethrowerPrefab;
 
@@ -64,6 +68,7 @@ namespace Survivor.Enemy.FSM
         [Tooltip("If true, boss movement is frozen while casting.")]
         [SerializeField] private bool lockMovement = true;
 
+        AudioHandle flameHandle = null;
         public override IEnumerator Execute(BossController controller)
         {
             if (controller == null || controller.PlayerTransform == null || flamethrowerPrefab == null)
@@ -104,6 +109,7 @@ namespace Survivor.Enemy.FSM
                 controller.Animator.speed = 1f;
             }
 
+            AudioManager.Instance?.PlaySFXAtPosition(fireSFX,controller.transform.position);
             // --- 1. Spawn beam prefab ---
             GameObject go = Object.Instantiate(
                 flamethrowerPrefab,
@@ -117,6 +123,7 @@ namespace Survivor.Enemy.FSM
                 Object.Destroy(go);
                 yield break;
             }
+            flameHandle = AudioManager.Instance?.PlaySFXLoop(holdSFX);
 
             // --- 1.5 Compute initial aim: random point around player ---
             Vector2 originPos = firePoint.position;

@@ -224,7 +224,7 @@ namespace Survivor.Game
             if (amount <= 0) return;
             experienceCollected = Mathf.Max(0, experienceCollected + amount);
             currentExp += amount;
-            ExpChanged.Invoke(amount);
+            ExpChanged?.Invoke(amount);
             CheckIfLevelUp();
         }
 

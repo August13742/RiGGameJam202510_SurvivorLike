@@ -234,7 +234,6 @@ namespace AugustsUtility.AudioSystem
                 StopLoopedSFX(res.eventName, fadeOut);
         }
 
-        // FIX: Implemented public method to stop a named loop
         public void StopLoopedSFX(string eventName, float fadeOut = 0f)
         {
             if (string.IsNullOrEmpty(eventName) || !_loopSfx.TryGetValue(eventName, out var src))
@@ -252,7 +251,6 @@ namespace AugustsUtility.AudioSystem
             OnSFXFinished?.Invoke(eventName, -1); // -1 signifies a loop was stopped
         }
 
-        // FIX: Implemented SFX pause
         public void PauseSFX()
         {
             _pausedSfx.Clear();
@@ -283,6 +281,65 @@ namespace AugustsUtility.AudioSystem
             }
             _pausedSfx.Clear();
         }
+
+        public AudioHandle PlaySFXLoop(SFXResource res, float fadeInfoTime = 0f, Transform parent = null)
+        {
+            if (res == null || res.clip == null) return null;
+
+            // Create a dedicated source object
+            var go = new GameObject($"Loop_{res.eventName}");
+            go.transform.SetParent(parent != null ? parent : transform); // Attach to parent if provided
+
+            // Position the object correctly, usually at the parent's center
+            if (parent != null)
+            {
+                go.transform.position = parent.position;
+            }
+
+            var src = go.AddComponent<AudioSource>();
+
+            src.outputAudioMixerGroup = SFXGroup;
+            src.clip = res.clip;
+            src.volume = 0f;
+            src.pitch = res.pitch;
+            src.loop = true;
+
+            // Enable 3D spatialization if a parent transform is provided, and API is enabled.
+            if (parent != null && enableSpatialApi)
+            {
+                src.spatialBlend = 1f; // Full 3D
+                src.rolloffMode = AudioRolloffMode.Logarithmic; // Standard decay model
+            }
+            else
+            {
+                src.spatialBlend = 0f; // 2D Fallback
+            }
+
+            src.Play();
+
+            // Handle Fade In
+            StartCoroutine(FadeSourceRoutine(src, res.volume, fadeInfoTime > 0 ? fadeInfoTime : 0.1f));
+
+            return new AudioHandle(src, this);
+        }
+
+        // Handle Stopping logic
+        public void StopHandle(AudioHandle handle, float duration)
+        {
+            if (handle.Source == null) return;
+
+            if (duration <= 0f)
+            {
+                Destroy(handle.Source.gameObject);
+            }
+            else
+            {
+                StartCoroutine(StopAndDestroyRoutine(handle.Source, duration));
+            }
+            handle.Clear();
+        }
+
+        
         #endregion
 
         #region Public: SFX Positional
@@ -423,6 +480,33 @@ namespace AugustsUtility.AudioSystem
         #endregion
 
         #region Coroutines & Internals
+        // Helper: Fade volume to target
+        private IEnumerator FadeSourceRoutine(AudioSource src, float targetVol, float duration)
+        {
+            float startVol = src.volume;
+            float t = 0f;
+            while (t < duration && src != null)
+            {
+                t += Time.unscaledDeltaTime;
+                src.volume = Mathf.Lerp(startVol, targetVol, t / duration);
+                yield return null;
+            }
+            if (src != null) src.volume = targetVol;
+        }
+
+        // Helper: Fade out and kill
+        private IEnumerator StopAndDestroyRoutine(AudioSource src, float duration)
+        {
+            float startVol = src.volume;
+            float t = 0f;
+            while (t < duration && src != null)
+            {
+                t += Time.unscaledDeltaTime;
+                src.volume = Mathf.Lerp(startVol, 0f, t / duration);
+                yield return null;
+            }
+            if (src != null) Destroy(src.gameObject);
+        }
         private AudioSource GetAvailableSFXSource()
         {
             foreach (var s in _sfxPool)
@@ -612,5 +696,36 @@ namespace AugustsUtility.AudioSystem
         private static float RandScale(float baseVal, float jitter) =>
             jitter <= 0f ? baseVal : baseVal * UnityEngine.Random.Range(1f - jitter, 1f + jitter);
         #endregion
+    }
+    public class AudioHandle
+    {
+        private AudioSource source;
+        private AudioManager manager;
+        private Coroutine fadeRoutine;
+
+        public bool IsPlaying => source != null && source.isPlaying;
+
+        public AudioHandle(AudioSource src, AudioManager mgr)
+        {
+            source = src;
+            manager = mgr;
+        }
+
+        public void Stop(float fadeDuration = 0f)
+        {
+            if (manager != null && source != null)
+            {
+                manager.StopHandle(this, fadeDuration);
+            }
+        }
+
+        public void SetPitch(float pitch)
+        {
+            if (source != null) source.pitch = pitch;
+        }
+
+        // Internal access for the manager
+        public AudioSource Source => source;
+        public void Clear() { source = null; }
     }
 }

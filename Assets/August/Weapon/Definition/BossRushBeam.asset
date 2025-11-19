@@ -15,6 +15,8 @@ MonoBehaviour:
   RuntimePrefab: {fileID: 5321779039240465208, guid: b64475fc4db138849b8891fbf66fca03, type: 3}
   Id: beam_br
   Icon: {fileID: -4542404649790094876, guid: 5620f5e7dbe43da4f89e420358c0852a, type: 3}
+  fireSFX: {fileID: 11400000, guid: 2affaf652318e8147bdf89f75d518c19, type: 2}
+  equipSFX: {fileID: 0}
   BaseDamage: 100
   BaseCooldown: 3
   TargetingMode: 1

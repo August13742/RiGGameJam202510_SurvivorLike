@@ -15,6 +15,9 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private float Speed = 14f;
         [SerializeField] private float Life = 3.0f;
 
+        [Header("SFX")]
+        [SerializeField] private SFXResource fireSFX;
+
         [Header("Repetitions")]
         [SerializeField] private int ArrowPerRep = 3;
         [SerializeField] private float SpreadMultiplier = 3f;     // degrees base multiplier for fan width
@@ -46,6 +49,7 @@ namespace Survivor.Enemy.FSM
             if (anim != null && !string.IsNullOrEmpty(shootAnimationName))
                 anim.Play(shootAnimationName);
 
+            
             float rateMul = _enraged ? enrageRateMul : 1f;
             float arrowMul = _enraged ? enrageArrowMul : 1f;
 
@@ -87,6 +91,7 @@ namespace Survivor.Enemy.FSM
         {
             if (arrowCount <= 0) yield break;
 
+            AugustsUtility.AudioSystem.AudioManager.Instance?.PlaySFX(fireSFX);
             // Aim vector
             Vector2 origin = controller.transform.position;
             Transform target = controller.PlayerTransform;

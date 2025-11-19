@@ -1,12 +1,15 @@
 using Survivor.Game;
 using System.Collections;
 using UnityEngine;
-
+using AugustsUtility.AudioSystem;
 namespace Survivor.Enemy.FSM
 {
     [CreateAssetMenu(fileName = "New DashAttackPattern", menuName = "Defs/Boss Attacks/Dash Pattern")]
     public class AttackPattern_Dash : AttackPattern
     {
+        [Header("SFX")]
+        [SerializeField] private SFXResource prepSFX;
+        [SerializeField] private SFXResource dashSFX;
         [Header("Dash Properties")]
         [SerializeField] private string dashAnimationName = "RapidRotate";
         [SerializeField] private string telegraphAnimationName = "Attack1";
@@ -71,12 +74,14 @@ namespace Survivor.Enemy.FSM
         private IEnumerator DoOneDash(BossController controller, float speed, float rateMul)
         {
             // 1) Telegraph
+            AudioManager.Instance?.PlaySFX(prepSFX);
             if (controller.Animator != null)
                 controller.Animator.Play(telegraphAnimationName);
             Vector2 targetPos = controller.PlayerTransform.position; // Lock target position at telegraph start
             yield return new WaitForSeconds(telegraphTime / rateMul);
 
             // 2) Dash Phase
+            AudioManager.Instance?.PlaySFX(dashSFX);
             Vector2 dir = ((Vector2)targetPos - (Vector2)controller.transform.position).normalized;
 
             controller.VelocityOverride = dir * speed;

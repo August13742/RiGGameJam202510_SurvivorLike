@@ -17,6 +17,9 @@ namespace Survivor.Enemy.FSM
         [Header("Spawn")]
         [SerializeField] private float spawnRadius = 2.5f;
 
+        [Header("SFX")]
+        [SerializeField] private SFXResource fireSFX;
+
         public override IEnumerator Execute(BossController controller)
         {
             if (controller == null ||
@@ -41,6 +44,7 @@ namespace Survivor.Enemy.FSM
             if (existing >= maxSimultaneousPixies)
                 yield break;
 
+            
             Vector2 bossPos = controller.BehaviorPivotWorld;
             Vector2 playerPos = controller.PlayerTransform.position;
 
@@ -64,6 +68,7 @@ namespace Survivor.Enemy.FSM
                 pixie.Init(controller, controller.PlayerTransform, pixieConfig);
             }
 
+            AugustsUtility.AudioSystem.AudioManager.Instance?.PlaySFX(fireSFX);
             // fire-and-forget
             yield break;
         }

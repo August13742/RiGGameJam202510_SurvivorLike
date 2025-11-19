@@ -1,5 +1,6 @@
 using System.Collections;
 using AugustsUtility.Tween;
+using AugustsUtility.AudioSystem;
 using Survivor.Game;
 using UnityEngine;
 
@@ -10,6 +11,10 @@ namespace Survivor.Enemy.FSM
         menuName = "Defs/Boss Attacks/Blink Teleport")]
     public sealed class AttackPattern_BlinkTeleport : AttackPattern
     {
+        [Header("SFX")]
+        [SerializeField] private SFXResource blinkSFX;
+        [SerializeField] private SFXResource appearSFX;
+
         [Header("Blink Distances (around player)")]
         [SerializeField] private float minBlinkDistance = 4f;
         [SerializeField] private float maxBlinkDistance = 8f;
@@ -73,6 +78,7 @@ namespace Survivor.Enemy.FSM
             }
 
             // Fade-out
+            AudioManager.Instance?.PlaySFX(blinkSFX);
             if (fadeOutTime > 0f)
             {
                 ValueTween<float> fadeOutTween = Tween.TweenValue(
@@ -114,6 +120,7 @@ namespace Survivor.Enemy.FSM
 
             // Teleport around player
             TeleportAroundPlayer(controller, distMul);
+            AudioManager.Instance?.PlaySFX(appearSFX);
 
             // Fade-in
             if (fadeInTime > 0f)

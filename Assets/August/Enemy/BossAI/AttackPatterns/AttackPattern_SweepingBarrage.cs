@@ -15,6 +15,9 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private float speed = 14f;
         [SerializeField] private float projectileLife = 3.0f;
 
+        [Header("SFX")]
+        [SerializeField] private SFXResource fireSFX;
+
         [Header("Sweep Geometry")]
         [Tooltip("Total arc width in degrees to cover.")]
         [SerializeField] private float sweepWidthDegrees = 45f;
@@ -192,7 +195,10 @@ namespace Survivor.Enemy.FSM
 
         private void SpawnProjectile(BossController controller, Vector2 dir, float speedMultiplier)
         {
-            Vector2 origin = controller.transform.position; // Or controller.FirePoint
+
+            Vector2 origin = controller.FirePoint == null? controller.transform.position:controller.FirePoint.position;
+            AugustsUtility.AudioSystem.AudioManager.Instance?.PlaySFX(fireSFX);
+
             var go = Object.Instantiate(projectilePrefab, origin, Quaternion.identity);
 
             var bullet = go.GetComponent<Weapon.EnemyProjectile2D>();

@@ -1,5 +1,6 @@
 using System.Collections;
 using AugustsUtility.Telegraph;
+using AugustsUtility.AudioSystem;
 using Survivor.Control;
 using Survivor.Game;
 using UnityEngine;
@@ -11,6 +12,10 @@ namespace Survivor.Enemy.FSM
         menuName = "Defs/Boss Attacks/Sweep Repulse Then Shoot")]
     public sealed class AttackPattern_SweepingRepulseThenShoot : AttackPattern
     {
+        [Header("SFX")]
+        [SerializeField] private SFXResource repulseSFX;
+        [SerializeField] private SFXResource shootSFX;
+
         [Header("Sweep Geometry")]
         [SerializeField] private float sweepArcDegrees = 60f;
         [SerializeField] private int steps = 6;
@@ -136,6 +141,8 @@ namespace Survivor.Enemy.FSM
 
                 // Apply directional impulse, clamped to outer face of the box
                 ApplyPushWithHelper(controller, pivot, boxCenter, dir, angle);
+
+                AudioManager.Instance?.PlaySFX(repulseSFX);
             }
         }
 
@@ -198,6 +205,7 @@ namespace Survivor.Enemy.FSM
                 Vector2 dir = DegreeToVector2(angle);
 
                 SpawnProjectile(controller, pivot, dir);
+                AudioManager.Instance?.PlaySFX(shootSFX);
 
                 if (shotDelay > 0f)
                     yield return new WaitForSeconds(shotDelay);
