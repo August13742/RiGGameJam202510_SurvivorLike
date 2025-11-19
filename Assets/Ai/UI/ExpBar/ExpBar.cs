@@ -1,5 +1,4 @@
 using Survivor.Game;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class ExpBar : MonoBehaviour
@@ -9,17 +8,23 @@ public class ExpBar : MonoBehaviour
     [SerializeField] private SessionManager SessionManager;
     private float currentExpPercent;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private void Awake()
+    {
+        expFill.transform.localScale = new Vector3(0, 1, 1);
+    }
     void Start()
     {
         SessionManager = SessionManager.Instance;
+        SessionManager.ExpChanged += OnExpChanged;
     }
-
-    // Update is called once per frame
-    void Update()
+    void OnExpChanged(int amt)
     {
-        currentExpPercent = SessionManager.GetCurrentExpPercent(); /*SessionManager‚ÌƒR[ƒh‚Åfloat‚ÉƒLƒƒƒXƒg‚·‚ê‚Î‚¤‚Ü‚­‚¢‚­*/
-            
+        currentExpPercent = SessionManager.GetCurrentExpPercent(); /*SessionManagerï¿½ÌƒRï¿½[ï¿½hï¿½ï¿½floatï¿½ÉƒLï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½ï¿½Î‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½ï¿½*/
+
         expFill.transform.localScale = new Vector3(currentExpPercent, 1, 1);
+    }
+    private void OnDestroy()
+    {
+        SessionManager.ExpChanged -= OnExpChanged;
     }
 }
