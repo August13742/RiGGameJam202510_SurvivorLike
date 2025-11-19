@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace Survivor.Weapon
 {
-    public sealed class HazardZone2D : MonoBehaviour
+    public class HazardZone2D : MonoBehaviour
     {
         [Header("Zone")]
         [SerializeField] private float radius = 2f;
-        [SerializeField] private LayerMask hitMask;
+        [SerializeField] protected LayerMask hitMask;
 
         [Header("Damage")]
         [SerializeField] private float damagePerSecond = 5f;
@@ -86,7 +86,7 @@ namespace Survivor.Weapon
             }
         }
 
-        private void FixedUpdate()
+        protected virtual void FixedUpdate()
         {
             _timeLeft -= Time.fixedDeltaTime;
             if (_timeLeft <= 0f)

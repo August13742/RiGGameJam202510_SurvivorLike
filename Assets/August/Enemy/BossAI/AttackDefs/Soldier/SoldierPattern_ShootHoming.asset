@@ -16,7 +16,7 @@ MonoBehaviour:
   ProjectilePrefab: {fileID: 4992832623426345031, guid: 3955badc9c444694490d3326e93b3aee, type: 3}
   Damage: 15
   Speed: 8
-  Life: 3
+  Life: 4
   ArrowPerRep: 1
   SpreadMultiplier: 3
   Homing: 1
@@ -26,7 +26,7 @@ MonoBehaviour:
   ProbDecayPerShot: 0.5
   windupSeconds: 0.75
   interArrowDelay: 0.1
-  interRepDelay: 0.5
+  interRepDelay: 0.75
   enrageArrowMul: 1.5
   enrageDecayReduction: 0.5
   enrageRateMul: 1.25

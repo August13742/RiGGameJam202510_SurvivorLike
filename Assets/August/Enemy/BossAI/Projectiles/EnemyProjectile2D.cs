@@ -8,7 +8,7 @@ namespace Survivor.Weapon
         [Header("Damage / Motion")]
         [SerializeField] private float speed = 12f;
         [SerializeField] private float damage = 5f;
-
+        [SerializeField] private bool rotate = true;
         [Header("Hit Sweep")]
         [SerializeField] private LayerMask hitMask;                  // e.g., Player
 
@@ -61,7 +61,7 @@ namespace Survivor.Weapon
                 _homingTarget = target;
             }
 
-            OrientTo(_dir);
+            if (rotate) OrientTo(_dir);
         }
 
         private void FixedUpdate()

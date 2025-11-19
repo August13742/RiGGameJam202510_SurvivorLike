@@ -174,5 +174,14 @@ namespace Survivor.Weapon
             if (_renderer) _renderer.enabled = false;
             _pivot = null;
         }
+        private void OnDestroy()
+        {
+            // Scene unload or manual Destroy
+            if (_orbitTween != null)
+            {
+                _orbitTween.Kill();
+                _orbitTween = null;
+            }
+        }
     }
 }
