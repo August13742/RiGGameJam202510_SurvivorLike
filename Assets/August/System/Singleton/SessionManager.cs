@@ -26,6 +26,7 @@ namespace Survivor.Game
 
         public Action LevelUp;
         public Action<int> GoldChanged;
+        public Action<int> ExpChanged;
 
         // -------- Statistics (authoritative) --------
         [Header("Statistics")]
@@ -223,6 +224,7 @@ namespace Survivor.Game
             if (amount <= 0) return;
             experienceCollected = Mathf.Max(0, experienceCollected + amount);
             currentExp += amount;
+            ExpChanged.Invoke(amount);
             CheckIfLevelUp();
         }
 
