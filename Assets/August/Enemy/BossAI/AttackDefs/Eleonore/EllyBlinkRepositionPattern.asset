@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df94e398daa9c834aae31a91892e2ed5, type: 3}
   m_Name: EllyBlinkRepositionPattern
   m_EditorClassIdentifier: 
-  blinkSFX: {fileID: 11400000, guid: 53c7fb6abf00bf241871e7eeb0806c3c, type: 2}
+  blinkSFX: {fileID: 0}
   appearSFX: {fileID: 11400000, guid: 89d95fb8e0299e342bd65b6806e57db2, type: 2}
   minBlinkDistance: 3
   maxBlinkDistance: 8
