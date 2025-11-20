@@ -47,7 +47,7 @@ namespace Survivor.Weapon
 
    
 
-            target.Damage(dealt);
+            target.Damage(dealt,transform.position);
             Destroy(gameObject);
         }
 

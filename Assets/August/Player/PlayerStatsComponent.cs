@@ -67,7 +67,7 @@ namespace Survivor.Progression
             {
                 // heal by the amount increased?
                 float difference = EffectiveStats.MaxHP - _healthComponent.Max;
-                _healthComponent.SetMaxHP(EffectiveStats.MaxHP, raiseEvent: false);
+                _healthComponent.SetMaxHP(EffectiveStats.MaxHP);
                 if (difference > 0)
                 {
                     _healthComponent.Heal(difference);

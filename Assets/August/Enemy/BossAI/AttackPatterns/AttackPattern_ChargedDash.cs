@@ -234,7 +234,7 @@ namespace Survivor.Enemy.FSM
                 if (hp.IsDead) continue;
 
                 anyHit = true;
-                hp.Damage(damage);
+                hp.Damage(damage, bossRoot.transform.position);
 
                 CameraShake2D.Shake(cameraShakeDuration, cameraShakeStrength);
                 if (hitstopDuration > 0f)

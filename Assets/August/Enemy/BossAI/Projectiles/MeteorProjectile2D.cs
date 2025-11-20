@@ -103,7 +103,7 @@ namespace Survivor.Weapon
                 if (!_hits[i].TryGetComponent<HealthComponent>(out var hp)) continue;
                 if (hp.IsDead) continue;
 
-                hp.Damage(damage);
+                hp.Damage(damage,transform.position);
             }
 
             // VFX for impact

@@ -107,7 +107,7 @@ namespace Survivor.Weapon
                 if (!_hits[i].TryGetComponent<HealthComponent>(out var hp)) continue;
                 if (hp.IsDead) continue;
 
-                hp.Damage(damagePerSecond * dt);
+                hp.Damage(damagePerSecond * dt,transform.position);
             }
         }
 

@@ -144,7 +144,7 @@ namespace Survivor.Weapon
                 if (crit) dealt = Mathf.Round(dealt * _critMul * 10f) / 10f;
             }
 
-            target.Damage(dealt, crit);
+            target.Damage(dealt, transform.position,crit);
             VFX.VFXManager.Instance?.ShowHitEffect(col.gameObject.transform.position, crit);
 
             _sink?.OnHit(dealt, transform.position, crit);

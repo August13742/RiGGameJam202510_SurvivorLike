@@ -227,7 +227,7 @@ namespace Survivor.Enemy.FSM
             {
                 if (_hits[i] != null && _hits[i].TryGetComponent<HealthComponent>(out var hp) && !hp.IsDead)
                 {
-                    hp.Damage(damage);
+                    hp.Damage(damage, interpolatedWavePos);
                     CameraShake2D.Shake(cameraShakeDuration, cameraShakeStrength);
                     
                 }

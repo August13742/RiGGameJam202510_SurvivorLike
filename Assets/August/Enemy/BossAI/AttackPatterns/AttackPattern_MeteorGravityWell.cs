@@ -545,7 +545,7 @@ namespace Survivor.Enemy.FSM
                 if (!col.TryGetComponent<HealthComponent>(out var hp)) continue;
                 if (hp.IsDead) continue;
 
-                hp.Damage(dmg);
+                hp.Damage(dmg, center);
             }
         }
     }

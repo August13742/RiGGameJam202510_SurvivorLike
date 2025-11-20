@@ -1,106 +1,207 @@
 using System;
 using UnityEngine;
 
+
 namespace Survivor.Game
 {
+    public enum DamageReception
+    {
+        Normal,
+        Nullified, // Hit registers (sparks/sound) but 0 damage
+        Absorb,    // Damage converts to Health
+        Invincible // Hit is completely ignored
+    }
+
     [DisallowMultipleComponent]
     public sealed class HealthComponent : MonoBehaviour
     {
+        #region Configuration
+        [Header("Stats")]
         [SerializeField, Min(1)] private float maxHP = 100f;
         [SerializeField] private float current;
-        [SerializeField] private bool triggerHitstopOnDamaged = true;
-        [SerializeField,Min(0.01f)] private float hitstopDurationSec = 0.15f;
+
+        [Header("Debug / State")]
+        [SerializeField] private bool godMode = false; // Essential for dev
+        [SerializeField] private DamageReception receptionState = DamageReception.Normal;
+
+        [Header("Reactions")]
+        [SerializeField] private bool triggerHitstop = true;
+        [SerializeField, Min(0.0f)] private float hitstopDuration = 0.12f;
+
+        [Header("I-Frame Logic")]
+        [Tooltip("If true, prevents multiple hits in rapid succession.")]
         [SerializeField] private bool useIframe = false;
-        [SerializeField, Min(0.01f)] private float iframeDuration = 0.05f;
+        [SerializeField, Min(0.01f)] private float iframeDuration = 0.5f;
+
+        [Header("Audio Integration")]
+        [SerializeField] private SFXResource damageSfx;
+        [SerializeField] private SFXResource healSfx;
+        [SerializeField] private SFXResource deathSfx;
+        #endregion
+
+        #region Public API
         public float Max => maxHP;
         public float Current => current;
         public bool IsDead => current <= 0;
+        public DamageReception Reception
+        {
+            get => receptionState;
+            set => receptionState = value;
+        }
 
-
+        // Events
+        // (Current, Max)
         public Action<float, float> HealthChanged;
-        public Action Died;
-        public Action<float, Vector3, bool> Damaged; //amount, worldPos, crit?
+
+        // (Amount, SourcePosition, IsCrit)
+        public Action<float, Vector3, bool> Damaged;
+
+        // (Amount, SourcePosition)
         public Action<float, Vector3> Healed;
 
-        private float iframeTimer = 0f;
+        // (KillingBlowDirection, ExcessiveDamageAmount)
+        public Action<Vector3, float> Died;
+        #endregion
+
+        #region Internal State
+        private float _iframeTimer = 0f;
+        private float _damageTakenInWindow = 0f;
+        #endregion
+
         private void Awake()
         {
-            current = Mathf.Max(1, maxHP); // authoring-safe
-            ResetFull();
+            current = maxHP;
         }
 
-
-        public void DisconnectAllSignals()
-        {
-            HealthChanged = null;
-            Died = null;
-            Damaged = null;
-        }
         private void Update()
         {
-            if (!useIframe) return;
-            if (iframeTimer >= 0) iframeTimer -= Time.deltaTime;
-            iframeTimer = Mathf.Max(0f,iframeTimer);
-
-        }
-
-        public void SetMaxHP(float hp, bool resetCurrent = true, bool raiseEvent = true)
-        {
-            maxHP = Mathf.Max(1, hp);
-            if (resetCurrent)
-                SetCurrent(maxHP, raiseEvent);
-            else
-                SetCurrent(Mathf.Clamp(current, 0, maxHP), raiseEvent);
-        }
-
-        public void ResetFull(bool raiseEvent = true) => SetCurrent(maxHP, raiseEvent);
-
-        public float GetCurrentPercent() => maxHP <= 0 ? 0f : Mathf.Clamp01((float)current / maxHP);
-
-        public void Damage(float amount, bool crit = false)
-        {
-            //return;
-            if (amount <= 0 || IsDead) return;
-            if (useIframe && (iframeTimer > 0)) return;
-
-            float next = Mathf.Max(0, current - amount);
-            if (next == current) return;
-            Damaged?.Invoke(amount, transform.position, crit);
-            SetCurrent(next, raiseEvent: true);
-
-
-            if (next == 0)
+            if (_iframeTimer > 0)
             {
-                Died?.Invoke();
-            }
-            else
-            {
-                if (triggerHitstopOnDamaged && (HitstopManager.Instance != null)) HitstopManager.Instance.Request(hitstopDurationSec, gameObject);
-                if (useIframe) iframeTimer = iframeDuration;
+                _iframeTimer -= Time.deltaTime;
+                if (_iframeTimer <= 0)
+                {
+                    _iframeTimer = 0f;
+                    _damageTakenInWindow = 0f; // Reset threshold
+                }
             }
         }
 
-        public void Heal(float amount)
+        public void SetMaxHP(float newMax, bool healToFull = true)
+        {
+            maxHP = Mathf.Max(1, newMax);
+            if (healToFull)
+                SetCurrent(maxHP);
+            else
+                SetCurrent(Mathf.Clamp(current, 0, maxHP));
+        }
+
+        public float GetCurrentPercent() => maxHP <= 0 ? 0f : Mathf.Clamp01(current / maxHP);
+
+        public void Damage(float rawAmount, Vector3 sourcePos, bool isCrit = false)
+        {
+            if (IsDead || godMode) return;
+            if (receptionState == DamageReception.Invincible) return;
+
+            // 1. Handle Absorb
+            if (receptionState == DamageReception.Absorb)
+            {
+                Heal(rawAmount, sourcePos);
+                return;
+            }
+
+            // 2. Handle Nullify
+            if (receptionState == DamageReception.Nullified)
+            {
+                // fire "HitBlocked" event here?
+                return;
+            }
+
+            // 3. Handle I-Frame Thresholding
+            float actualDamage = rawAmount;
+
+            if (useIframe)
+            {
+                if (_iframeTimer > 0)
+                {
+                    // If we are already in iframes, only take damage if this hit is STRONGER
+                    // than what we've already endured in this window
+                    if (rawAmount <= _damageTakenInWindow) return;
+
+                    actualDamage = rawAmount - _damageTakenInWindow;
+                    _damageTakenInWindow = rawAmount; // Update high water mark
+                }
+                else
+                {
+                    // Start new window
+                    _iframeTimer = iframeDuration;
+                    _damageTakenInWindow = rawAmount;
+                }
+            }
+
+            if (actualDamage <= 0) return;
+
+            // 4. Apply
+            float previous = current;
+            float next = Mathf.Max(0, current - actualDamage);
+
+            // 5. Side Effects & Events
+            Damaged?.Invoke(actualDamage, sourcePos, isCrit);
+
+            if (damageSfx != null && AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(damageSfx, transform.position);
+
+            if (triggerHitstop && HitstopManager.Instance != null)
+                HitstopManager.Instance.Request(hitstopDuration, gameObject);
+
+            SetCurrent(next);
+
+            // 6. Death Logic
+            if (current <= 0 && previous > 0)
+            {
+                Vector3 forceDir = (transform.position - sourcePos).normalized;
+                float overkill = actualDamage - previous;
+                DieInternal(forceDir, overkill);
+            }
+        }
+
+        public void Heal(float amount, Vector3 sourcePos = default)
         {
             if (amount <= 0 || IsDead) return;
-            float next = Mathf.Min(maxHP, current + amount);
-            if (next != current) SetCurrent(next, raiseEvent: true);
+
+            // Effective Heal check
+            float missing = maxHP - current;
+            float effectiveHeal = Mathf.Min(missing, amount);
+
+            if (effectiveHeal > 0)
+            {
+                Healed?.Invoke(effectiveHeal, sourcePos);
+
+                if (healSfx != null && AudioManager.Instance != null)
+                    AudioManager.Instance.PlaySFX(healSfx, transform.position);
+
+                SetCurrent(current + effectiveHeal);
+            }
         }
 
         public void Kill()
         {
             if (IsDead) return;
-            SetCurrent(0, raiseEvent: true);
-            Died?.Invoke();
+            SetCurrent(0);
+            DieInternal(Vector3.zero, 0f);
         }
 
-        private void SetCurrent(float value, bool raiseEvent)
+        private void DieInternal(Vector3 forceDir, float overkill)
         {
-            value = Mathf.Clamp(value, 0, maxHP);
-            if (value == current) return;
-            float previous = current;
-            current = value;
-            if (raiseEvent) HealthChanged?.Invoke(current, previous);
+            if (deathSfx != null && AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(deathSfx, transform.position);
+
+            Died?.Invoke(forceDir, overkill);
+        }
+
+        private void SetCurrent(float val)
+        {
+            current = val;
+            HealthChanged?.Invoke(current, maxHP);
         }
     }
 }

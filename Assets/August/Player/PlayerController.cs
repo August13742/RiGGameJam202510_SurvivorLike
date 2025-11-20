@@ -10,7 +10,6 @@ namespace Survivor.Control
     {
         [SerializeField] private float acceleration = 75f;
         [SerializeField] private float friction = 35f;
-        [SerializeField] private SFXResource injuredSFX;
         private InputSystem_Actions input;
         [SerializeField] private Vector2 velocity;
         [SerializeField] private Vector2 inputDirection;
@@ -27,7 +26,6 @@ namespace Survivor.Control
 
         private Rigidbody2D rb;
         private KinematicMotor2D motor;
-        private HealthComponent _hp;
         private PlayerStatsComponent statComponent;
         private EffectivePlayerStats Stats => statComponent.EffectiveStats;
 
@@ -56,7 +54,6 @@ namespace Survivor.Control
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
             motor = GetComponent<KinematicMotor2D>();
             statComponent = GetComponent<PlayerStatsComponent>();
-            _hp = GetComponent<HealthComponent>();
             lastStuckCheckPosition = rb.position;
 
             // If not set in inspector, default to whatever the motor collides with.
@@ -65,15 +62,7 @@ namespace Survivor.Control
                 unstuckObstaclesMask = motor.collisionMask;
             }
         }
-        private void Start()
-        {
-            _hp.Damaged += OnDamaged;
-        }
 
-        void OnDamaged(float amt,Vector3 pos, bool crit)
-        {
-            AudioManager.Instance.PlaySFX(injuredSFX);
-        }
         private void OnEnable()
         {
             input.Player.Enable();

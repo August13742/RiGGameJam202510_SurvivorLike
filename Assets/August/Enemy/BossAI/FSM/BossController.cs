@@ -216,8 +216,7 @@ namespace Survivor.Enemy.FSM
 
         void Start()
         {
-            HP.SetMaxHP(config.MaxHealth);
-            HP.ResetFull();
+            HP.SetMaxHP(config.MaxHealth,true);
             HP.Damaged += OnDamaged;
             HP.Died += OnDied;
             FindPlayerTransform();
@@ -245,7 +244,7 @@ namespace Survivor.Enemy.FSM
             // as soon as it's a valid candidate.
             _enrageActionPending = true;
         }
-        void OnDied()
+        void OnDied(Vector3 killDir,float overkill)
         {
             if (_deathSequenceStarted) return;
             _deathSequenceStarted = true;
@@ -253,7 +252,6 @@ namespace Survivor.Enemy.FSM
             HandleAttackTelegraphEnd();
             KillTelegraphTween();
 
-            HP.DisconnectAllSignals();
             IsDead = true;
 
             // Stop all attack/state coroutines running on this controller
@@ -315,7 +313,7 @@ namespace Survivor.Enemy.FSM
             if (target.IsDead) return;
 
             float dealt = config.MeleeDamage;
-            target.Damage(dealt);
+            target.Damage(dealt,transform.position);
             if (target.CompareTag("Player")) CameraShake2D.Shake(0.2f, 1f);
         }
 

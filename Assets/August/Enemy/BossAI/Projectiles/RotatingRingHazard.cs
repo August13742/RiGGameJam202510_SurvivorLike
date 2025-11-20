@@ -166,7 +166,7 @@ public sealed class RotatingRingHazard : MonoBehaviour
             // If also inside inner safe zone → no damage.
             if (_innerCounts.ContainsKey(hp)) continue;
 
-            hp.Damage(_effectiveDamagePerTick);
+            hp.Damage(_effectiveDamagePerTick,this.transform.position);
         }
     }
     /// <summary>
@@ -306,7 +306,7 @@ public sealed class RotatingRingHazard : MonoBehaviour
     private void OnStarsEnter(Collider2D self, Collider2D other)
     {
         if (!IsValidTarget(other, out HealthComponent hp)) return;
-        hp.Damage(starsDamage);
+        hp.Damage(starsDamage,this.transform.position);
         CameraShake2D.Shake(starCameraShakeDuration, starCameraShakeStrength);
     }
 

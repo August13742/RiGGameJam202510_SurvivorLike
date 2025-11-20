@@ -128,7 +128,7 @@ namespace Survivor.Enemy
 
             if (_hp != null)
             {
-                _hp.SetMaxHP(config.maxHP, resetCurrent: true, raiseEvent: false);
+                _hp.SetMaxHP(config.maxHP, healToFull: true);
             }
 
             // Start in idle
@@ -359,7 +359,7 @@ namespace Survivor.Enemy
 
                 if (col.TryGetComponent<HealthComponent>(out var hp) && !hp.IsDead)
                 {
-                    hp.Damage(damage);
+                    hp.Damage(damage, interpolatedPos);
                     CameraShake2D.Shake(cameraShakeDuration, cameraShakeStrength);
                 }
             }
@@ -385,7 +385,7 @@ namespace Survivor.Enemy
             }
         }
 
-        private void OnDied()
+        private void OnDied(Vector3 damagePos, float overkill)
         {
             StartDeathFade();
         }

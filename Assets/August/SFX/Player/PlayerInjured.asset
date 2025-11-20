@@ -19,8 +19,10 @@ MonoBehaviour:
   volumeVariance: 0.1
   pitch: 1
   pitchVariance: 0.1
-  spatialBlend: 1
+  spatialBlend: 0
   minDistance: 1
   maxDistance: 25
   bypassSpatial: 0
+  useSpatialCoalescing: 1
+  minSpatialSeparation: 5
   mixerGroup: {fileID: 0}

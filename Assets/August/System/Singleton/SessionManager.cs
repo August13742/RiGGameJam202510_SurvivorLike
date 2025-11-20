@@ -155,7 +155,7 @@ namespace Survivor.Game
             VFX.ScreenDamageOverlay.Instance?.Flash();
         }
 
-        private void OnPlayerDied()
+        private void OnPlayerDied(Vector3 dir,float dmg)
         {
             // Full red overlay
             Survivor.VFX.ScreenDamageOverlay.Instance?.ShowFull();

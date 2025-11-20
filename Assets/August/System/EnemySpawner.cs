@@ -21,6 +21,12 @@ namespace Survivor.Game
         [SerializeField] private float spawnsPerSecond = 3f;
         [SerializeField] private int maxAlive = 150;
 
+        [Header("HP Scaling")]
+        [Tooltip("HP multiplier increment per scaling interval (n in formula: base * (1 + n)^x)")]
+        [SerializeField] private float hpScalingIncrement = 0.1f;
+        [Tooltip("Number of enemies spawned before HP increases (y in formula)")]
+        [SerializeField] private int enemiesPerScalingInterval = 25;
+
         private Transform poolRoot;
         private Transform enemyPool;
 
@@ -28,6 +34,7 @@ namespace Survivor.Game
         private readonly Dictionary<EnemyBase, ObjectPool<EnemyBase>> _pools = new();
         private float _spawnAcc;
         private int _aliveCount;
+        private int _totalSpawnedCount; // Tracker for total enemies spawned
         private System.Random _rng;
 
         private void Awake()
@@ -65,12 +72,19 @@ namespace Survivor.Game
                     continue;
                 }
 
+                // Calculate scaled HP based on total spawned count
+                float scaledHP = CalculateScaledHP(def.BaseHP);
+
                 // init + subscribe
                 enemy.InitFrom(def);
+                // Override HP with scaled value
+                enemy.GetComponent<HealthComponent>().SetMaxHP(scaledHP, healToFull: true);
+
                 enemy.Despawned -= OnEnemyDespawned; // safety
                 enemy.Despawned += OnEnemyDespawned;
 
                 _aliveCount++;
+                _totalSpawnedCount++;
             }
         }
 
@@ -97,8 +111,23 @@ namespace Survivor.Game
             return new Vector3(around.x + Mathf.Cos(ang) * r, around.y + Mathf.Sin(ang) * r, 0f);
         }
 
+        /// <summary>
+        /// Calculates scaled HP using formula: baseHP * (1 + n)^x
+        /// where x = totalSpawned / enemiesPerInterval
+        /// </summary>
+        private float CalculateScaledHP(int baseHP)
+        {
+            if (enemiesPerScalingInterval <= 0)
+                return baseHP;
+
+            float x = (float)_totalSpawnedCount / enemiesPerScalingInterval;
+            float multiplier = Mathf.Pow(1f + hpScalingIncrement, x);
+            return baseHP * multiplier;
+        }
+
         public void SetSpawnRate(float sps) => spawnsPerSecond = Mathf.Max(0f, sps);
         public void SetMaxAlive(int max) => maxAlive = Mathf.Max(0, max);
         public int AliveCount => _aliveCount;
+        public int TotalSpawnedCount => _totalSpawnedCount;
     }
 }
