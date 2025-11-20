@@ -1,4 +1,5 @@
-﻿using Survivor.Progression;
+﻿using Survivor.Game;
+using Survivor.Progression;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,7 +10,7 @@ namespace Survivor.Control
     {
         [SerializeField] private float acceleration = 75f;
         [SerializeField] private float friction = 35f;
-
+        [SerializeField] private SFXResource injuredSFX;
         private InputSystem_Actions input;
         [SerializeField] private Vector2 velocity;
         [SerializeField] private Vector2 inputDirection;
@@ -26,6 +27,7 @@ namespace Survivor.Control
 
         private Rigidbody2D rb;
         private KinematicMotor2D motor;
+        private HealthComponent _hp;
         private PlayerStatsComponent statComponent;
         private EffectivePlayerStats Stats => statComponent.EffectiveStats;
 
@@ -41,12 +43,12 @@ namespace Survivor.Control
         [SerializeField] private float unstuckProbeRadius = 1f;       // radius of overlap check
         [SerializeField] private float unstuckSearchRadius = 2.0f;      // how far around to search
         [SerializeField] private int unstuckRays = 8;                   // number of directions (8 = N/NE/E/... etc)
-        [SerializeField] private LayerMask unstuckObstaclesMask;        // if zero, we’ll default to motor.collisionMask
+        [SerializeField] private LayerMask unstuckObstaclesMask;        // if zero, defaults to motor.collisionMask
 
         private Vector2 lastStuckCheckPosition;
         private float stuckCheckTimer;
         private float stuckAccumulatedTime;
-
+       
         private void Awake()
         {
             input = new();
@@ -54,7 +56,7 @@ namespace Survivor.Control
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
             motor = GetComponent<KinematicMotor2D>();
             statComponent = GetComponent<PlayerStatsComponent>();
-
+            _hp = GetComponent<HealthComponent>();
             lastStuckCheckPosition = rb.position;
 
             // If not set in inspector, default to whatever the motor collides with.
@@ -63,7 +65,15 @@ namespace Survivor.Control
                 unstuckObstaclesMask = motor.collisionMask;
             }
         }
+        private void Start()
+        {
+            _hp.Damaged += OnDamaged;
+        }
 
+        void OnDamaged(float amt,Vector3 pos, bool crit)
+        {
+            AudioManager.Instance.PlaySFX(injuredSFX);
+        }
         private void OnEnable()
         {
             input.Player.Enable();

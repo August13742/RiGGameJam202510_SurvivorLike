@@ -48,7 +48,7 @@ namespace Survivor.Enemy.FSM
             var anim = controller.Animator;
             if (anim != null && !string.IsNullOrEmpty(shootAnimationName))
                 anim.Play(shootAnimationName);
-
+            
             
             float rateMul = _enraged ? enrageRateMul : 1f;
             float arrowMul = _enraged ? enrageArrowMul : 1f;

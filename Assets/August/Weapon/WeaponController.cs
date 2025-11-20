@@ -57,7 +57,7 @@ namespace Survivor.Weapon
 
         private void Start()
         {
-            // Back-compat path: if not explicitly initialized (e.g., player-mounted use),
+            // Back-compat path: if not explicitly Initialised (e.g., player-mounted use),
             // do the old Start() setup using serialized fields.
             if (_initialised) return;
 

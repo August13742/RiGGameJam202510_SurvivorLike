@@ -8,7 +8,6 @@ namespace Survivor.Game
     {
         [SerializeField, Min(1)] private float maxHP = 100f;
         [SerializeField] private float current;
-        //[SerializeField] private bool resetToFullOnEnable = true;
         [SerializeField] private bool triggerHitstopOnDamaged = true;
         [SerializeField,Min(0.01f)] private float hitstopDurationSec = 0.15f;
         [SerializeField] private bool useIframe = false;
@@ -21,6 +20,7 @@ namespace Survivor.Game
         public Action<float, float> HealthChanged;
         public Action Died;
         public Action<float, Vector3, bool> Damaged; //amount, worldPos, crit?
+        public Action<float, Vector3> Healed;
 
         private float iframeTimer = 0f;
         private void Awake()

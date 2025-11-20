@@ -101,7 +101,7 @@ public class VolumeConfigUIController : MonoBehaviour
     {
         if (AudioManager.Instance != null)
         {
-            AudioManager.Instance.SetMusicBusVolume(volumeLinear);
+            AudioManager.Instance.SetMusicVolume(volumeLinear);
         }
     }
 

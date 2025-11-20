@@ -11,6 +11,11 @@ namespace Survivor.Enemy.FSM
         menuName = "Defs/Boss Attacks/Repulse")]
     public sealed class AttackPattern_Repulse : AttackPattern
     {
+        [Header("Audio")]
+        [SerializeField] private SFXResource windupSFX;
+        [SerializeField] private SFXResource repulseSFX;
+        [SerializeField] private SFXResource attractSFX;
+
         [Header("Repulse Parameters")]
         [Tooltip("Radius within which the player is affected.")]
         [SerializeField] private float effectRadius = 10f;
@@ -49,6 +54,7 @@ namespace Survivor.Enemy.FSM
 
             Vector3 center = controller.transform.position;
 
+            AudioManager.Instance.PlaySFX(windupSFX, controller.transform.position);
             // Telegraph circle
             Telegraph.Circle(
                 host: controller,
@@ -67,13 +73,16 @@ namespace Survivor.Enemy.FSM
             if (pc != null)
             {
                 bool isAttract = Random.value < chanceToBeAttractInstead;
+                if(isAttract) AudioManager.Instance.PlaySFX(attractSFX, controller.transform.position);
+                else AudioManager.Instance.PlaySFX(repulseSFX, controller.transform.position);
+
                 RadialDisplacementUtility.ApplyRadialImpulse(
-                    pc,
-                    sourceWorldPos: center,
-                    radius: radius,
-                    maxTravel: travel,
-                    pull: isAttract // push away if false, pull in if true
-                );
+                        pc,
+                        sourceWorldPos: center,
+                        radius: radius,
+                        maxTravel: travel,
+                        pull: isAttract // push away if false, pull in if true
+                    );
             }
 
         }

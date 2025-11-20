@@ -123,6 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8b72664230471148a639e822fcef46c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleChaseAI
+  hurtSFX: {fileID: 11400000, guid: d4a3bc24f429c2f459ad4a0e6c64f215, type: 2}
   hitMask:
     serializedVersion: 2
     m_Bits: 64
@@ -131,6 +132,7 @@ MonoBehaviour:
   OverlapKeepFacingRadius: 0.6
   FlipDotThreshold: 0.35
   MinFlipUpdateInterval: 0.25
+  DespawnFadeTime: 0.3
   def: {fileID: 11400000, guid: fc951ea4fe8a15f449251edb7ee3aaa3, type: 2}
 --- !u!114 &4430005986827990580
 MonoBehaviour:
@@ -250,7 +252,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1560946809
-  m_SortingLayer: 4
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 5557466569650181421, guid: 8c0a9a5c68a44c74eabc87307dad42bc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

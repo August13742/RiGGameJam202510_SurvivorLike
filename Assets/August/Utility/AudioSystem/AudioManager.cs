@@ -1,82 +1,174 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
-/// <summary>
-/// Central audio manager (Resource-based API).
-/// Handles music crossfading, SFX pooling (one-shots and loops), and playlists.
-/// </summary>
-///
-
 public class AudioManager : MonoBehaviour
 {
     #region Singleton
-    public static AudioManager Instance
-    {
-        get; private set;
-    }
+    public static AudioManager Instance { get; private set; }
     #endregion
 
-    #region Events
-    public event Action<string, int> OnSFXFinished;                      // eventName, voiceId
-                                                                            //public static event Action<double> OnMusicStartConfirmed;            // dsp time
-    public event Action<MusicPlaylist, int, MusicResource> OnPlaylistTrackChanged;
-    #endregion
+    #region Inspector Config
+    [Header("Configuration")]
+    [SerializeField] private int voicePoolSize = 96;
+    [SerializeField] private AudioMixerGroup defaultSfxGroup;
+    [SerializeField] private AudioMixerGroup defaultMusicGroup;
 
-    #region Inspector
-    [Header("Mixer & Groups")]
+    [Header("Mixer & Volume Control")]
     [SerializeField] private AudioMixer mixer;
-    [SerializeField] private AudioMixerGroup musicGroup;
-    [SerializeField] private AudioMixerGroup SFXGroup;
-
-    [Header("Global Options")]
-    [Tooltip("If false, positional APIs fold into 2D one-shots.")]
-    [SerializeField] private bool enableSpatialApi = true;
-
-    [Header("Pools & Music")]
-    [SerializeField, Min(1)] private int SFXPoolSize = 16;
-    [SerializeField, Min(0f)] private float defaultMusicCrossfade = 1.5f;
-
-    [Header("Mixer Param Names (dB)")]
     [SerializeField] private string masterVolParam = "MasterVolume";
     [SerializeField] private string musicVolParam = "MusicVolume";
-    [SerializeField] private string SFXVolParam = "SFXVolume";
+    [SerializeField] private string sfxVolParam = "SFXVolume";
+
+
+    [Header("Debug")]
+    [SerializeField, ReadOnly] private int activeVoiceCount = 0;
     #endregion
 
-    #region Internal: SFX
-    private List<AudioSource> _sfxPool;
-    private readonly Dictionary<string, AudioSource> _loopSfx = new();
-    private readonly List<AudioSource> _pausedSfx = new();
-    private int _nextVoiceId = 0;
+    #region Public API: Volume Control
+
+    /// <summary>
+    /// Sets the Master volume using a linear 0-1 scale.
+    /// Converts automatically to Decibels for the Mixer.
+    /// </summary>
+    public void SetMasterVolume(float linear) => SetBusVolume(masterVolParam, linear);
+
+    /// <summary>
+    /// Sets the Music volume using a linear 0-1 scale.
+    /// </summary>
+    public void SetMusicVolume(float linear) => SetBusVolume(musicVolParam, linear);
+
+    /// <summary>
+    /// Sets the SFX volume using a linear 0-1 scale.
+    /// </summary>
+    public void SetSFXVolume(float linear) => SetBusVolume(sfxVolParam, linear);
+
+    public void ToggleMute(bool isMuted)
+    {
+        if (mixer == null) return;
+        float target = isMuted ? -80f : 0f;
+        // Note: A better approach often involves a separate "Mute" snapshot, 
+        // but this works for simple setups.
+        mixer.SetFloat(masterVolParam, isMuted ? -80f : GetLastVolume(masterVolParam));
+    }
+
+    private void SetBusVolume(string paramName, float linear)
+    {
+        if (mixer == null) return;
+
+        // Convert Linear (0-1) to Decibel (-80 to 0)
+        // We clamp at 0.0001 to avoid Log10(0) = -Infinity
+        float db = linear > 0.0001f ? 20f * Mathf.Log10(linear) : -80f;
+
+        mixer.SetFloat(paramName, db);
+    }
+
+    // Helper to retrieve current volume if you need to restore after unmute
+    private float GetLastVolume(string paramName)
+    {
+        if (mixer.GetFloat(paramName, out float val)) return val;
+        return 0f;
+    }
+
     #endregion
 
-    #region Internal: Music
-    private AudioSource _musicA, _musicB, _activeMusic;
-    private Coroutine _musicFadeCoro;
-    private float _musicBaseVolume = 1f;
-    private float _duckFactor = 1f;
-    private Coroutine _duckCoro;
+    #region Public API: Global Utilities
 
-    private bool _isMusicPaused = false;
-    private bool _wasScheduledToPlay = false;
-    private double _musicPauseDsp;
-    private double _scheduledStartDsp;
+    /// <summary>
+    /// Pauses all currently playing SFX voices. Useful when opening a Pause Menu.
+    /// Does NOT pause Music.
+    /// </summary>
+    public void PauseAllSFX()
+    {
+        for (int i = 0; i < _voicePool.Length; i++)
+        {
+            var voice = _voicePool[i];
+            if (voice.isClaimed && voice.source.isPlaying)
+            {
+                voice.source.Pause();
+            }
+        }
+    }
 
-    public bool IsMusicPaused => _isMusicPaused;
-    public bool IsMusicPlaying => _activeMusic != null && _activeMusic.isPlaying && !_isMusicPaused;
-    public float MusicVolume => _musicBaseVolume * _duckFactor;
+    /// <summary>
+    /// Resumes all paused SFX voices.
+    /// </summary>
+    public void ResumeAllSFX()
+    {
+        for (int i = 0; i < _voicePool.Length; i++)
+        {
+            var voice = _voicePool[i];
+            if (voice.isClaimed)
+            {
+                // using UnPause() so it continues where it left off
+                voice.source.UnPause();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Panic button: Immediately stops all SFX. 
+    /// Useful for Scene Transitions or "Game Over" screens.
+    /// </summary>
+    public void StopAllSFX()
+    {
+        for (int i = 0; i < _voicePool.Length; i++)
+        {
+            var voice = _voicePool[i];
+            if (voice.isClaimed)
+            {
+                voice.source.Stop();
+
+                // Manually clean up state since the Coroutine might take a frame to catch up
+                if (voice.routine != null) StopCoroutine(voice.routine);
+                voice.isClaimed = false;
+                voice.followTarget = null;
+                voice.routine = null;
+            }
+        }
+        activeVoiceCount = 0;
+    }
+
+    /// <summary>
+    /// Stops all Music immediately (no fade).
+    /// </summary>
+    public void StopMusicImmediate()
+    {
+        if (_musicFadeRoutine != null) StopCoroutine(_musicFadeRoutine);
+        _musicSourceA.Stop();
+        _musicSourceB.Stop();
+    }
+
     #endregion
 
-    #region Internal: Playlists
-    private MusicPlaylist _currentPlaylist;
-    private int _playlistIndex = -1; // FIX: State moved from ScriptableObject to manager
-    private Coroutine _playlistWatcher;
-    private readonly Dictionary<int, SFXPlState> _sfxPlStates = new();
+    #region Internal Structures
+    private class ActiveVoice
+    {
+        public AudioSource source;
+        public int poolIndex;    // The fixed index of this voice in the list
+        public int id;           // The Generation ID (increments on use)
+        public int priority;
+        public Transform followTarget;
+        public bool isClaimed;
+        public Coroutine routine;
+    }
+
+    // Changed to Array for slightly faster index access than List
+    private ActiveVoice[] _voicePool;
+    private int _globalVoiceIdCounter = 0;
+
+    // Music Internals
+    private AudioSource _musicSourceA;
+    private AudioSource _musicSourceB;
+    private bool _isUsingMusicA = true;
+    private Coroutine _musicFadeRoutine;
+
+    // Sequence Internals
+    private Dictionary<int, int> _sequenceIndices = new Dictionary<int, int>();
     #endregion
 
-    #region Unity
+    #region Unity Lifecycle
     private void Awake()
     {
         if (Instance != null)
@@ -84,646 +176,355 @@ public class AudioManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        InitPools();
-        InitMusicPlayers();
+
+        InitialisePool();
+        InitialiseMusic();
     }
     #endregion
 
-    #region Init
-    private void InitPools()
+    #region Initialisation
+    private void InitialisePool()
     {
-        _sfxPool = new List<AudioSource>(SFXPoolSize);
-        for (int i = 0; i < SFXPoolSize; i++)
-            _sfxPool.Add(CreateChildSource($"SFX Player {i}", SFXGroup));
-    }
+        _voicePool = new ActiveVoice[voicePoolSize]; // Array is faster for direct indexing
 
-    private void InitMusicPlayers()
-    {
-        _musicA = CreateChildSource("Music A", musicGroup);
-        _musicA.loop = true;
-        _musicA.volume = 0f;
-        _musicB = CreateChildSource("Music B", musicGroup);
-        _musicB.loop = true;
-        _musicB.volume = 0f;
-        _activeMusic = _musicA;
-    }
+        GameObject poolRoot = new GameObject("SFX_Pool");
+        poolRoot.transform.SetParent(transform);
 
-    private AudioSource CreateChildSource(string name, AudioMixerGroup group)
-    {
-        var go = new GameObject(name);
-        go.transform.SetParent(transform);
-        var src = go.AddComponent<AudioSource>();
-        src.playOnAwake = false;
-        src.outputAudioMixerGroup = group;
-        return src;
-    }
-
-    private void ApplyMusicVolume()
-    {
-        if (_activeMusic != null)
-            _activeMusic.volume = Mathf.Clamp01(_musicBaseVolume * _duckFactor);
-    }
-    #endregion
-
-    #region Public: Music
-    public void PlayMusicImmediate(MusicResource resource, float crossfade = -1f)
-    {
-        if (resource == null || resource.clip == null)
-            return;
-
-        _musicBaseVolume = Mathf.Clamp01(resource.volume);
-        // FIX: Use fade-in from resource if crossfade is not specified
-        float dur = crossfade >= 0 ? crossfade : resource.fadeInSeconds;
-
-        StartImmediateCrossfade(resource.clip, dur);
-        _musicA.loop = resource.loop;
-        _musicB.loop = resource.loop;
-    }
-
-    public void StopMusic(float fadeOut = -1f)
-    {
-        float dur = fadeOut >= 0 ? fadeOut : defaultMusicCrossfade;
-        if (_musicFadeCoro != null)
-            StopCoroutine(_musicFadeCoro);
-        _musicFadeCoro = StartCoroutine(FadeOutBothAndStop(dur));
-
-        _isMusicPaused = false;
-        _wasScheduledToPlay = false;
-        if (_duckCoro != null)
-            StopCoroutine(_duckCoro);
-        _duckFactor = 1f;
-    }
-
-    public void PauseMusic()
-    {
-        if (_isMusicPaused)
-            return;
-        if (_musicFadeCoro != null)
+        for (int i = 0; i < voicePoolSize; i++)
         {
-            StopCoroutine(_musicFadeCoro);
-            _musicFadeCoro = null;
-        }
-        _musicPauseDsp = AudioSettings.dspTime;
-        _activeMusic?.Pause();
-        _isMusicPaused = true;
-    }
+            GameObject go = new GameObject($"Voice_{i}");
+            go.transform.SetParent(poolRoot.transform);
 
-    public void ResumeMusic()
-    {
-        if (!_isMusicPaused)
-            return;
+            AudioSource src = go.AddComponent<AudioSource>();
+            src.playOnAwake = false;
+            src.loop = false;
 
-        double now = AudioSettings.dspTime;
-        double pausedDur = now - _musicPauseDsp;
-        bool started = _activeMusic != null && _activeMusic.clip != null && _activeMusic.timeSamples > 0;
-
-        if (_wasScheduledToPlay && !started)
-        {
-            double minLead = 0.020;
-            double newStart = Math.Max(now + minLead, _scheduledStartDsp + pausedDur);
-            _activeMusic.Stop();
-            _activeMusic.PlayScheduled(newStart);
-            _scheduledStartDsp = newStart;
-        }
-        else
-        {
-            _wasScheduledToPlay = false;
-            _activeMusic?.UnPause();
-        }
-        _isMusicPaused = false;
-    }
-    #endregion
-
-    #region Public: Mixer & Volume Control
-    public void SetMasterVolume(float linear) => SetBusVolumeLinear(masterVolParam, linear);
-    public void SetSFXVolume(float linear) => SetBusVolumeLinear(SFXVolParam, linear);
-    public void SetMusicBusVolume(float linear) => SetBusVolumeLinear(musicVolParam, linear);
-
-    private void SetBusVolumeLinear(string busName, float linear)
-    {
-        if (mixer == null || string.IsNullOrEmpty(busName))
-            return;
-        float db = linear > 0.001f ? 20f * Mathf.Log10(Mathf.Clamp01(linear)) : -80f;
-        mixer.SetFloat(busName, db);
-    }
-
-    #endregion
-
-    #region Public: SFX
-    public int PlaySFX(SFXResource res, float volumeScale = 1f)
-    {
-        if (res == null || res.clip == null)
-            return -1;
-
-        float vol = Mathf.Clamp(res.volume * volumeScale, 0f, 2f);
-        if (res.loop)
-        {
-            PlaySFXLoop(res.eventName, res.clip, vol, res.pitch);
-            return -1; // Looping sounds don't have a voice ID from the pool
-        }
-        return PlaySFXOneShot(res.clip, vol, res.pitch, res.eventName, res.trackFinish);
-    }
-
-    public void StopSFX(SFXResource res, float fadeOut = 0f)
-    {
-        if (res != null && res.loop)
-            StopLoopedSFX(res.eventName, fadeOut);
-    }
-
-    public void StopLoopedSFX(string eventName, float fadeOut = 0f)
-    {
-        if (string.IsNullOrEmpty(eventName) || !_loopSfx.TryGetValue(eventName, out var src))
-            return;
-
-        _loopSfx.Remove(eventName);
-        if (fadeOut > 0.01f)
-        {
-            StartCoroutine(FadeOutAndDestroy(src, fadeOut, null));
-        }
-        else
-        {
-            Destroy(src.gameObject);
-        }
-        OnSFXFinished?.Invoke(eventName, -1); // -1 signifies a loop was stopped
-    }
-
-    public void PauseSFX()
-    {
-        _pausedSfx.Clear();
-        foreach (var src in _sfxPool)
-        {
-            if (src.isPlaying)
+            _voicePool[i] = new ActiveVoice
             {
-                src.Pause();
-                _pausedSfx.Add(src);
-            }
+                source = src,
+                poolIndex = i, // Memorise its own index
+                isClaimed = false,
+                id = -1
+            };
         }
-        foreach (var src in _loopSfx.Values)
+    }
+
+    private void InitialiseMusic()
+    {
+        GameObject musicRoot = new GameObject("Music_System");
+        musicRoot.transform.SetParent(transform);
+
+        _musicSourceA = musicRoot.AddComponent<AudioSource>();
+        _musicSourceB = musicRoot.AddComponent<AudioSource>();
+
+        _musicSourceA.playOnAwake = false;
+        _musicSourceB.playOnAwake = false;
+        _musicSourceA.loop = true;
+        _musicSourceB.loop = true;
+
+        _musicSourceA.outputAudioMixerGroup = defaultMusicGroup;
+        _musicSourceB.outputAudioMixerGroup = defaultMusicGroup;
+    }
+    #endregion
+
+    #region Public API: SFX
+
+    public AudioHandle PlaySFX(SFXResource data, Vector3 position = default, Transform followTarget = null)
+    {
+        if (data == null) return AudioHandle.Invalid;
+        bool is2D = data.bypassSpatial || (position == Vector3.zero && followTarget == null);
+        Vector3 startPos = followTarget != null ? followTarget.position : position;
+        return PlayInternal(data, startPos, followTarget, is2D, 1f);
+    }
+
+    public AudioHandle PlaySequence(SFXSequence seq, Vector3 position = default, Transform followTarget = null)
+    {
+        if (seq == null || seq.steps.Count == 0) return AudioHandle.Invalid;
+
+        int idHash = seq.GetHashCode();
+        int indexToPlay = 0;
+
+        // Logic resolution
+        if (seq.mode == SFXSequenceMode.RandomPure)
         {
-            if (src.isPlaying)
+            indexToPlay = Random.Range(0, seq.steps.Count);
+        }
+        else if (seq.mode == SFXSequenceMode.RandomNoRepeat)
+        {
+            if (seq.steps.Count > 1)
             {
-                src.Pause();
-                _pausedSfx.Add(src);
+                int lastIndex = _sequenceIndices.ContainsKey(idHash) ? _sequenceIndices[idHash] : -1;
+                do { indexToPlay = Random.Range(0, seq.steps.Count); } while (indexToPlay == lastIndex);
             }
+            else indexToPlay = 0;
         }
+        else // Sequential
+        {
+            int lastIndex = _sequenceIndices.ContainsKey(idHash) ? _sequenceIndices[idHash] : -1;
+            indexToPlay = (lastIndex + 1) % seq.steps.Count;
+        }
+
+        _sequenceIndices[idHash] = indexToPlay;
+        SFXResource step = seq.steps[indexToPlay];
+
+        bool is2D = step.bypassSpatial || (position == Vector3.zero && followTarget == null);
+        Vector3 startPos = followTarget != null ? followTarget.position : position;
+
+        return PlayInternal(step, startPos, followTarget, is2D, seq.sequenceVolume);
     }
 
-    public void ResumeSFX()
-    {
-        foreach (var src in _pausedSfx)
-        {
-            if (src != null)
-                src.UnPause();
-        }
-        _pausedSfx.Clear();
-    }
-
-    public AudioHandle PlaySFXLoop(SFXResource res, float fadeInfoTime = 0f, Transform parent = null)
-    {
-        if (res == null || res.clip == null) return null;
-
-        // Create a dedicated source object
-        var go = new GameObject($"Loop_{res.eventName}");
-        go.transform.SetParent(parent != null ? parent : transform); // Attach to parent if provided
-
-        // Position the object correctly, usually at the parent's center
-        if (parent != null)
-        {
-            go.transform.position = parent.position;
-        }
-
-        var src = go.AddComponent<AudioSource>();
-
-        src.outputAudioMixerGroup = SFXGroup;
-        src.clip = res.clip;
-        src.volume = 0f;
-        src.pitch = res.pitch;
-        src.loop = true;
-
-        // Enable 3D spatialization if a parent transform is provided, and API is enabled.
-        if (parent != null && enableSpatialApi)
-        {
-            src.spatialBlend = 1f; // Full 3D
-            src.rolloffMode = AudioRolloffMode.Logarithmic; // Standard decay model
-        }
-        else
-        {
-            src.spatialBlend = 0f; // 2D Fallback
-        }
-
-        src.Play();
-
-        // Handle Fade In
-        StartCoroutine(FadeSourceRoutine(src, res.volume, fadeInfoTime > 0 ? fadeInfoTime : 0.1f));
-
-        return new AudioHandle(src, this);
-    }
-
-    // Handle Stopping logic
-    public void StopHandle(AudioHandle handle, float duration)
-    {
-        if (handle.Source == null) return;
-
-        if (duration <= 0f)
-        {
-            Destroy(handle.Source.gameObject);
-        }
-        else
-        {
-            StartCoroutine(StopAndDestroyRoutine(handle.Source, duration));
-        }
-        handle.Clear();
-    }
-
-        
     #endregion
 
-    #region Public: SFX Positional
-    public void PlaySFXAtPosition(SFXResource res, Vector3 position, float volumeScale = 1f)
-    {
-        if (res == null || res.clip == null)
-            return;
-        if (!enableSpatialApi)
-        {
-            PlaySFX(res, volumeScale);
-            return;
-        }
-        if (res.loop)
-        {
-            Debug.LogWarning("Looping SFX should be attached to a specific GameObject, not played positionally this way.");
-            return;
-        }
+    #region Public API: Music
 
-        var go = new GameObject($"SFX_{res.name}");
-        go.transform.position = position;
-        var src = go.AddComponent<AudioSource>();
-        src.outputAudioMixerGroup = SFXGroup;
-        src.clip = res.clip;
-        src.volume = Mathf.Clamp01(res.volume * volumeScale);
-        src.pitch = res.pitch;
-        src.spatialBlend = 1f;
-        src.Play();
-        Destroy(go, res.clip.length / res.pitch + 0.1f);
+    public void PlayMusic(MusicResource music)
+    {
+        if (music == null || music.clip == null) return;
+
+        AudioSource active = _isUsingMusicA ? _musicSourceA : _musicSourceB;
+
+        // If requesting the same song that is already playing, do nothing
+        if (active.isPlaying && active.clip == music.clip) return;
+
+        if (_musicFadeRoutine != null) StopCoroutine(_musicFadeRoutine);
+        _musicFadeRoutine = StartCoroutine(CrossfadeMusicRoutine(music));
     }
+
+    public void StopMusic(float fadeOutDuration = 1.0f)
+    {
+        if (_musicFadeRoutine != null) StopCoroutine(_musicFadeRoutine);
+        _musicFadeRoutine = StartCoroutine(StopMusicRoutine(fadeOutDuration));
+    }
+
     #endregion
 
-    #region Public: Music & SFX Playlists
-    public void PlayPlaylist(MusicPlaylist playlist, int startIndex = -1, float crossfade = -1f)
+    #region Internal Logic (SFX)
+
+    private AudioHandle PlayInternal(SFXResource data, Vector3 pos, Transform follow, bool force2D, float volumeMult)
     {
-        if (playlist == null || playlist.tracks == null || playlist.tracks.Count == 0)
-        {
-            StopPlaylist();
-            return;
-        }
+        if (data.clips == null || data.clips.Length == 0) return AudioHandle.Invalid;
 
-        _currentPlaylist = playlist;
-        _playlistIndex = (startIndex >= 0 && startIndex < playlist.tracks.Count)
-            ? startIndex
-            : GetNextPlaylistIndex(true);
+        // 1. Get Voice
+        ActiveVoice voice = GetBestVoice(data.priority);
+        if (voice == null) return AudioHandle.Invalid;
 
-        var res = _currentPlaylist.tracks[_playlistIndex];
-        PlayMusicImmediate(res, crossfade);
-
-        OnPlaylistTrackChanged?.Invoke(_currentPlaylist, _playlistIndex, res);
-        RestartPlaylistWatcher(crossfade);
-    }
-
-    public void StopPlaylist()
-    {
-        _currentPlaylist = null;
-        _playlistIndex = -1;
-        if (_playlistWatcher != null)
-        {
-            StopCoroutine(_playlistWatcher);
-            _playlistWatcher = null;
-        }
-        StopMusic();
-    }
-
-    public void NextPlaylistTrack(float crossfade = -1f)
-    {
-        if (_currentPlaylist == null)
-            return;
-        _playlistIndex = GetNextPlaylistIndex(false);
-        var res = _currentPlaylist.tracks[_playlistIndex];
-        PlayMusicImmediate(res, crossfade);
-
-        OnPlaylistTrackChanged?.Invoke(_currentPlaylist, _playlistIndex, res);
-        RestartPlaylistWatcher(crossfade);
-    }
-
-    // FIX: Corrected SFX Playlist logic to use SFXResource and combine properties.
-    public int PlaySFXFromPlaylist(SFXPlaylist pl, int userKey, Transform parent = null)
-    {
-        if (pl == null)
-            return -1;
-        if (!_sfxPlStates.TryGetValue(userKey, out var st))
-            st = new SFXPlState { index = -1, lIndex = -1, rIndex = -1, nextLeft = true };
-
-        SFXResource res = null;
-        // Logic to pick the next SFXResource from the playlist
-        switch (pl.mode)
-        {
-            case SFXPlaylistMode.Sequential:
-                if (pl.clips == null || pl.clips.Count == 0)
-                    return -1;
-                int next = (st.index + 1) % pl.clips.Count;
-                if (pl.clips.Count > 1 && UnityEngine.Random.value < pl.skipChance)
-                    next = (next + 1) % pl.clips.Count;
-                st.index = next;
-                res = pl.clips[st.index];
-                break;
-
-            case SFXPlaylistMode.PairedAlternate:
-                if (st.nextLeft)
-                {
-                    if (pl.leftBin == null || pl.leftBin.Count == 0)
-                        return -1;
-                    st.lIndex = (st.lIndex + 1) % pl.leftBin.Count;
-                    res = pl.leftBin[st.lIndex];
-                }
-                else
-                {
-                    if (pl.rightBin == null || pl.rightBin.Count == 0)
-                        return -1;
-                    st.rIndex = (st.rIndex + 1) % pl.rightBin.Count;
-                    res = pl.rightBin[st.rIndex];
-                }
-                st.nextLeft = !st.nextLeft;
-                break;
-        }
-        _sfxPlStates[userKey] = st;
-
-        if (res == null || res.clip == null)
-            return -1;
-
-        // Combine resource properties with playlist's global modifiers
-        float vol = res.volume * pl.volume * RandScale(1f, pl.volJitter);
-        float pit = res.pitch * pl.pitch * RandScale(1f, pl.pitchJitter);
-
-        if (parent != null && enableSpatialApi)
-        {
-            // Simplified positional logic for brevity, you can expand this
-            PlaySFXAtPosition(res, parent.position, vol / res.volume); // adjust scale
-            return -1;
-        }
-        else
-        {
-            // Use the one-shot player with calculated values, bypassing event tracking for playlists
-            return PlaySFXOneShot(res.clip, vol, pit, "__playlist__", trackFinish: false);
-        }
-    }
-    #endregion
-
-    #region Coroutines & Internals
-    // Helper: Fade volume to target
-    private IEnumerator FadeSourceRoutine(AudioSource src, float targetVol, float duration)
-    {
-        float startVol = src.volume;
-        float t = 0f;
-        while (t < duration && src != null)
-        {
-            t += Time.unscaledDeltaTime;
-            src.volume = Mathf.Lerp(startVol, targetVol, t / duration);
-            yield return null;
-        }
-        if (src != null) src.volume = targetVol;
-    }
-
-    // Helper: Fade out and kill
-    private IEnumerator StopAndDestroyRoutine(AudioSource src, float duration)
-    {
-        float startVol = src.volume;
-        float t = 0f;
-        while (t < duration && src != null)
-        {
-            t += Time.unscaledDeltaTime;
-            src.volume = Mathf.Lerp(startVol, 0f, t / duration);
-            yield return null;
-        }
-        if (src != null) Destroy(src.gameObject);
-    }
-    private AudioSource GetAvailableSFXSource()
-    {
-        foreach (var s in _sfxPool)
-            if (!s.isPlaying)
-                return s;
-
-        // Pool exhausted, create a temporary source.
-        var extra = CreateChildSource("SFX Player (Dynamic)", SFXGroup);
-        _sfxPool.Add(extra);
-        return extra;
-    }
-
-    private void StartImmediateCrossfade(AudioClip newClip, float duration)
-    {
-        if (_musicFadeCoro != null)
-            StopCoroutine(_musicFadeCoro);
-        _musicFadeCoro = StartCoroutine(DoImmediateCrossfade(newClip, duration));
-    }
-
-    private IEnumerator DoImmediateCrossfade(AudioClip newClip, float duration)
-    {
-        var fadeIn = (_activeMusic == _musicA) ? _musicB : _musicA;
-        var fadeOut = _activeMusic;
-
-        fadeIn.Stop();
-        fadeIn.clip = newClip;
-        fadeIn.volume = 0f;
-        fadeIn.Play();
-
-        _activeMusic = fadeIn;
-        _wasScheduledToPlay = false;
-        _isMusicPaused = false;
-
-        float t = 0f;
-        float outStart = fadeOut != null && fadeOut.isPlaying ? fadeOut.volume : 0f;
-        while (t < duration)
-        {
-            t += Time.unscaledDeltaTime;
-            float k = Mathf.Clamp01(t / duration);
-            float target = Mathf.Clamp01(_musicBaseVolume * _duckFactor);
-            fadeIn.volume = Mathf.Lerp(0f, target, k);
-            if (fadeOut != null && fadeOut.isPlaying)
-                fadeOut.volume = Mathf.Lerp(outStart, 0f, k);
-            yield return null;
-        }
-
-        ApplyMusicVolume();
-        if (fadeOut != null)
-        {
-            fadeOut.Stop();
-            fadeOut.volume = 0f;
-            fadeOut.clip = null;
-        }
-        _musicFadeCoro = null;
-    }
-
-    private IEnumerator FadeOutBothAndStop(float duration)
-    {
-        float a0 = _musicA.volume, b0 = _musicB.volume, t = 0f;
-        while (t < duration)
-        {
-            t += Time.unscaledDeltaTime;
-            float k = Mathf.Clamp01(t / duration);
-            _musicA.volume = Mathf.Lerp(a0, 0f, k);
-            _musicB.volume = Mathf.Lerp(b0, 0f, k);
-            yield return null;
-        }
-        _musicA.Stop();
-        _musicA.clip = null;
-        _musicB.Stop();
-        _musicB.clip = null;
-        _musicFadeCoro = null;
-        _activeMusic = _musicA; // Reset active to A
-    }
-
-    private int PlaySFXOneShot(AudioClip clip, float volume, float pitch, string eventName, bool trackFinish)
-    {
-        var src = GetAvailableSFXSource();
+        // 2. Configure
+        AudioSource src = voice.source;
+        AudioClip clip = data.clips[Random.Range(0, data.clips.Length)];
         src.clip = clip;
-        src.volume = Mathf.Clamp(volume, 0f, 2f);
-        src.pitch = Mathf.Clamp(pitch, 0.1f, 3f);
-        src.spatialBlend = 0f;
-        src.loop = false;
-        src.Play();
+        src.outputAudioMixerGroup = data.mixerGroup != null ? data.mixerGroup : defaultSfxGroup;
 
-        int voiceId = _nextVoiceId++;
-        if (trackFinish && !string.IsNullOrEmpty(eventName))
-            StartCoroutine(TrackSFXFinish(eventName, voiceId, clip.length / src.pitch));
+        float finalVol = Mathf.Clamp01((data.volume + Random.Range(-data.volumeVariance, data.volumeVariance)) * volumeMult);
+        float finalPitch = Mathf.Clamp(data.pitch + Random.Range(-data.pitchVariance, data.pitchVariance), 0.1f, 3f);
 
-        return voiceId;
-    }
+        src.volume = finalVol;
+        src.pitch = finalPitch;
 
-    private void PlaySFXLoop(string eventName, AudioClip clip, float volume, float pitch)
-    {
-        if (string.IsNullOrEmpty(eventName))
-            return;
-        StopLoopedSFX(eventName); // Stop any existing loop with the same name
-
-        var src = CreateChildSource($"Loop_{eventName}", SFXGroup);
-        src.clip = clip;
-        src.volume = Mathf.Clamp(volume, 0f, 2f);
-        src.pitch = Mathf.Clamp(pitch, 0.1f, 3f);
-        src.loop = true;
-        src.spatialBlend = 0f;
-        src.Play();
-        _loopSfx[eventName] = src;
-    }
-
-    private void RestartPlaylistWatcher(float crossfadeUsed)
-    {
-        if (_playlistWatcher != null)
-            StopCoroutine(_playlistWatcher);
-        if (_currentPlaylist != null)
-            _playlistWatcher = StartCoroutine(WatchActiveTrackAndAdvance(crossfadeUsed));
-    }
-
-    private IEnumerator WatchActiveTrackAndAdvance(float crossfadeUsed)
-    {
-        // Wait until the active music source is valid and playing
-        while (_activeMusic == null || _activeMusic.clip == null || !_activeMusic.isPlaying)
-            yield return null;
-
-        var clip = _activeMusic.clip;
-        float leadTime = Mathf.Max(0.1f, crossfadeUsed);
-
-        // Poll until the track is near its end
-        while (_activeMusic != null && _activeMusic.clip == clip && _activeMusic.isPlaying)
+        if (force2D)
         {
-            if (!_activeMusic.loop && (_activeMusic.clip.length - _activeMusic.time) <= leadTime)
+            src.spatialBlend = 0f;
+            src.transform.localPosition = Vector3.zero;
+        }
+        else
+        {
+            src.spatialBlend = data.spatialBlend;
+            src.minDistance = data.minDistance;
+            src.maxDistance = data.maxDistance;
+            src.rolloffMode = AudioRolloffMode.Logarithmic;
+            src.dopplerLevel = 0f;
+            src.transform.position = pos;
+        }
+
+        src.Play();
+
+        // 3. State Update
+        voice.isClaimed = true;
+        voice.priority = data.priority;
+        voice.id = ++_globalVoiceIdCounter; // Increment Generation ID
+        voice.followTarget = follow;
+        activeVoiceCount++;
+
+        if (voice.routine != null) StopCoroutine(voice.routine);
+        voice.routine = StartCoroutine(VoiceLifecycle(voice, clip.length / finalPitch));
+
+        // RETURN HANDLE WITH INDEX + GENERATION ID
+        return new AudioHandle(this, voice.poolIndex, voice.id);
+    }
+
+    private ActiveVoice GetBestVoice(int priority)
+    {
+        ActiveVoice bestCandidate = null;
+        int lowestPriorityFound = -1;
+
+        // Iterate array (fast)
+        for (int i = 0; i < _voicePool.Length; i++)
+        {
+            var v = _voicePool[i];
+            if (!v.isClaimed) return v; // Found free
+
+            // Check for stealing
+            if (v.priority > priority)
             {
-                NextPlaylistTrack(crossfadeUsed);
-                yield break;
+                if (v.priority > lowestPriorityFound)
+                {
+                    lowestPriorityFound = v.priority;
+                    bestCandidate = v;
+                }
             }
+        }
+
+        if (bestCandidate != null)
+        {
+            bestCandidate.source.Stop();
+            return bestCandidate;
+        }
+        return null;
+    }
+
+    private IEnumerator VoiceLifecycle(ActiveVoice voice, float duration)
+    {
+        float timer = 0f;
+        while (timer < duration)
+        {
+            if (!voice.isClaimed || voice.source == null || !voice.source.isPlaying) break;
+            if (voice.followTarget != null) voice.source.transform.position = voice.followTarget.position;
+            timer += Time.deltaTime;
             yield return null;
         }
+
+        if (voice.source != null) voice.source.Stop();
+        voice.isClaimed = false;
+        voice.followTarget = null;
+        voice.routine = null;
+        activeVoiceCount--;
     }
+    #endregion
 
-    private int GetNextPlaylistIndex(bool isFirst)
+    #region Internal Logic (Music)
+    private IEnumerator CrossfadeMusicRoutine(MusicResource newMusic)
     {
-        if (_currentPlaylist == null)
-            return -1;
-        int n = _currentPlaylist.tracks.Count;
-        if (n == 0)
-            return -1;
+        AudioSource fadingOut = _isUsingMusicA ? _musicSourceA : _musicSourceB;
+        AudioSource fadingIn = _isUsingMusicA ? _musicSourceB : _musicSourceA;
 
-        if (_currentPlaylist.playbackMode == PlaybackMode.SEQUENTIAL)
-        {
-            return (_playlistIndex + 1) % n;
-        }
-        else // SHUFFLE
-        {
-            if (n == 1)
-                return 0;
-            int pick = UnityEngine.Random.Range(0, n);
-            // Avoid playing the same track twice in a row
-            if (pick == _playlistIndex && !isFirst)
-                pick = (pick + 1) % n;
-            return pick;
-        }
-    }
+        // Setup new source
+        fadingIn.clip = newMusic.clip;
+        fadingIn.outputAudioMixerGroup = newMusic.mixerGroup != null ? newMusic.mixerGroup : defaultMusicGroup;
+        fadingIn.volume = 0f;
+        fadingIn.Play();
 
-    private IEnumerator FadeOutAndDestroy(AudioSource src, float dur, Action onFinish)
-    {
-        float v0 = src.volume;
-        float t = 0f;
-        while (t < dur)
+        float timer = 0f;
+        float startVol = fadingOut.volume; // Capture current volume to avoid popping if mid-fade
+
+        while (timer < newMusic.fadeTime)
         {
-            t += Time.unscaledDeltaTime;
-            src.volume = Mathf.Lerp(v0, 0f, t / dur);
+            timer += Time.unscaledDeltaTime; // Music usually runs independent of time scale
+            float t = timer / newMusic.fadeTime;
+
+            fadingIn.volume = Mathf.Lerp(0f, newMusic.volume, t);
+            fadingOut.volume = Mathf.Lerp(startVol, 0f, t);
+
             yield return null;
         }
-        onFinish?.Invoke();
-        if (src)
-            Destroy(src.gameObject);
+
+        fadingIn.volume = newMusic.volume;
+        fadingOut.volume = 0f;
+        fadingOut.Stop();
+
+        _isUsingMusicA = !_isUsingMusicA; // Swap active flag
+        _musicFadeRoutine = null;
     }
 
-    private IEnumerator TrackSFXFinish(string eventName, int voiceId, float delay)
+    private IEnumerator StopMusicRoutine(float duration)
     {
-        yield return new WaitForSeconds(delay);
-        OnSFXFinished?.Invoke(eventName, voiceId);
+        AudioSource active = _isUsingMusicA ? _musicSourceA : _musicSourceB;
+        float startVol = active.volume;
+        float timer = 0f;
+
+        while (timer < duration)
+        {
+            timer += Time.unscaledDeltaTime;
+            active.volume = Mathf.Lerp(startVol, 0f, timer / duration);
+            yield return null;
+        }
+
+        active.Stop();
+        active.volume = 0f;
+        _musicFadeRoutine = null;
     }
 
-    private struct SFXPlState
+    #endregion
+
+    #region Handle Interface
+
+    // O(1) Lookup via Index + Gen ID
+    public void StopVoice(int poolIndex, int generationId)
     {
-        public int index, lIndex, rIndex; public bool nextLeft;
+        // Safety check bounds
+        if (poolIndex < 0 || poolIndex >= _voicePool.Length) return;
+
+        var voice = _voicePool[poolIndex];
+
+        // Check Generation ID to ensure we aren't stopping a reused voice
+        if (voice.isClaimed && voice.id == generationId)
+        {
+            voice.source.Stop();
+            // Coroutine handles cleanup
+        }
     }
-    private static float RandScale(float baseVal, float jitter) =>
-        jitter <= 0f ? baseVal : baseVal * UnityEngine.Random.Range(1f - jitter, 1f + jitter);
+
+    public bool IsVoicePlaying(int poolIndex, int generationId)
+    {
+        if (poolIndex < 0 || poolIndex >= _voicePool.Length) return false;
+
+        var voice = _voicePool[poolIndex];
+        return voice.isClaimed && voice.id == generationId && voice.source.isPlaying;
+    }
     #endregion
 }
-public class AudioHandle
+
+// Helper attribute
+public class ReadOnlyAttribute : PropertyAttribute { }
+#if UNITY_EDITOR
+[UnityEditor.CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
+public class ReadOnlyDrawer : UnityEditor.PropertyDrawer
 {
-    private AudioSource source;
-    private AudioManager manager;
-    private Coroutine fadeRoutine;
-
-    public bool IsPlaying => source != null && source.isPlaying;
-
-    public AudioHandle(AudioSource src, AudioManager mgr)
+    public override void OnGUI(Rect position, UnityEditor.SerializedProperty property, GUIContent label)
     {
-        source = src;
-        manager = mgr;
+        GUI.enabled = false;
+        UnityEditor.EditorGUI.PropertyField(position, property, label, true);
+        GUI.enabled = true;
     }
-
-    public void Stop(float fadeDuration = 0f)
-    {
-        if (manager != null && source != null)
-        {
-            manager.StopHandle(this, fadeDuration);
-        }
-    }
-
-    public void SetPitch(float pitch)
-    {
-        if (source != null) source.pitch = pitch;
-    }
-
-    // Internal access for the manager
-    public AudioSource Source => source;
-    public void Clear() { source = null; }
 }
+#endif
 
+public struct AudioHandle
+{
+    private AudioManager _manager;
+    private int _poolIndex; // Where it is
+    private int _id;        // What version it is
+
+    public static AudioHandle Invalid => new (null, -1, -1);
+
+    public AudioHandle(AudioManager manager, int poolIndex, int id)
+    {
+        _manager = manager;
+        _poolIndex = poolIndex;
+        _id = id;
+    }
+
+    public bool IsValid => _manager != null && _id != -1;
+
+    public void Stop()
+    {
+        if (IsValid) _manager.StopVoice(_poolIndex, _id);
+    }
+
+    public bool IsPlaying()
+    {
+        if (!IsValid) return false;
+        return _manager.IsVoicePlaying(_poolIndex, _id);
+    }
+}

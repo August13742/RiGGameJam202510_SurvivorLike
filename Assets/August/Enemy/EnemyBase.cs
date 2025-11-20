@@ -8,6 +8,7 @@ namespace Survivor.Enemy
     [DisallowMultipleComponent]
     public abstract class EnemyBase : MonoBehaviour, IPoolable, IHitstoppable
     {
+        [SerializeField] private SFXResource hurtSFX;
         protected EnemyDef _def;
         protected PrefabStamp _stamp;
         protected HealthComponent _health;
@@ -77,6 +78,7 @@ namespace Survivor.Enemy
 
 
             SessionManager.Instance.IncrementDamageDealt(amt);
+            AudioManager.Instance?.PlaySFX(hurtSFX, this.transform.position);
             
         }
         private void OnTriggerEnter2D(Collider2D col)

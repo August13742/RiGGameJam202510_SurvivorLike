@@ -7,6 +7,11 @@ namespace Survivor.Enemy.FSM
     [CreateAssetMenu(fileName = "New Pattern_GapclostAttack", menuName = "Defs/Boss Attacks/Pattern_GapcloseAttack")]
     public class AttackPattern_GapcloseAttack : AttackPattern
     {
+        [Header("Audio")]
+        [SerializeField] private SFXResource dashSFX;     
+        [SerializeField] private SFXResource attackSFX; 
+
+
         [Header("Dash Properties")]
         [SerializeField] private string gapCloseAnimationName = "Walk";
         [SerializeField] private float gapCloseAnimationSpeed = 1f;
@@ -23,7 +28,7 @@ namespace Survivor.Enemy.FSM
             if (controller == null || controller.PlayerTransform == null)
                 yield break;
 
-
+            Transform bossTf = controller.transform;
             _enraged = controller.IsEnraged;
 
             // Apply enrage speed multiplier
@@ -32,6 +37,7 @@ namespace Survivor.Enemy.FSM
             // --- Gap Closing
             controller.Animator.Play(gapCloseAnimationName);
             controller.Animator.speed = gapCloseAnimationSpeed * (_enraged ? enrageSpeedMul : 1f);
+            AudioManager.Instance?.PlaySFX(dashSFX, bossTf.position,bossTf);
 
             while (!InMeleeRange(controller) && controller.PlayerTransform != null)
             {
@@ -50,7 +56,7 @@ namespace Survivor.Enemy.FSM
                 controller.Animator.Play(Random.value > 0.5f ? attackAnimationName : optionalAlternativeAnimName);
             }
             else controller.Animator.Play(attackAnimationName);
-
+            AudioManager.Instance?.PlaySFX(attackSFX, bossTf.position, bossTf);
 
 
             yield return new WaitForSeconds(1f);

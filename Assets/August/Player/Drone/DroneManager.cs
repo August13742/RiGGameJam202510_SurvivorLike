@@ -66,7 +66,7 @@ public sealed class DroneManager : MonoBehaviour
         //    _drones.Add(d);
         //    _slotIndex.Add(i);
 
-        //    // initialize per-drone weapons with shared services
+        //    // Initialise per-drone weapons with shared services
         //    d.InitialiseWeapons(sharedPoolRoot, enemyMask, searchRadius, Team.Player);
         //}
     }

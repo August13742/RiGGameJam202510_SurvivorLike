@@ -14,6 +14,13 @@ namespace Survivor.Enemy.FSM
         menuName = "Defs/Boss Attacks/Meteor Gravity Well")]
     public sealed class AttackPattern_MeteorGravityWell : AttackPattern
     {
+        [Header("Audio")]
+        [SerializeField] private SFXResource bigPullSFX;
+        [SerializeField] private SFXResource channelLoopSFX;   
+        [SerializeField] private SFXResource gravityPulseSFX;  
+        [SerializeField] private SFXResource meteorCastSFX;    
+        [SerializeField] private SFXResource explosionSFX;
+
         [SerializeField] private LayerMask hitMask;
 
         [Header("Impact Parameter")]
@@ -161,6 +168,8 @@ namespace Survivor.Enemy.FSM
 
             if ((PullOnlyWhenEnraged && _isEnraged) || !PullOnlyWhenEnraged)
             {
+                AudioManager.Instance?.PlaySFX(bigPullSFX, bossTf.position, bossTf);
+
                 float bigDelay = bigPullDelay * invRate;
 
                 // Telegraph the big pull
@@ -181,6 +190,8 @@ namespace Survivor.Enemy.FSM
             // --------------------------------------------------
             // PHASE 1: Start channeling the nuke
             // --------------------------------------------------
+            AudioHandle channelHandle = AudioManager.Instance.PlaySFX(channelLoopSFX, bossTf.position, bossTf);
+
             if (controller.Animator != null && !string.IsNullOrEmpty(channelAnim))
             {
                 controller.Animator.Play(channelAnim);
@@ -235,7 +246,8 @@ namespace Survivor.Enemy.FSM
                         pullStep: pullStepDistance,
                         interval: pullInterval * invRate,
                         duration: innerPullDurationTotal,
-                        startDelay: innerDelayTime
+                        startDelay: innerDelayTime,
+                        pulseSFX: gravityPulseSFX
                     )
                 );
             }
@@ -243,6 +255,7 @@ namespace Survivor.Enemy.FSM
             // Meteor waves timeline (aligned with channelDuration)
             for (int i = 0; i < totalWaves; i++)
             {
+                AudioManager.Instance?.PlaySFX(meteorCastSFX, bossTf.position, bossTf);
                 FireMeteorWave(
                     controller,
                     bossTf.position,
@@ -270,15 +283,20 @@ namespace Survivor.Enemy.FSM
                 controller.Animator.speed = rateMul;
             }
 
-            // Final inner explosion at boss position
-            Vector3 explosionPos = bossTf.position;
-            SpawnExplosionVfx(explosionPos, controller);
-            ApplyExplosionDamage(explosionPos, innerExplosionRadius, finalExplosionDamage);
+            // --------------------------------------------------
+            // PHASE 3: Explosion & Cleanup
+            // --------------------------------------------------
 
-            if (controller.Animator != null)
-                controller.Animator.speed = 1f;
+            // AUDIO: Stop the channel loop immediately before the explosion
+            channelHandle.Stop();
+
+            AudioManager.Instance?.PlaySFX(explosionSFX, bossTf.position);
+
+            SpawnExplosionVfx(bossTf.position, controller);
+            ApplyExplosionDamage(bossTf.position, innerExplosionRadius, finalExplosionDamage);
 
             controller.VelocityOverride = Vector2.zero;
+        
         }
 
         // ----------------- WAVE + METEOR -----------------
@@ -438,7 +456,8 @@ namespace Survivor.Enemy.FSM
             float pullStep,
             float interval,
             float duration,
-            float startDelay)
+            float startDelay,
+            SFXResource pulseSFX)
         {
             Transform playerTf = controller.PlayerTransform;
             if (playerTf == null) yield break;
@@ -453,6 +472,8 @@ namespace Survivor.Enemy.FSM
             {
                 if (controller == null || controller.IsDead) yield break;
                 if (playerTf == null) yield break;
+
+                AudioManager.Instance?.PlaySFX(pulseSFX, controller.transform.position);
 
                 Vector3 bossPos = controller.transform.position;
                 Vector3 playerPos = playerTf.position;
