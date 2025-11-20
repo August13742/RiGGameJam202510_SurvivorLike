@@ -166,6 +166,11 @@ public class AudioManager : MonoBehaviour
 
     // Sequence Internals
     private Dictionary<int, int> _sequenceIndices = new Dictionary<int, int>();
+    // Coalescing Buffer
+    // Key: The SFXResource (Asset)
+    // Value: List of positions where this sound has played THIS FRAME
+    private Dictionary<SFXResource, List<Vector3>> _coalesceBuffer = new Dictionary<SFXResource, List<Vector3>>();
+
     #endregion
 
     #region Unity Lifecycle
@@ -183,6 +188,17 @@ public class AudioManager : MonoBehaviour
         InitialisePool();
         InitialiseMusic();
     }
+    private void LateUpdate()
+    {
+        // RESET BUFFER EVERY FRAME
+        foreach (var list in _coalesceBuffer.Values)
+        {
+            list.Clear();
+        }
+    }
+
+
+
     #endregion
 
     #region Initialisation
@@ -235,8 +251,37 @@ public class AudioManager : MonoBehaviour
     public AudioHandle PlaySFX(SFXResource data, Vector3 position = default, Transform followTarget = null)
     {
         if (data == null) return AudioHandle.Invalid;
+
         bool is2D = data.bypassSpatial || (position == Vector3.zero && followTarget == null);
         Vector3 startPos = followTarget != null ? followTarget.position : position;
+
+        // --- SPATIAL COALESCING LOGIC START
+        if (!is2D && data.useSpatialCoalescing) // Only coalesce spatial sounds
+        {
+            if (!_coalesceBuffer.ContainsKey(data))
+            {
+                _coalesceBuffer[data] = new List<Vector3>();
+            }
+
+            var playedPositions = _coalesceBuffer[data];
+            float sqrThreshold = data.minSpatialSeparation * data.minSpatialSeparation;
+
+            // Check if a sound is already playing near this location
+            for (int i = 0; i < playedPositions.Count; i++)
+            {
+                if (Vector3.SqrMagnitude(playedPositions[i] - startPos) < sqrThreshold)
+                {
+                    // TOO CLOSE to an existing sound of the same type.
+                    // Return Invalid handle (sound absorbed).
+                    return AudioHandle.Invalid;
+                }
+            }
+
+            // If we get here, we are allowed to play. Register position.
+            playedPositions.Add(startPos);
+        }
+        // --- SPATIAL COALESCING LOGIC END
+
         return PlayInternal(data, startPos, followTarget, is2D, 1f);
     }
 

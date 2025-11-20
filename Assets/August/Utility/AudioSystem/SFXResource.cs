@@ -28,6 +28,11 @@ public class SFXResource : ScriptableObject
     public float maxDistance = 25f;
     [Tooltip("If true, this sound ignores the Manager's spatial API and always plays 2D.")]
     public bool bypassSpatial = false;
+
+    public bool useSpatialCoalescing = true;
+    [Tooltip("If another sound is within x unit this frame, skip it")]
+    public float minSpatialSeparation = 5.0f; 
+
     [Header("Optional Override")]
     [Tooltip("Optional: Override the default SFX mixer group.")]
     public AudioMixerGroup mixerGroup;
