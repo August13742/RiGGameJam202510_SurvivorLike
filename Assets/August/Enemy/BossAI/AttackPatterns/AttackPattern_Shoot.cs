@@ -91,7 +91,7 @@ namespace Survivor.Enemy.FSM
         {
             if (arrowCount <= 0) yield break;
 
-            AugustsUtility.AudioSystem.AudioManager.Instance?.PlaySFX(fireSFX);
+            AudioManager.Instance?.PlaySFX(fireSFX);
             // Aim vector
             Vector2 origin = controller.transform.position;
             Transform target = controller.PlayerTransform;

@@ -50,7 +50,7 @@ namespace Survivor.Weapon
 
             int baseDamage = ScaledDamage();
 
-            AugustsUtility.AudioSystem.AudioManager.Instance?.PlaySFX(def.fireSFX);
+            AudioManager.Instance?.PlaySFX(def.fireSFX);
             for (int i = 0; i < count; i++)
             {
                 float startAng = step * i;

@@ -1,7 +1,7 @@
 using Survivor.Game;
 using System.Collections;
 using UnityEngine;
-using AugustsUtility.AudioSystem;
+
 namespace Survivor.Enemy.FSM
 {
     [CreateAssetMenu(fileName = "New DashAttackPattern", menuName = "Defs/Boss Attacks/Dash Pattern")]

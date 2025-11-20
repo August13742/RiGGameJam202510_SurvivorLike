@@ -1,6 +1,6 @@
 using UnityEngine;
 using Survivor.Game;
-using AugustsUtility.AudioSystem;
+
 namespace Survivor.Weapon
 {
     public sealed class ProjectileWeapon : WeaponBase<ProjectileWeaponDef>

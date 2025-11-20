@@ -68,7 +68,7 @@ namespace Survivor.Enemy.FSM
                 pixie.Init(controller, controller.PlayerTransform, pixieConfig);
             }
 
-            AugustsUtility.AudioSystem.AudioManager.Instance?.PlaySFX(fireSFX);
+            AudioManager.Instance?.PlaySFX(fireSFX);
             // fire-and-forget
             yield break;
         }

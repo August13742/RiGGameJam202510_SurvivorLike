@@ -197,7 +197,7 @@ namespace Survivor.Enemy.FSM
         {
 
             Vector2 origin = controller.FirePoint == null? controller.transform.position:controller.FirePoint.position;
-            AugustsUtility.AudioSystem.AudioManager.Instance?.PlaySFX(fireSFX);
+            AudioManager.Instance?.PlaySFX(fireSFX);
 
             var go = Object.Instantiate(projectilePrefab, origin, Quaternion.identity);
 

@@ -5,7 +5,7 @@ using Survivor.Control;
 using Survivor.Game;
 using System.Collections;
 using UnityEngine;
-using AugustsUtility.AudioSystem;
+
 namespace Survivor.Enemy.FSM
 {
     [CreateAssetMenu(fileName = "New RiptideWavesPattern", menuName = "Defs/Boss Attacks/Riptide Waves")]

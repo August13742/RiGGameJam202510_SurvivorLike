@@ -10,11 +10,12 @@ namespace Survivor.Enemy.FSM
         public string animationName;
         public float animationDuration = 1.0f;
         public List<string> CallbackTags = new();
-
+        [SerializeField] private SFXResource sfx;
         public override IEnumerator Execute(BossController controller)
         {
             // Tell the animator to play the clip
             controller.Animator.Play(animationName);
+            AudioManager.Instance.PlaySFX(sfx);
 
             // Wait for the duration of the animation before finishing
             yield return new WaitForSeconds(animationDuration);

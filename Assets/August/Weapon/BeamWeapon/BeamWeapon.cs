@@ -23,6 +23,7 @@ namespace Survivor.Weapon
             var aims = GatherAimDirections();
             if (aims.Count == 0) return;
 
+            AudioManager.Instance?.PlaySFX(def.fireSFX);
             foreach (var dir in aims)
                 SpawnBeam(dir);
         }
@@ -134,7 +135,7 @@ namespace Survivor.Weapon
                 alphaOverLife: def.AlphaOverLife,
                 followOrigin: def.FollowOrigion
             );
-            AugustsUtility.AudioSystem.AudioManager.Instance?.PlaySFX(def.fireSFX);
+            
         }
 
     }

@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using AugustsUtility.AudioSystem;
+
 namespace Survivor.Weapon
 {
     public enum Team { Player, Enemy }
