@@ -350,7 +350,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
   maxHP: 100
   current: 0
-  godMode: 1
+  godMode: 0
   receptionState: 0
   triggerHitstop: 1
   hitstopDuration: 0.05
