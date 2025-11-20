@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59bdb1672d7597a418b140448c2141cc, type: 3}
   m_Name: SoldierRadialBarrageAlter
   m_EditorClassIdentifier: 
+  fireSFX: {fileID: 11400000, guid: b2414866ede22a44480bf552e28815fe, type: 2}
   projectilePrefab: {fileID: 4992832623426345031, guid: 3955badc9c444694490d3326e93b3aee, type: 3}
   damage: 20
   speed: 12

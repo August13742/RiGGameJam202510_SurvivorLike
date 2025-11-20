@@ -8,7 +8,7 @@ public class SFXResource : ScriptableObject
     [Header("Content")]
     [Tooltip("The system will pick one random clip from this array each time.")]
     public AudioClip[] clips;
-
+    public bool loop = false;
     [Header("Mixing & Priority")]
     
 

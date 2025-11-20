@@ -52,6 +52,10 @@ namespace Survivor.Enemy.FSM
         [SerializeField, Range(0f, 1f)] private float probDecayPerSweep = 0.25f;
         [SerializeField, Range(0f, 1f)] private float enrageDecayReduction = 0.5f; // 50% less decay when enraged
 
+        [Header("Tracking")]
+        [Tooltip("If true, re-calculates the angle to the player before every specific sweep.")]
+        [SerializeField] private bool reaimBetweenSweeps = false;
+
         [Header("Animation")]
         [SerializeField] private string animName = "Barrage";
 
@@ -78,11 +82,9 @@ namespace Survivor.Enemy.FSM
             }
 
             // 2. Windup / Initial Aim Snapshot
-            Vector2 pivot = controller.transform.position;
-            Vector2 toPlayer = ((Vector2)controller.PlayerTransform.position - pivot).normalized;
-            float baseAngle = Mathf.Atan2(toPlayer.y, toPlayer.x) * Mathf.Rad2Deg;
+            float baseAngle = GetBaseAngle(controller);
 
-            // Decide once per pattern whether we flip to the mirrored side.
+            // Decide once per pattern whether we flip to the mirrored side (initial state)
             bool flipStartSide = randomStartSide && Random.value > 0.5f;
 
             yield return new WaitForSeconds(initialWindup / rateMul);
@@ -105,6 +107,12 @@ namespace Survivor.Enemy.FSM
             {
                 for (int r = 0; r < totalReps; r++)
                 {
+                    // Re-aim check
+                    if (reaimBetweenSweeps && r > 0)
+                    {
+                        baseAngle = GetBaseAngle(controller);
+                    }
+
                     // Ping-pong: even reps go A->B, odd reps go B->A.
                     bool isReverse = pingPong && (r % 2 != 0);
 
@@ -130,7 +138,7 @@ namespace Survivor.Enemy.FSM
 
         private IEnumerator ExecuteProbabilisticSweeps(
             BossController controller,
-            float baseAngle,
+            float initialBaseAngle,
             bool flipStartSide,
             bool enraged,
             int maxReps,
@@ -143,17 +151,25 @@ namespace Survivor.Enemy.FSM
             int guard = 0;
             const int hardCap = 32;
 
+            float currentBaseAngle = initialBaseAngle;
+
             while (rep < maxReps && guard++ < hardCap && Random.value <= p)
             {
+                // Re-aim check
+                if (reaimBetweenSweeps && rep > 0)
+                {
+                    currentBaseAngle = GetBaseAngle(controller);
+                }
+
                 bool isReverse = pingPong && (rep % 2 != 0);
 
-                float angleA = baseAngle + startOffsetDegrees;
-                float angleB = baseAngle + startOffsetDegrees + sweepWidthDegrees;
+                float angleA = currentBaseAngle + startOffsetDegrees;
+                float angleB = currentBaseAngle + startOffsetDegrees + sweepWidthDegrees;
 
                 if (flipStartSide)
                 {
-                    angleA = baseAngle - startOffsetDegrees;
-                    angleB = baseAngle - startOffsetDegrees - sweepWidthDegrees;
+                    angleA = currentBaseAngle - startOffsetDegrees;
+                    angleB = currentBaseAngle - startOffsetDegrees - sweepWidthDegrees;
                 }
 
                 float startAngle = isReverse ? angleB : angleA;
@@ -170,6 +186,15 @@ namespace Survivor.Enemy.FSM
                 if (rep < maxReps)
                     yield return new WaitForSeconds(sweepDelay);
             }
+        }
+
+        private float GetBaseAngle(BossController controller)
+        {
+            if (controller.PlayerTransform == null) return 0f;
+
+            Vector2 pivot = controller.transform.position;
+            Vector2 toPlayer = ((Vector2)controller.PlayerTransform.position - pivot).normalized;
+            return Mathf.Atan2(toPlayer.y, toPlayer.x) * Mathf.Rad2Deg;
         }
 
         private IEnumerator FireSweep(
@@ -196,7 +221,7 @@ namespace Survivor.Enemy.FSM
         private void SpawnProjectile(BossController controller, Vector2 dir, float speedMultiplier)
         {
 
-            Vector2 origin = controller.FirePoint == null? controller.transform.position:controller.FirePoint.position;
+            Vector2 origin = controller.FirePoint == null ? controller.transform.position : controller.FirePoint.position;
             AudioManager.Instance?.PlaySFX(fireSFX);
 
             var go = Object.Instantiate(projectilePrefab, origin, Quaternion.identity);

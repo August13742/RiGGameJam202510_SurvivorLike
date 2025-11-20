@@ -21,7 +21,7 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private int steps = 6;
         [Tooltip("If true, aims the center of the arc at the player. If false, aims randomly once at start.")]
         [SerializeField] private bool aimAtPlayer = true;
-        [Tooltip("If true, alternate left→right / right→left per cycle.")]
+        [Tooltip("If true, alternate left->right / right->left per cycle.")]
         [SerializeField] private bool pingPong = true;
 
         [Header("Phase 1: Repulse Box (visual + gating)")]
@@ -52,6 +52,8 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private int hardCap = 5;
         [SerializeField, Range(0f, 1f)] private float probDecay = 0.3f;
         [SerializeField] private float delayBetweenCycles = 0.8f;
+        [Tooltip("If true, re-calculates the angle to the player before every cycle.")]
+        [SerializeField] private bool reaimBetweenCycles = false;
 
         [Header("Enrage")]
         [SerializeField] private float enrageRateMul = 1.25f;
@@ -74,21 +76,18 @@ namespace Survivor.Enemy.FSM
             float p = 1.0f;
             int cycleCount = 0;
 
-            // Snapshot base aim once, like SweepingBarrage, so the sector is stable.
-            float baseAngle = 0f;
-            if (aimAtPlayer && controller.PlayerTransform != null)
-            {
-                Vector2 diff = controller.PlayerTransform.position - controller.transform.position;
-                baseAngle = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
-            }
-            else
-            {
-                baseAngle = Random.Range(0f, 360f);
-            }
+            // Initial Calculation
+            float baseAngle = GetTargetAngle(controller);
 
             // Main Loop: Repulse Sweep -> Shoot Sweep -> Repeat?
             while (Random.value <= p && cycleCount < hardCap)
             {
+                // Re-aim check
+                if (reaimBetweenCycles && cycleCount > 0)
+                {
+                    baseAngle = GetTargetAngle(controller);
+                }
+
                 bool isReverse = pingPong && (cycleCount % 2 != 0);
 
                 // 1. Calculate Angles for this Cycle
@@ -111,6 +110,19 @@ namespace Survivor.Enemy.FSM
                 {
                     yield return new WaitForSeconds(delayBetweenCycles / rateMul);
                 }
+            }
+        }
+
+        private float GetTargetAngle(BossController controller)
+        {
+            if (aimAtPlayer && controller.PlayerTransform != null)
+            {
+                Vector2 diff = controller.PlayerTransform.position - controller.transform.position;
+                return Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
+            }
+            else
+            {
+                return Random.Range(0f, 360f);
             }
         }
 
@@ -176,7 +188,7 @@ namespace Survivor.Enemy.FSM
                     float maxT = boxSize.x;
                     float remaining = maxT - t;
 
-                    // Behind outer face or numerically degenerate → no push.
+                    // Behind outer face or numerically degenerate -> no push.
                     if (remaining <= 0.01f)
                         continue;
 

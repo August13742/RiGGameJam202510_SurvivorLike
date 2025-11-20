@@ -91,26 +91,20 @@ public class VolumeConfigUIController : MonoBehaviour
 
     private void ApplyMasterVolume(float volumeLinear)
     {
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.SetMasterVolume(volumeLinear);
-        }
+        if (AudioManager.Instance != null) AudioManager.Instance.SetMasterVolume(volumeLinear);
     }
 
     private void ApplyMusicVolume(float volumeLinear)
     {
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.SetMusicVolume(volumeLinear);
-        }
+
+        if (AudioManager.Instance != null) AudioManager.Instance.SetMusicVolume(volumeLinear);
+
     }
 
     private void ApplySFXVolume(float volumeLinear)
     {
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.SetSFXVolume(volumeLinear);
-        }
+        if (AudioManager.Instance != null) AudioManager.Instance.SetSFXVolume(volumeLinear);
+
     }
 
     private void SaveVolumeSetting(string key, float value)

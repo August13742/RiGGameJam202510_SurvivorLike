@@ -124,15 +124,15 @@ MonoBehaviour:
       Pattern: {fileID: 11400000, guid: 721a5498d532f5545820efdac127ce09, type: 2}
       CooldownTag: riptide
       Cooldown: 5
-      Weight: 6
+      Weight: 4
     - Category: 1
       Pattern: {fileID: 11400000, guid: 1399dab49bedb96428ee6525cc464851, type: 2}
-      CooldownTag: srintatk1
+      CooldownTag: sprintattack1
       Cooldown: 5
       Weight: 5
     - Category: 1
       Pattern: {fileID: 11400000, guid: f1dda03b14717e540bcc21e00b6b88cd, type: 2}
-      CooldownTag: srintatk2
+      CooldownTag: sprintattack2
       Cooldown: 5
       Weight: 5
     EnrageAction:
@@ -153,12 +153,16 @@ MonoBehaviour:
   firePoint: {fileID: 0}
   meleeHitbox: {fileID: 7940118122619650211}
   projectilePrefab: {fileID: 2219610313089106186, guid: dbcfa463d52ea054db7fdb285219a735, type: 3}
+  fireSFX: {fileID: 11400000, guid: 337de6f33da6bc644a40b9d5568129a0, type: 2}
   projectileDamage: 20
   projectileSpeed: 12
   projectileIsHoming: 0
   projectileHomeWhenEnraged: 0
   projectileHomingDuration: 1
   behaviorPivotLocal: {x: 0, y: 0}
+  attackTelegraphRoot: {fileID: 0}
+  telegraphScaleInDuration: 0.25
+  telegraphScaleOutDuration: 0.2
   _currentStateLabel: 
   <IsDead>k__BackingField: 0
   _enrageActionPending: 0
@@ -176,10 +180,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHP: 100
   current: 0
-  triggerHitstopOnDamaged: 0
-  hitstopDurationSec: 0.15
+  godMode: 0
+  receptionState: 0
+  triggerHitstop: 1
+  hitstopDuration: 0.12
   useIframe: 0
   iframeDuration: 0.05
+  damageSfx: {fileID: 11400000, guid: 8b5216b12b8a2b14e909a79ff9eceb0a, type: 2}
+  healSfx: {fileID: 0}
+  deathSfx: {fileID: 0}
 --- !u!114 &8879061429163896510
 MonoBehaviour:
   m_ObjectHideFlags: 0

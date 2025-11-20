@@ -6,11 +6,25 @@ public sealed class OneshotAnimatedVFX : MonoBehaviour
     [SerializeField] private int layerIndex = 0;
     [SerializeField] private bool destroyOnDisable = true;
 
+    [Header("Audio")]
+    [SerializeField] private SFXResource spawnSfx;
+    [SerializeField] private bool playSfxOnEnable = true;
+
     private void Awake()
     {
         if (animator == null) animator = GetComponent<Animator>();
         if (animator == null) animator = GetComponentInChildren<Animator>();
-        if (animator == null) { Debug.LogError($"Animator Not Found On {name}"); Destroy(gameObject); }
+        if (animator == null)
+        {
+            Debug.LogError($"Animator Not Found On {name}");
+            Destroy(gameObject);
+        }
+    }
+
+    private void OnEnable()
+    {
+
+        if (playSfxOnEnable) AudioManager.Instance.PlaySFX(spawnSfx, transform.position, transform);
 
     }
 

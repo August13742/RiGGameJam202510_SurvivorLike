@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73b7fe1285d3ddf4abac477848051418, type: 3}
   m_Name: HuntressRiptideWavesPattern
   m_EditorClassIdentifier: 
+  fireSFX: {fileID: 11400000, guid: 89d95fb8e0299e342bd65b6806e57db2, type: 2}
+  detonateSFX: {fileID: 11400000, guid: 1fb84e62bb2d96449ad81a9063c08c0f, type: 2}
   cameraShakeStrength: 1
   cameraShakeDuration: 0.3
   minWaveCount: 8

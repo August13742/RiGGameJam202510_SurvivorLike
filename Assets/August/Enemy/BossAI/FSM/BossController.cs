@@ -46,6 +46,7 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private GameObject meleeHitbox;
         public Transform FirePoint => firePoint;
         [SerializeField] EnemyProjectile2D projectilePrefab;
+        [SerializeField] SFXResource fireSFX;
         [SerializeField] float projectileDamage = 5f;
         [SerializeField] float projectileSpeed = 10f;
         [SerializeField] bool projectileIsHoming = false;
@@ -293,7 +294,7 @@ namespace Survivor.Enemy.FSM
             Vector2 toTarget = ((Vector2)tgt.position - origin).normalized;
 
             bool doHome = projectileIsHoming || (projectileHomeWhenEnraged && IsEnraged);
-
+            AudioManager.Instance?.PlaySFX(fireSFX, transform.position,transform);
             proj.Fire(
                 origin,
                 toTarget,

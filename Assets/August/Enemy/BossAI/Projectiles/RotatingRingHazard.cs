@@ -35,8 +35,23 @@ public sealed class RotatingRingHazard : MonoBehaviour
              "e.g. [1.0, 0.7, 0.4] → full, medium, small.")]
     [SerializeField] private float[] radiusLevels = new float[] { 1f, 0.6f, 0.3f };
 
-    // --- internal state ---
+    [Header("Audio")]
+    [SerializeField] private SFXResource ambientLoopSFX;
+    [SerializeField] private SFXResource starCollisionSFX;
 
+    [Tooltip("Volume at smallest radius multiplier.")]
+    [SerializeField] private float ambientVolumeAtMinRadius = 0.4f;
+
+    [Tooltip("Volume at largest radius multiplier.")]
+    [SerializeField] private float ambientVolumeAtMaxRadius = 1.0f;
+
+    [Tooltip("Pitch at smallest radius multiplier.")]
+    [SerializeField] private float ambientPitchAtMinRadius = 0.9f;
+
+    [Tooltip("Pitch at largest radius multiplier.")]
+    [SerializeField] private float ambientPitchAtMaxRadius = 1.1f;
+
+    // --- internal state ---
     private readonly Dictionary<HealthComponent, int> _outerCounts = new Dictionary<HealthComponent, int>();
     private readonly Dictionary<HealthComponent, int> _innerCounts = new Dictionary<HealthComponent, int>();
 
@@ -47,6 +62,9 @@ public sealed class RotatingRingHazard : MonoBehaviour
 
     // Global spin multiplier (for patterns like "enrage → all rings spin faster")
     private float _globalSpinMultiplier = 1f;
+
+    // NEW: handle to the ambient loop voice
+    private AudioHandle _ambientHandle;
 
     public float BaseDamagePerTick => baseDamagePerTick;
     public float EffectiveDamagePerTick
@@ -109,7 +127,11 @@ public sealed class RotatingRingHazard : MonoBehaviour
 
         _tickTimer = tickInterval;
     }
+    private void OnEnable()
+    {
+        _ambientHandle = AudioManager.Instance.PlaySFX(ambientLoopSFX, transform.position, transform);
 
+    }
     private void OnDestroy()
     {
         if (outerReporter != null)
@@ -126,6 +148,12 @@ public sealed class RotatingRingHazard : MonoBehaviour
         if (starsReporter != null)
         {
             starsReporter.TriggerEnter -= OnStarsEnter;
+        }
+
+        if (_ambientHandle.IsValid)
+        {
+            _ambientHandle.Stop();
+            _ambientHandle = AudioHandle.Invalid;
         }
     }
 
@@ -168,7 +196,54 @@ public sealed class RotatingRingHazard : MonoBehaviour
 
             hp.Damage(_effectiveDamagePerTick,this.transform.position);
         }
+
+        UpdateAmbientAudioFromRadius();
     }
+
+    private void UpdateAmbientAudioFromRadius()
+    {
+        if (!_ambientHandle.IsValid) return;
+
+        // Estimate current radius multiplier as scale.x relative to base scale.x
+        float currentMul = 1f;
+        if (_baseScale.x > Mathf.Epsilon)
+        {
+            currentMul = transform.localScale.x / _baseScale.x;
+        }
+
+        // Derive min/max multipliers from radiusLevels
+        float minMul = float.MaxValue;
+        float maxMul = 0f;
+
+        if (radiusLevels != null && radiusLevels.Length > 0)
+        {
+            for (int i = 0; i < radiusLevels.Length; i++)
+            {
+                float v = radiusLevels[i];
+                if (v <= 0f) continue;
+                if (v < minMul) minMul = v;
+                if (v > maxMul) maxMul = v;
+            }
+        }
+
+        // Fallback if radiusLevels not configured
+        if (minMul == float.MaxValue || maxMul <= 0f)
+        {
+            minMul = 1f;
+            maxMul = 1f;
+        }
+
+        // Map currentMul into [0,1] over [minMul, maxMul]
+        float t = Mathf.InverseLerp(minMul, maxMul, currentMul);
+
+        // Volume & pitch interpolation
+        float vol = Mathf.Lerp(ambientVolumeAtMinRadius, ambientVolumeAtMaxRadius, t);
+        float pitch = Mathf.Lerp(ambientPitchAtMinRadius, ambientPitchAtMaxRadius, t);
+
+        _ambientHandle.SetVolume(vol);
+        _ambientHandle.SetPitch(pitch);
+    }
+
     /// <summary>
     /// Fire-and-forget version of PulseToLevelAndBack.
     /// Expands to targetLevel, holds, then returns to base (level 0),
@@ -307,6 +382,7 @@ public sealed class RotatingRingHazard : MonoBehaviour
     {
         if (!IsValidTarget(other, out HealthComponent hp)) return;
         hp.Damage(starsDamage,this.transform.position);
+        AudioManager.Instance?.PlaySFX(starCollisionSFX, transform.position);
         CameraShake2D.Shake(starCameraShakeDuration, starCameraShakeStrength);
     }
 

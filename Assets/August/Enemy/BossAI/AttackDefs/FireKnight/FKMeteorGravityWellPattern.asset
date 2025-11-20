@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70676ab7ed541ea4d929b330fb9b77d6, type: 3}
   m_Name: FKMeteorGravityWellPattern
   m_EditorClassIdentifier: 
+  bigPullSFX: {fileID: 0}
+  channelLoopSFX: {fileID: 11400000, guid: 5c6ed075e980a754497a7938932887e8, type: 2}
+  gravityPulseSFX: {fileID: 0}
+  meteorCastSFX: {fileID: 0}
+  explosionSFX: {fileID: 11400000, guid: 76ece03921d268541a3cd28d5d876a60, type: 2}
   hitMask:
     serializedVersion: 2
     m_Bits: 64

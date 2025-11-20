@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6bddbd839007fa45a05eaa8d9f517b2, type: 3}
+  m_Name: EllyRingPulse
+  m_EditorClassIdentifier: 
+  targetRadiusLevel: 1
+  expandDuration: 0.3
+  sustainDuration: 2
+  returnDuration: 0.4
+  useEaseInOut: 1
+  useEnragedOverrides: 1
+  enragedTargetRadiusLevel: 0
+  enragedExpandDuration: 0.25
+  enragedSustainDuration: 3
+  enragedReturnDuration: 0.35

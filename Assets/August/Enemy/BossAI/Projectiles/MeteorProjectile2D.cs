@@ -22,6 +22,11 @@ namespace Survivor.Weapon
         [SerializeField] private float hazardLifetime = 3f;
         [SerializeField] private bool spawnHazardOnImpact = false;
 
+        [Header("Audio")]
+        [SerializeField] private SFXResource launchSfx;
+        [SerializeField] private SFXResource impactSfx;
+        [SerializeField] private SFXResource hazardSpawnSfx;
+
         private Vector2 _targetPos;
         private bool _active;
         private float _lifeLeft;
@@ -59,6 +64,12 @@ namespace Survivor.Weapon
 
             _lifeLeft = maxLifetime;
             _active = true;
+
+            // --- AUDIO: launch ---
+            if (AudioManager.Instance != null && launchSfx != null)
+            {
+                AudioManager.Instance.PlaySFX(launchSfx, transform.position);
+            }
         }
 
         private void FixedUpdate()
@@ -92,10 +103,18 @@ namespace Survivor.Weapon
             if (!_active) return;
             _active = false;
 
+            Vector2 center = _targetPos;
+
+            // --- AUDIO: impact ---
+            if (AudioManager.Instance != null && impactSfx != null)
+            {
+                AudioManager.Instance.PlaySFX(impactSfx, center);
+            }
+
             // Instant radial impact damage (optional: set damage to 0 if only want DoT).
             ContactFilter2D _filter = new() { useTriggers = true, useDepth = false };
             _filter.SetLayerMask(hitMask);
-            int hitCount = Physics2D.OverlapCircle(_targetPos, impactRadius, _filter, _hits);
+            int hitCount = Physics2D.OverlapCircle(center, impactRadius, _filter, _hits);
 
             for (int i = 0; i < hitCount; i++)
             {
@@ -103,25 +122,33 @@ namespace Survivor.Weapon
                 if (!_hits[i].TryGetComponent<HealthComponent>(out var hp)) continue;
                 if (hp.IsDead) continue;
 
-                hp.Damage(damage,transform.position);
+                hp.Damage(damage, transform.position);
             }
 
             // VFX for impact
-            if (impactVfxPrefab != null) { 
-
-                GameObject vfx = Object.Instantiate(impactVfxPrefab, _targetPos, Quaternion.identity);
+            if (impactVfxPrefab != null)
+            {
+                GameObject vfx = Object.Instantiate(impactVfxPrefab, center, Quaternion.identity);
 
                 // Scale VFX based on inner explosion radius
                 float scale = impactRadius;
                 vfx.transform.localScale = new Vector3(scale, scale, 1f);
             }
+
             // Spawn hazard zone if configured
             if (spawnHazardOnImpact && hazardZonePrefab != null && hazardLifetime > 0f && hazardRadius > 0f)
             {
-                GameObject hzObj = Instantiate(hazardZonePrefab, _targetPos, Quaternion.identity);
+                GameObject hzObj = Instantiate(hazardZonePrefab, center, Quaternion.identity);
+
+                // --- AUDIO: hazard spawn ---
+                if (AudioManager.Instance != null && hazardSpawnSfx != null)
+                {
+                    AudioManager.Instance.PlaySFX(hazardSpawnSfx, center, hzObj.transform);
+                }
+
                 if (hzObj.TryGetComponent<HazardZone2D>(out var hz))
                 {
-                    hz.Activate(_targetPos, hazardRadius, hazardDamagePerSecond, hazardLifetime);
+                    hz.Activate(center, hazardRadius, hazardDamagePerSecond, hazardLifetime);
                 }
                 else
                 {

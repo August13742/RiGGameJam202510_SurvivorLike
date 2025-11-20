@@ -155,16 +155,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ad18f4d99ee4014a962c15d6b0776ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0
+  speed: 1
   maxLifetime: 5
   impactRadius: 1
   damage: 25
   hitMask:
     serializedVersion: 2
     m_Bits: 64
-  impactVfxPrefab: {fileID: 8622270546021668603, guid: d8f6c474b03ffe843a97ce399adbe0cf, type: 3}
+  impactVfxPrefab: {fileID: 0}
   hazardZonePrefab: {fileID: 5102637062721469528, guid: 02898979e3cf0564aaf5bcef772dbaf2, type: 3}
   hazardRadius: 2
   hazardDamagePerSecond: 100
   hazardLifetime: 5
   spawnHazardOnImpact: 1
+  launchSfx: {fileID: 0}
+  impactSfx: {fileID: 0}
+  hazardSpawnSfx: {fileID: 0}

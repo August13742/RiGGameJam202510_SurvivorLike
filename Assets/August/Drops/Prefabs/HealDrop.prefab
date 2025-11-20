@@ -152,6 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f5134b4b631b814cb2d268d728e8a57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Drop.HealDrop
+  pickupSFX: {fileID: 11400000, guid: e83025d2ca090434cae6202e403e13c1, type: 2}
   amount: 10
 --- !u!114 &-8818115812158931957
 MonoBehaviour:

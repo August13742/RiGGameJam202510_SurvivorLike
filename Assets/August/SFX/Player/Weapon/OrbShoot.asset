@@ -15,7 +15,7 @@ MonoBehaviour:
   clips:
   - {fileID: 8300000, guid: d03ff820b53bacc44a15488d2a616fe2, type: 3}
   priority: 64
-  volume: 0.5
+  volume: 0.4
   volumeVariance: 0.1
   pitch: 1
   pitchVariance: 0.1
@@ -23,4 +23,6 @@ MonoBehaviour:
   minDistance: 1
   maxDistance: 25
   bypassSpatial: 0
+  useSpatialCoalescing: 1
+  minSpatialSeparation: 5
   mixerGroup: {fileID: 0}

@@ -360,6 +360,7 @@ public class AudioManager : MonoBehaviour
         AudioSource src = voice.source;
         AudioClip clip = data.clips[Random.Range(0, data.clips.Length)];
         src.clip = clip;
+        src.loop = data.loop;
         src.outputAudioMixerGroup = data.mixerGroup != null ? data.mixerGroup : defaultSfxGroup;
 
         float finalVol = Mathf.Clamp01((data.volume + Random.Range(-data.volumeVariance, data.volumeVariance)) * volumeMult);
@@ -392,8 +393,11 @@ public class AudioManager : MonoBehaviour
         voice.followTarget = follow;
         activeVoiceCount++;
 
+        // duration: finite for one-shots, infinite for looped SFX
+        float voiceDuration = data.loop ? Mathf.Infinity : (clip.length / finalPitch);
+
         if (voice.routine != null) StopCoroutine(voice.routine);
-        voice.routine = StartCoroutine(VoiceLifecycle(voice, clip.length / finalPitch));
+        voice.routine = StartCoroutine(VoiceLifecycle(voice, voiceDuration));
 
         // RETURN HANDLE WITH INDEX + GENERATION ID
         return new AudioHandle(this, voice.poolIndex, voice.id);
@@ -432,11 +436,24 @@ public class AudioManager : MonoBehaviour
     private IEnumerator VoiceLifecycle(ActiveVoice voice, float duration)
     {
         float timer = 0f;
-        while (timer < duration)
+        bool infinite = float.IsInfinity(duration);
+
+        while (true)
         {
-            if (!voice.isClaimed || voice.source == null || !voice.source.isPlaying) break;
-            if (voice.followTarget != null) voice.source.transform.position = voice.followTarget.position;
-            timer += Time.deltaTime;
+            if (!voice.isClaimed || voice.source == null) break;
+            if (!voice.source.isPlaying) break;
+
+            if (voice.followTarget != null)
+            {
+                voice.source.transform.position = voice.followTarget.position;
+            }
+
+            if (!infinite)
+            {
+                timer += Time.deltaTime;
+                if (timer >= duration) break;
+            }
+
             yield return null;
         }
 
@@ -527,6 +544,28 @@ public class AudioManager : MonoBehaviour
         var voice = _voicePool[poolIndex];
         return voice.isClaimed && voice.id == generationId && voice.source.isPlaying;
     }
+    public void SetVoiceVolume(int poolIndex, int generationId, float volumeLinear)
+    {
+        if (poolIndex < 0 || poolIndex >= _voicePool.Length) return;
+
+        var voice = _voicePool[poolIndex];
+        if (!voice.isClaimed || voice.id != generationId) return;
+        if (voice.source == null) return;
+
+        voice.source.volume = Mathf.Clamp01(volumeLinear);
+    }
+
+    public void SetVoicePitch(int poolIndex, int generationId, float pitch)
+    {
+        if (poolIndex < 0 || poolIndex >= _voicePool.Length) return;
+
+        var voice = _voicePool[poolIndex];
+        if (!voice.isClaimed || voice.id != generationId) return;
+        if (voice.source == null) return;
+
+        // keep things sane
+        voice.source.pitch = Mathf.Clamp(pitch, 0.1f, 3f);
+    }
     #endregion
 }
 
@@ -551,7 +590,7 @@ public struct AudioHandle
     private int _poolIndex; // Where it is
     private int _id;        // What version it is
 
-    public static AudioHandle Invalid => new (null, -1, -1);
+    public static AudioHandle Invalid => new(null, -1, -1);
 
     public AudioHandle(AudioManager manager, int poolIndex, int id)
     {
@@ -571,5 +610,17 @@ public struct AudioHandle
     {
         if (!IsValid) return false;
         return _manager.IsVoicePlaying(_poolIndex, _id);
+    }
+
+    public void SetVolume(float linear)
+    {
+        if (!IsValid) return;
+        _manager.SetVoiceVolume(_poolIndex, _id, Mathf.Clamp01(linear));
+    }
+
+    public void SetPitch(float pitch)
+    {
+        if (!IsValid) return;
+        _manager.SetVoicePitch(_poolIndex, _id, pitch);
     }
 }

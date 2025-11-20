@@ -91,10 +91,12 @@ namespace Survivor.Progression.UI
             if (!_isOpen) return;
 
             // Unpause
-            if (pauseTimeScale) Time.timeScale = _prevTimeScale;
-
-            // Close UI
-            HideImmediate();
+            if (pauseTimeScale)
+            {
+                Time.timeScale = _prevTimeScale;
+            }
+                // Close UI
+                HideImmediate();
             Clear();
             _isOpen = false;
 

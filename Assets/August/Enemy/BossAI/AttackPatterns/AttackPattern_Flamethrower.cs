@@ -105,7 +105,6 @@ namespace Survivor.Enemy.FSM
             AudioManager.Instance?.PlaySFX(fireStartSFX, controller.transform.position, controller.transform);
 
             // 2. Start the Loop (Follows boss)
-            // We store this locally so we can stop THIS specific instance later
             AudioHandle loopHandle = AudioManager.Instance?.PlaySFX(fireLoopSFX, controller.transform.position, controller.transform) ?? AudioHandle.Invalid;
             // -------------------
 

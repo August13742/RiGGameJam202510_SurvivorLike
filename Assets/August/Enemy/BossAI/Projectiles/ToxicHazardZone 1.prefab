@@ -169,5 +169,8 @@ MonoBehaviour:
   spawnTelegraphOnActivate: 1
   hazardTelegraphColor: {r: 0, g: 1, b: 0.12585473, a: 0.8}
   telegraphRadiusMultiplier: 1
+  spawnSfx: {fileID: 0}
+  loopSfx: {fileID: 11400000, guid: 1fb9486eb5dc2c84692e4e9b15353456, type: 2}
+  endSfx: {fileID: 0}
   _timeLeft: 0
   _lifetime: 0

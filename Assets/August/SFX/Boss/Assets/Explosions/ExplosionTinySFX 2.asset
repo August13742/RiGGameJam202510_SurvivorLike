@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3a94225b1594ba4f8ea50e97f2825e4, type: 3}
+  m_Name: ExplosionTinySFX 2
+  m_EditorClassIdentifier: 
+  clips:
+  - {fileID: 8300000, guid: b5767c8ca01084f4da33fc65d6ca8431, type: 3}
+  - {fileID: 8300000, guid: 24ab657a90d3fa143a2dfe36c9fa7fb0, type: 3}
+  loop: 0
+  priority: 128
+  volume: 1
+  volumeVariance: 0.1
+  pitch: 1
+  pitchVariance: 0.1
+  spatialBlend: 1
+  minDistance: 1
+  maxDistance: 25
+  bypassSpatial: 0
+  useSpatialCoalescing: 1
+  minSpatialSeparation: 5
+  mixerGroup: {fileID: 0}

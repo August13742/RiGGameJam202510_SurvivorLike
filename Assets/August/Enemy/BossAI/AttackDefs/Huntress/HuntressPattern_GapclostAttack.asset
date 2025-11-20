@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cb13b362b000124387917131c12d1eb, type: 3}
   m_Name: HuntressPattern_GapclostAttack
   m_EditorClassIdentifier: 
+  dashSFX: {fileID: 0}
+  attackSFX: {fileID: 11400000, guid: 63bee4b8e5573a547905b6d9a905135d, type: 2}
   gapCloseAnimationName: Walk
   gapCloseAnimationSpeed: 3
   attackAnimationName: Attack1

@@ -16,3 +16,4 @@ MonoBehaviour:
   animationDuration: 1
   CallbackTags:
   - shoot
+  sfx: {fileID: 11400000, guid: b2414866ede22a44480bf552e28815fe, type: 2}

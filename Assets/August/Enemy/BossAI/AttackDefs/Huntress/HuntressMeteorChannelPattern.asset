@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0917b4eae3eff234f99c0175d573b229, type: 3}
   m_Name: HuntressMeteorChannelPattern
   m_EditorClassIdentifier: 
+  windupSFX: {fileID: 11400000, guid: 63bee4b8e5573a547905b6d9a905135d, type: 2}
+  channelLoopSFX: {fileID: 0}
+  waveFireSFX: {fileID: 0}
+  releaseSFX: {fileID: 0}
   meteorPrefab: {fileID: 886214537344977299, guid: c3134ed21a983c54d918e46b1f1e3be5, type: 3}
   minRadius: 3
   maxRadius: 15
