@@ -59,7 +59,7 @@ namespace Survivor.Enemy
                 _animator.speed = 1f;
             }
         }
-
+        public void SetTarget(Transform t) => _target = t;
         protected virtual void OnDisable()
         {
             if (_health != null)

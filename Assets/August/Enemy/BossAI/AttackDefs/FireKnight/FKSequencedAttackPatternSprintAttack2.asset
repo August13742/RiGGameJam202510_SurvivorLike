@@ -17,7 +17,7 @@ MonoBehaviour:
   - animationName: Attack1
     animationSpeedScale: 1
     attackSFX: {fileID: 11400000, guid: 63bee4b8e5573a547905b6d9a905135d, type: 2}
-    activeDuration: 0.5
+    activeDuration: 0.75
     breakTimeAfter: 0.2
     requiresRangeCheck: 1
     requiredBand: 2

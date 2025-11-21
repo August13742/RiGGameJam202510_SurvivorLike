@@ -17,7 +17,7 @@ MonoBehaviour:
   - animationName: SprintAttack
     animationSpeedScale: 0.5
     attackSFX: {fileID: 11400000, guid: 1625fbb908df173458d5bb95b7dff9e5, type: 2}
-    activeDuration: 0.7
+    activeDuration: 1
     breakTimeAfter: 0.2
     requiresRangeCheck: 1
     requiredBand: 2
@@ -25,7 +25,7 @@ MonoBehaviour:
     gapCloseChance: 1
   finalAttackChance: 1
   gapCloseAnimationName: SprintAttack
-  gapCloseAnimationSpeed: 0.1
+  gapCloseAnimationSpeed: 0.7
   dashSpeedTarget: 15
   enrageRateMultiplier: 1.25
   enragedFinalAttackChance: 1

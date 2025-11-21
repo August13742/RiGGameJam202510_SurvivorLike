@@ -486,7 +486,7 @@ Transform:
   m_GameObject: {fileID: 701740230}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 74340.375, y: 52871.977, z: -11161.589}
+  m_LocalPosition: {x: 74340.375, y: 52871.977, z: 1}
   m_LocalScale: {x: 62.337498, y: 62.337498, z: 124.674995}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1222,7 +1222,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenuScene: MainMenu
   gameplayScene: BossArena
+  gameplaySceneEasy: BossArenaEasy
   fadeDuration: 0.5
+  TitleBGM: {fileID: 11400000, guid: 3cb8aff2adbc24941bb83b03da1f655a, type: 2}
+  BGMPlaylist: {fileID: 11400000, guid: 0a78d199de76d8c458125bb17490f199, type: 2}
 --- !u!4 &1751871082
 Transform:
   m_ObjectHideFlags: 0
@@ -1366,6 +1369,26 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 763920122385793017, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698875666515888740, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698875666515888740, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698875666515888740, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698875666515888740, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698875666515888740, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}

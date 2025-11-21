@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
-
+using System.Linq;
 public class AudioManager : MonoBehaviour
 {
     #region Singleton
@@ -24,6 +24,7 @@ public class AudioManager : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField, ReadOnly] private int activeVoiceCount = 0;
+    [SerializeField, ReadOnly] private string currentMusicName = "None";
     #endregion
 
     #region Public API: Volume Control
@@ -84,10 +85,7 @@ public class AudioManager : MonoBehaviour
         for (int i = 0; i < _voicePool.Length; i++)
         {
             var voice = _voicePool[i];
-            if (voice.isClaimed && voice.source.isPlaying)
-            {
-                voice.source.Pause();
-            }
+            if (voice.isClaimed && voice.source.isPlaying) voice.source.Pause();
         }
     }
 
@@ -135,9 +133,11 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     public void StopMusicImmediate()
     {
+        StopPlaylist(); // Stop playlist logic
         if (_musicFadeRoutine != null) StopCoroutine(_musicFadeRoutine);
         _musicSourceA.Stop();
         _musicSourceB.Stop();
+        currentMusicName = "None";
     }
 
     #endregion
@@ -164,12 +164,14 @@ public class AudioManager : MonoBehaviour
     private bool _isUsingMusicA = true;
     private Coroutine _musicFadeRoutine;
 
+    // Playlist Internals
+    private MusicPlaylist _activePlaylist;
+    private List<int> _playlistQueue = new List<int>(); // Shuffle bag
+    private Coroutine _playlistRoutine;
+
     // Sequence Internals
     private Dictionary<int, int> _sequenceIndices = new Dictionary<int, int>();
-    // Coalescing Buffer
-    // Key: The SFXResource (Asset)
-    // Value: List of positions where this sound has played THIS FRAME
-    private Dictionary<SFXResource, List<Vector3>> _coalesceBuffer = new Dictionary<SFXResource, List<Vector3>>();
+    private Dictionary<SFXResource, List<Vector3>> _coalesceBuffer = new ();
 
     #endregion
 
@@ -204,8 +206,7 @@ public class AudioManager : MonoBehaviour
     #region Initialisation
     private void InitialisePool()
     {
-        _voicePool = new ActiveVoice[voicePoolSize]; // Array is faster for direct indexing
-
+        _voicePool = new ActiveVoice[voicePoolSize];
         GameObject poolRoot = new GameObject("SFX_Pool");
         poolRoot.transform.SetParent(transform);
 
@@ -213,7 +214,6 @@ public class AudioManager : MonoBehaviour
         {
             GameObject go = new GameObject($"Voice_{i}");
             go.transform.SetParent(poolRoot.transform);
-
             AudioSource src = go.AddComponent<AudioSource>();
             src.playOnAwake = false;
             src.loop = false;
@@ -221,7 +221,7 @@ public class AudioManager : MonoBehaviour
             _voicePool[i] = new ActiveVoice
             {
                 source = src,
-                poolIndex = i, // Memorise its own index
+                poolIndex = i,
                 isClaimed = false,
                 id = -1
             };
@@ -238,6 +238,7 @@ public class AudioManager : MonoBehaviour
 
         _musicSourceA.playOnAwake = false;
         _musicSourceB.playOnAwake = false;
+        // Loop defaults to true, but PlayInternal controls it now
         _musicSourceA.loop = true;
         _musicSourceB.loop = true;
 
@@ -255,32 +256,18 @@ public class AudioManager : MonoBehaviour
         bool is2D = data.bypassSpatial || (position == Vector3.zero && followTarget == null);
         Vector3 startPos = followTarget != null ? followTarget.position : position;
 
-        // --- SPATIAL COALESCING LOGIC START
-        if (!is2D && data.useSpatialCoalescing) // Only coalesce spatial sounds
+        if (!is2D && data.useSpatialCoalescing)
         {
-            if (!_coalesceBuffer.ContainsKey(data))
-            {
-                _coalesceBuffer[data] = new List<Vector3>();
-            }
-
+            if (!_coalesceBuffer.ContainsKey(data)) _coalesceBuffer[data] = new List<Vector3>();
             var playedPositions = _coalesceBuffer[data];
             float sqrThreshold = data.minSpatialSeparation * data.minSpatialSeparation;
 
-            // Check if a sound is already playing near this location
             for (int i = 0; i < playedPositions.Count; i++)
             {
-                if (Vector3.SqrMagnitude(playedPositions[i] - startPos) < sqrThreshold)
-                {
-                    // TOO CLOSE to an existing sound of the same type.
-                    // Return Invalid handle (sound absorbed).
-                    return AudioHandle.Invalid;
-                }
+                if (Vector3.SqrMagnitude(playedPositions[i] - startPos) < sqrThreshold) return AudioHandle.Invalid;
             }
-
-            // If we get here, we are allowed to play. Register position.
             playedPositions.Add(startPos);
         }
-        // --- SPATIAL COALESCING LOGIC END
 
         return PlayInternal(data, startPos, followTarget, is2D, 1f);
     }
@@ -292,7 +279,6 @@ public class AudioManager : MonoBehaviour
         int idHash = seq.GetHashCode();
         int indexToPlay = 0;
 
-        // Logic resolution
         if (seq.mode == SFXSequenceMode.RandomPure)
         {
             indexToPlay = Random.Range(0, seq.steps.Count);
@@ -306,7 +292,7 @@ public class AudioManager : MonoBehaviour
             }
             else indexToPlay = 0;
         }
-        else // Sequential
+        else
         {
             int lastIndex = _sequenceIndices.ContainsKey(idHash) ? _sequenceIndices[idHash] : -1;
             indexToPlay = (lastIndex + 1) % seq.steps.Count;
@@ -325,21 +311,50 @@ public class AudioManager : MonoBehaviour
 
     #region Public API: Music
 
+    /// <summary>
+    /// Plays a single track, looping indefinitely. 
+    /// Stops any active Playlist.
+    /// </summary>
     public void PlayMusic(MusicResource music)
     {
-        if (music == null || music.clip == null) return;
+        // If user manually calls PlayMusic, we assume they want to override the playlist.
+        StopPlaylist();
+        PlayMusicInternal(music, true);
+    }
 
-        AudioSource active = _isUsingMusicA ? _musicSourceA : _musicSourceB;
+    /// <summary>
+    /// Starts a Playlist with the defined Playback Mode.
+    /// </summary>
+    public void PlayPlaylist(MusicPlaylist playlist)
+    {
+        if (playlist == null || playlist.tracks.Count == 0) return;
 
-        // If requesting the same song that is already playing, do nothing
-        if (active.isPlaying && active.clip == music.clip) return;
+        // If already playing this playlist, do nothing (optional, maybe restart?)
+        if (_activePlaylist == playlist && _playlistRoutine != null) return;
 
-        if (_musicFadeRoutine != null) StopCoroutine(_musicFadeRoutine);
-        _musicFadeRoutine = StartCoroutine(CrossfadeMusicRoutine(music));
+        StopPlaylist(); // Clean up old routines
+        _activePlaylist = playlist;
+
+        // Initialise Queue
+        RefillPlaylistQueue();
+
+        _playlistRoutine = StartCoroutine(PlaylistLifecycle());
+    }
+
+    public void StopPlaylist()
+    {
+        if (_playlistRoutine != null)
+        {
+            StopCoroutine(_playlistRoutine);
+            _playlistRoutine = null;
+        }
+        _activePlaylist = null;
+        _playlistQueue.Clear();
     }
 
     public void StopMusic(float fadeOutDuration = 1.0f)
     {
+        StopPlaylist(); // Ensure playlist doesn't trigger next song
         if (_musicFadeRoutine != null) StopCoroutine(_musicFadeRoutine);
         _musicFadeRoutine = StartCoroutine(StopMusicRoutine(fadeOutDuration));
     }
@@ -466,7 +481,80 @@ public class AudioManager : MonoBehaviour
     #endregion
 
     #region Internal Logic (Music)
-    private IEnumerator CrossfadeMusicRoutine(MusicResource newMusic)
+    private void PlayMusicInternal(MusicResource music, bool loop)
+    {
+        if (music == null || music.clip == null) return;
+
+        AudioSource active = _isUsingMusicA ? _musicSourceA : _musicSourceB;
+
+        // If requesting the same song that is already playing, just ensure loop status is correct and return
+        if (active.isPlaying && active.clip == music.clip)
+        {
+            active.loop = loop;
+            return;
+        }
+
+        currentMusicName = music.clip.name;
+
+        if (_musicFadeRoutine != null) StopCoroutine(_musicFadeRoutine);
+        _musicFadeRoutine = StartCoroutine(CrossfadeMusicRoutine(music, loop));
+    }
+
+    private IEnumerator PlaylistLifecycle()
+    {
+        while (_activePlaylist != null)
+        {
+            // 1. Get Next Track
+            if (_playlistQueue.Count == 0) RefillPlaylistQueue();
+
+            int trackIndex = _playlistQueue[0];
+            _playlistQueue.RemoveAt(0);
+
+            MusicResource nextTrack = _activePlaylist.tracks[trackIndex];
+
+            // 2. Play it (Non-looping so it finishes)
+            PlayMusicInternal(nextTrack, loop: false);
+
+            // 3. Wait for duration
+            // We subtract the fadeTime so the NEXT song starts fading in 
+            // while this one is ending, creating a gapless crossfade.
+            if (nextTrack.clip != null)
+            {
+                float waitDuration = nextTrack.clip.length - nextTrack.fadeTime;
+                // Ensure we don't wait negative time
+                waitDuration = Mathf.Max(0.1f, waitDuration);
+
+                yield return new WaitForSecondsRealtime(waitDuration);
+            }
+            else
+            {
+                // Fallback if data is bad
+                yield return null;
+            }
+        }
+    }
+
+    private void RefillPlaylistQueue()
+    {
+        _playlistQueue.Clear();
+        for (int i = 0; i < _activePlaylist.tracks.Count; i++) _playlistQueue.Add(i);
+
+        if (_activePlaylist.playbackMode == PlaybackMode.SHUFFLE)
+        {
+            // Fisher-Yates Shuffle
+            int n = _playlistQueue.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = Random.Range(0, n + 1);
+                int value = _playlistQueue[k];
+                _playlistQueue[k] = _playlistQueue[n];
+                _playlistQueue[n] = value;
+            }
+        }
+    }
+
+    private IEnumerator CrossfadeMusicRoutine(MusicResource newMusic, bool loop)
     {
         AudioSource fadingOut = _isUsingMusicA ? _musicSourceA : _musicSourceB;
         AudioSource fadingIn = _isUsingMusicA ? _musicSourceB : _musicSourceA;
@@ -474,15 +562,16 @@ public class AudioManager : MonoBehaviour
         // Setup new source
         fadingIn.clip = newMusic.clip;
         fadingIn.outputAudioMixerGroup = newMusic.mixerGroup != null ? newMusic.mixerGroup : defaultMusicGroup;
+        fadingIn.loop = loop; // Apply loop setting here
         fadingIn.volume = 0f;
         fadingIn.Play();
 
         float timer = 0f;
-        float startVol = fadingOut.volume; // Capture current volume to avoid popping if mid-fade
+        float startVol = fadingOut.volume;
 
         while (timer < newMusic.fadeTime)
         {
-            timer += Time.unscaledDeltaTime; // Music usually runs independent of time scale
+            timer += Time.unscaledDeltaTime;
             float t = timer / newMusic.fadeTime;
 
             fadingIn.volume = Mathf.Lerp(0f, newMusic.volume, t);
@@ -495,7 +584,7 @@ public class AudioManager : MonoBehaviour
         fadingOut.volume = 0f;
         fadingOut.Stop();
 
-        _isUsingMusicA = !_isUsingMusicA; // Swap active flag
+        _isUsingMusicA = !_isUsingMusicA;
         _musicFadeRoutine = null;
     }
 
@@ -514,6 +603,7 @@ public class AudioManager : MonoBehaviour
 
         active.Stop();
         active.volume = 0f;
+        currentMusicName = "None";
         _musicFadeRoutine = null;
     }
 

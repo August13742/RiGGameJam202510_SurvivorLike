@@ -77,9 +77,10 @@ namespace Survivor.Game
 
                 // init + subscribe
                 enemy.InitFrom(def);
+                enemy.SetTarget(player);
                 // Override HP with scaled value
                 enemy.GetComponent<HealthComponent>().SetMaxHP(scaledHP, healToFull: true);
-
+                enemy.OnSpawned();
                 enemy.Despawned -= OnEnemyDespawned; // safety
                 enemy.Despawned += OnEnemyDespawned;
 
@@ -121,7 +122,9 @@ namespace Survivor.Game
                 return baseHP;
 
             float x = (float)_totalSpawnedCount / enemiesPerScalingInterval;
-            float multiplier = Mathf.Pow(1f + hpScalingIncrement, x);
+            // Multiplier = 1 + (0.1 * x). 
+            // 10 intervals = 2x HP. 100 intervals = 11x HP
+            float multiplier = 1f + (hpScalingIncrement * x);
             return baseHP * multiplier;
         }
 

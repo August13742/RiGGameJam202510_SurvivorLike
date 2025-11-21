@@ -48,6 +48,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.Projectile
   forwardAxis: 0
+  reselectTargetOnHit: 1
+  reselectSearchRadius: 15
+  reselectSearchMask:
+    serializedVersion: 2
+    m_Bits: 256
+  reselectDamageScalePerHit: 0.85
+  reselectMinDamageFraction: 0.2
   _lifeTime: 0
   _isAlive: 0
 --- !u!114 &8326722640880561159
@@ -117,7 +124,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3751321522973504472}

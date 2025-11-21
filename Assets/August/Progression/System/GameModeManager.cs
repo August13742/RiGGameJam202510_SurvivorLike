@@ -19,7 +19,11 @@ namespace Survivor.Game
         [Header("Scenes")]
         [SerializeField] private string mainMenuScene = "MainMenu";
         [SerializeField] private string gameplayScene = "BossArena";
+        [SerializeField] private string gameplaySceneEasy = "BossArenaEasy";
         [SerializeField] private float fadeDuration = 0.5f;
+
+        [SerializeField] private MusicResource TitleBGM;
+        [SerializeField] private MusicPlaylist BGMPlaylist;
 
         // current run config
         public GameMode Mode { get; private set; }
@@ -39,7 +43,10 @@ namespace Survivor.Game
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-
+        private void Start()
+        {
+            AudioManager.Instance?.PlayMusic(TitleBGM);
+        }
         // -------- Public API (called by menu UI) --------
 
         public void StartBossRush(BossRushRunDef runDef)
@@ -49,6 +56,15 @@ namespace Survivor.Game
             SelectedBoss = null;
             StartCoroutine(LoadGameplayWithFade());
         }
+
+        public void StartBossRushEasy(BossRushRunDef runDef)
+        {
+            Mode = GameMode.BossRush;
+            SelectedBossRushRun = runDef;
+            SelectedBoss = null;
+            StartCoroutine(LoadGameplayEasyWithFade());
+        }
+
 
         public void StartSingleBoss(BossDef boss, int startingLevels = 5)
         {
@@ -70,6 +86,10 @@ namespace Survivor.Game
         {
             yield return LoadSceneWithFade(gameplayScene);
         }
+        private System.Collections.IEnumerator LoadGameplayEasyWithFade()
+        {
+            yield return LoadSceneWithFade(gameplaySceneEasy); 
+        }
 
         private System.Collections.IEnumerator LoadSceneWithFade(string sceneName)
         {
@@ -79,7 +99,7 @@ namespace Survivor.Game
                 CrossfadeManager.Instance.FadeToBlack(fadeDuration);
             }
             yield return new WaitForSeconds(fadeDuration);
-
+            AudioManager.Instance?.PlayPlaylist(BGMPlaylist);
             SceneManager.LoadScene(sceneName);
 
             // one frame for scene to init

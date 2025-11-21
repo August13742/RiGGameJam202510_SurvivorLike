@@ -17,15 +17,15 @@ MonoBehaviour:
   Icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   fireSFX: {fileID: 11400000, guid: d6112ea3d637db04485b605afe2efefc, type: 2}
   equipSFX: {fileID: 0}
-  BaseDamage: 60
-  BaseCooldown: 2
+  BaseDamage: 40
+  BaseCooldown: 2.5
   TargetingMode: 1
-  AreaScale: 2
+  AreaScale: 1.5
   Projectiles: 1
   BaseCritChance: 0.05
   BaseCritMultiplier: 1.5
   ProjectilePrefab: {fileID: 4397794084699417633, guid: 91d589d9da507174a8990d2a813e8f67, type: 3}
-  ProjectileSpeed: 60
-  Pierce: 99
+  ProjectileSpeed: 40
+  Pierce: 3
   Lifetime: 4
   SpreadDeg: 6

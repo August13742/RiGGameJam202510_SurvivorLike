@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponLevelUpgradeDef
   WeaponDef: {fileID: 11400000, guid: ac125b56b450a5241b43e4e993e233b4, type: 2}
   ConstantBonusPerPick:
-    DamageMultiplierBonus: 0.05
+    DamageMultiplierBonus: 0.1
     CooldownReduction: 0.05
     AreaScaleBonus: 0
     SpeedMultiplierBonus: 0
@@ -33,7 +33,7 @@ MonoBehaviour:
     CritDamageMultiplierBonus: 0
   - DamageMultiplierBonus: 0
     CooldownReduction: 0
-    AreaScaleBonus: 0
+    AreaScaleBonus: 0.1
     SpeedMultiplierBonus: 0
     ProjectileCountBonus: 1
     PierceCountBonus: 0
@@ -49,7 +49,7 @@ MonoBehaviour:
     CritDamageMultiplierBonus: 0
   - DamageMultiplierBonus: 0
     CooldownReduction: 0
-    AreaScaleBonus: 0
+    AreaScaleBonus: 0.1
     SpeedMultiplierBonus: 0
     ProjectileCountBonus: 1
     PierceCountBonus: 0

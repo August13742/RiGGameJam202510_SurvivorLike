@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e39b96c6c0a85674ea6a83adf28f5d23, type: 3}
+  m_Name: EnemySpawnTableEasy
+  m_EditorClassIdentifier: Assembly-CSharp::Survivor.Game.EnemyWeightTable
+  Entries:
+  - Item: {fileID: 11400000, guid: fc951ea4fe8a15f449251edb7ee3aaa3, type: 2}
+    Weight: 8
+  - Item: {fileID: 11400000, guid: 50ac85aa34e15014892543883452c84c, type: 2}
+    Weight: 10
+  - Item: {fileID: 11400000, guid: 6c884ee5906be3a40a3657d194e20770, type: 2}
+    Weight: 2
+  - Item: {fileID: 11400000, guid: aada727801c6b2b4daac357f21510656, type: 2}
+    Weight: 2

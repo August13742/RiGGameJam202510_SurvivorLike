@@ -198,7 +198,7 @@ MonoBehaviour:
   current: 0
   godMode: 0
   receptionState: 0
-  triggerHitstop: 1
+  triggerHitstop: 0
   hitstopDuration: 0.12
   useIframe: 0
   iframeDuration: 0.05
