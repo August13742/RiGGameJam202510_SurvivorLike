@@ -305,6 +305,11 @@ MonoBehaviour:
       CooldownTag: hazard
       Cooldown: 5
       Weight: 3
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: cd6d2d363bcacd8469bdefda59f8cae6, type: 2}
+      CooldownTag: sweep
+      Cooldown: 10
+      Weight: 5
     EnrageAction:
       Category: 0
       Pattern: {fileID: 0}

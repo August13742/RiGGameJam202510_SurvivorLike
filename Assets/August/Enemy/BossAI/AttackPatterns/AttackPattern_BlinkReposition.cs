@@ -18,7 +18,7 @@ namespace Survivor.Enemy.FSM
         [SerializeField] private float fadeInDuration = 0.4f;
         [SerializeField] private float invisibleHoldDuration = 0.1f;
 
-        [Header("Ring Interaction")]
+        [Header("Ring Interaction(Optional)")]
         [Tooltip("Radius level to contract to during blink (see RotatingRingHazard.radiusLevels). " +
                  "0 is assumed to be 'base' size.")]
         [SerializeField] private int contractedRadiusLevel = 2;

@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shootAnimationName: Shoot
   ProjectilePrefab: {fileID: 4992832623426345031, guid: 3955badc9c444694490d3326e93b3aee, type: 3}
-  Damage: 15
-  Speed: 8
-  Life: 3
+  Damage: 20
+  Speed: 9
+  Life: 5
   ArrowPerRep: 3
   SpreadMultiplier: 3
   Homing: 0

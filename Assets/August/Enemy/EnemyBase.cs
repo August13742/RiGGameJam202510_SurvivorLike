@@ -1,6 +1,7 @@
 using Survivor.Game;
 using UnityEngine;
 using Survivor.UI;
+using AugustsUtility.Tween;
 namespace Survivor.Enemy
 {
     [RequireComponent(typeof(PrefabStamp), typeof(HealthComponent), typeof(Rigidbody2D))]
@@ -14,6 +15,7 @@ namespace Survivor.Enemy
         protected Rigidbody2D _rb;
         protected Transform _target;
         protected Animator _animator;
+        protected SpriteRenderer _sr;
         [SerializeField] protected LayerMask hitMask;
 
         [SerializeField] private bool UpdateFacing = true;
@@ -22,8 +24,11 @@ namespace Survivor.Enemy
         [SerializeField] private float FlipDotThreshold = 0.35f;       // hysteresis via cooldown
         [SerializeField] private float MinFlipUpdateInterval = 0.25f;        // seconds between flips
 
+        [SerializeField] private float DespawnFadeTime = 0.3f;
         private int _facingSign = +1;     // +1 = right, -1 = left, assumes sprite default face right
         private float _flipTimer = 0f;
+
+        private Collider2D[] _colliders;
 
         public bool IsDead => _health != null && _health.IsDead;
         public System.Action<EnemyBase> Despawned;
@@ -35,6 +40,9 @@ namespace Survivor.Enemy
             _rb = GetComponent<Rigidbody2D>();
             _rb.bodyType = RigidbodyType2D.Kinematic;
             _animator = GetComponentInChildren<Animator>();
+            _sr = GetComponent<SpriteRenderer>();
+            if (_sr == null) _sr = GetComponentInChildren<SpriteRenderer>();
+            _colliders = GetComponentsInChildren<Collider2D>(includeInactive:false);
             _health.ResetFull();
         }
 
@@ -175,7 +183,32 @@ namespace Survivor.Enemy
         }
 
         // --- Internals ---
+        private void SetCollisionEnabled(bool enabled)
+        {
+            if (_colliders == null) return;
+            for (int i = 0; i < _colliders.Length; i++)
+            {
+                if (_colliders[i]) _colliders[i].enabled = enabled;
+            }
+        }
 
+        
+
+        protected void Die()
+        {
+            if (LootManager.Instance != null)
+                LootManager.Instance.SpawnLoot(_def, transform.position);
+
+            _health.DisconnectAllSignals();
+            SessionManager.Instance.IncrementEnemyDowned(1);
+
+            Despawned?.Invoke(this);
+
+            if (_stamp != null && _stamp.OwnerPool != null)
+                _stamp.OwnerPool.Return(gameObject);
+            else
+                gameObject.SetActive(false);
+        }
         private void ApplyMove(Vector2 targetVelocity)
         {
             float dt = Time.fixedDeltaTime;
@@ -201,10 +234,23 @@ namespace Survivor.Enemy
         public float HealthPercent() => _health.GetCurrentPercent();
 
         // --- IPoolable ---
+
+        protected virtual void OnDied()
+        {
+
+            SetCollisionEnabled(false);
+
+            _sr.TweenColorAlpha(0f, DespawnFadeTime, onComplete: Die);
+        }
+
         public virtual void OnSpawned()
         {
-            // Reset transient state. HP already reset by InitFrom or HealthComponent.
+            // base spawn visuals
+            _sr.TweenColorAlpha(1f, 0.01f);
+
+            SetCollisionEnabled(true);
         }
+
 
         public virtual void OnDespawned()
         {
@@ -213,24 +259,6 @@ namespace Survivor.Enemy
             Despawned = null;
         }
 
-        // Death pipeline -> return to owning pool
-        protected virtual void OnDied()
-        {
-            Die();
-        }
-
-        protected void Die()
-        {
-
-            if(LootManager.Instance != null) LootManager.Instance.SpawnLoot(_def, transform.position);
-            _health.DisconnectAllSignals();
-
-            Despawned?.Invoke(this);
-            SessionManager.Instance.IncrementEnemyDowned(1);
-
-            if (_stamp!=null && (_stamp.OwnerPool != null)) _stamp.OwnerPool.Return(gameObject);
-            else gameObject.SetActive(false);
-        }
     }
 }   
 

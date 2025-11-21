@@ -3,6 +3,9 @@
 本プロジェクトのコード(Assets/August/)はOpen Sourceである
 
 ## 主要制作者 August 13742
+### Boss4: Eleonore (開発中)
+https://github.com/user-attachments/assets/1cad27a7-2eea-4a42-8a98-31cd54d13bc1
+
 ### Boss3: Fire Knight
 https://github.com/user-attachments/assets/210fe5a7-d5e3-4eb8-8179-8ef7a0b37de2
 
@@ -33,5 +36,6 @@ https://sscary.itch.io/the-adventurer-female \
 https://ansimuz.itch.io/explosion-animations-pack \
 https://karsiori.itch.io/pixel-art-potion-pack-animated \
 https://jellyfish0.itch.io/textures-for-particle 
+https://otsoga.itch.io/free-medieval-npcs-witch-and-swordswoman
 
 For the Assets
