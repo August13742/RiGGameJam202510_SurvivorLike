@@ -1628,6 +1628,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4427611412076011372, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
+      propertyPath: defaultSFXVolume
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4427611412076011372, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
+      propertyPath: defaultMusicVolume
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 4987335255557952289, guid: a5a760b2024b73442bdde40817fc1783, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

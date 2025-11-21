@@ -14,13 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clips:
   - {fileID: 8300000, guid: d419acda96e606942b72b4c595161d9d, type: 3}
+  loop: 0
   priority: 64
-  volume: 0.3
+  volume: 0.4
   volumeVariance: 0.1
   pitch: 1
   pitchVariance: 0.1
   spatialBlend: 1
   minDistance: 1
-  maxDistance: 25
+  maxDistance: 15
   bypassSpatial: 0
+  useSpatialCoalescing: 1
+  minSpatialSeparation: 5
   mixerGroup: {fileID: 0}
