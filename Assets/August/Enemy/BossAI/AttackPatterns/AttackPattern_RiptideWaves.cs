@@ -12,6 +12,9 @@ namespace Survivor.Enemy.FSM
     public sealed class AttackPattern_RiptideWaves : AttackPattern
     {
         #region Fields
+        [Header("SFX")]
+        [SerializeField] private SFXResource fireSFX;
+        [SerializeField] private SFXResource detonateSFX;
         [Header("Camera Shake")]
         [SerializeField] private float cameraShakeStrength = 3f;
         [SerializeField] private float cameraShakeDuration = 0.3f;
@@ -55,19 +58,20 @@ namespace Survivor.Enemy.FSM
 
         private static readonly Collider2D[] _hits = new Collider2D[16];
         #endregion
+    
 
         public override IEnumerator Execute(BossController controller)
         {
             if (controller == null || controller.PlayerTransform == null)
                 yield break;
-
+            AudioManager.Instance?.PlaySFX(fireSFX);
             bool enraged = controller.IsEnraged;
             float rateMul = enraged ? enragedRateMul : 1f;
 
             // Fire-and-forget the *real* riptide driver.
             controller.StartCoroutine(RiptideDriver(controller, enraged, rateMul));
 
-            // Fixed channel window (what actually glocksh the boss / plays anim)
+            // Fixed channel window (what actually ï¿½glocksï¿½h the boss / plays anim)
             float channel = channelDuration / rateMul;
             if (channel > 0f && controller.Animator != null && !string.IsNullOrEmpty(channelAnim))
             {
@@ -214,6 +218,7 @@ namespace Survivor.Enemy.FSM
                     vfx.transform.position = interpolatedWavePos;
                 }
             }
+            AudioManager.Instance?.PlaySFX(detonateSFX);
 
             ContactFilter2D filter = new() { useTriggers = true, useDepth = false };
             filter.SetLayerMask(hitMask);
@@ -222,7 +227,7 @@ namespace Survivor.Enemy.FSM
             {
                 if (_hits[i] != null && _hits[i].TryGetComponent<HealthComponent>(out var hp) && !hp.IsDead)
                 {
-                    hp.Damage(damage);
+                    hp.Damage(damage, interpolatedWavePos);
                     CameraShake2D.Shake(cameraShakeDuration, cameraShakeStrength);
                     
                 }

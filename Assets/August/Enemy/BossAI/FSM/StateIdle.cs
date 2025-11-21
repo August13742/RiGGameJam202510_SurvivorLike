@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 namespace Survivor.Enemy.FSM
 {
 	public class StateIdle : IState
@@ -10,7 +9,8 @@ namespace Survivor.Enemy.FSM
 
 		public void Enter() 
 		{
-            _controller.Animator.Play("Idle"); 
+            _controller.Animator.Play("Idle");
+			_controller.Animator.speed = 1f;
 		}
 
 		

@@ -10,6 +10,8 @@ namespace Survivor.Weapon
 
         public string Id;
         public Sprite Icon;
+        public SFXResource fireSFX;
+        public SFXResource equipSFX;
         public int BaseDamage = 5;
         public float BaseCooldown = 0.5f;
         public TargetMode TargetingMode;

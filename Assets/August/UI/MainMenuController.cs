@@ -13,6 +13,7 @@ namespace Survivor.UI
 
         [Header("Buttons")]
         [SerializeField] private Button bossRushButton;
+        [SerializeField] private Button bossRushEasyButton;
         [SerializeField] private Button singleBossButton;
         [SerializeField] private Button quitButton;
 
@@ -28,6 +29,9 @@ namespace Survivor.UI
             if (bossRushButton)
                 bossRushButton.onClick.AddListener(OnBossRushClicked);
 
+            if (bossRushEasyButton)
+                bossRushEasyButton.onClick.AddListener(OnBossRushEasyClicked);
+
             if (singleBossButton)
                 singleBossButton.onClick.AddListener(OnSingleBossClicked);
 
@@ -38,6 +42,10 @@ namespace Survivor.UI
         private void OnBossRushClicked()
         {
             GameModeManager.Instance.StartBossRush(bossRushRun);
+        }
+        private void OnBossRushEasyClicked()
+        {
+            GameModeManager.Instance.StartBossRushEasy(bossRushRun);
         }
 
         private void OnSingleBossClicked()

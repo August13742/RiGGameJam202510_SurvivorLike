@@ -328,6 +328,7 @@ MonoBehaviour:
   firePoint: {fileID: 0}
   meleeHitbox: {fileID: 7554204438367727322}
   projectilePrefab: {fileID: 6667655376519033802, guid: 3955badc9c444694490d3326e93b3aee, type: 3}
+  fireSFX: {fileID: 0}
   projectileDamage: 30
   projectileSpeed: 12
   projectileIsHoming: 0
@@ -354,10 +355,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHP: 100
   current: 0
-  triggerHitstopOnDamaged: 0
-  hitstopDurationSec: 0.15
+  godMode: 0
+  receptionState: 0
+  triggerHitstop: 0
+  hitstopDuration: 0.12
   useIframe: 0
   iframeDuration: 0.05
+  damageSfx: {fileID: 11400000, guid: 8b5216b12b8a2b14e909a79ff9eceb0a, type: 2}
+  healSfx: {fileID: 0}
+  deathSfx: {fileID: 0}
 --- !u!114 &-4804376803866554560
 MonoBehaviour:
   m_ObjectHideFlags: 0

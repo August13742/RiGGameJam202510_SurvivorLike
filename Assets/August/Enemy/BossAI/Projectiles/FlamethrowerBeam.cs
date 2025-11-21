@@ -241,7 +241,7 @@ public sealed class FlamethrowerBeam : MonoBehaviour
             float nextTick = _nextTickTime[hp];
             if (now >= nextTick)
             {
-                hp.Damage(damagePerTick);
+                hp.Damage(damagePerTick,this.transform.position);
                 _nextTickTime[hp] = now + _tickInterval;
             }
         }

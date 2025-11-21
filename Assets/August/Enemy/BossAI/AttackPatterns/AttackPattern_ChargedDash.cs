@@ -1,6 +1,7 @@
 using AugustsUtility.CameraShake;
 using AugustsUtility.Telegraph;
 using AugustsUtility.Tween;
+
 using Survivor.Game;
 using System.Collections;
 using UnityEngine;
@@ -10,6 +11,10 @@ namespace Survivor.Enemy.FSM
     [CreateAssetMenu(fileName = "New ChargedDashPattern", menuName = "Defs/Boss Attacks/Charged Dash")]
     public sealed class AttackPattern_ChargedDash : AttackPattern
     {
+        [Header("SFX")]
+        [SerializeField] private SFXResource chargeSFX;
+        [SerializeField] private SFXResource dashSFX;
+
         [Header("Dash Geometry")]
         [SerializeField] private float minDashDistance = 4f;
         [SerializeField] private float maxDashDistance = 8f;
@@ -155,6 +160,7 @@ namespace Survivor.Enemy.FSM
             Vector2 telegraphSize = new Vector2(dashDist, dashWidth);
 
             // Charge / telegraph phase
+            AudioManager.Instance?.PlaySFX(chargeSFX);
             controller.Velocity = Vector2.zero;
             controller.VelocityOverride = Vector2.zero;
             controller.Direction = Vector2.zero;
@@ -195,6 +201,7 @@ namespace Survivor.Enemy.FSM
             controller.VelocityOverride = Vector2.zero;
 
             // Damage along full lane between pivotStart and projected endpoint
+            AudioManager.Instance?.PlaySFX(dashSFX);
             DoDashImpactDamage(pivotStart, dir, dashDist, damage, controller.gameObject);
         }
 
@@ -227,7 +234,7 @@ namespace Survivor.Enemy.FSM
                 if (hp.IsDead) continue;
 
                 anyHit = true;
-                hp.Damage(damage);
+                hp.Damage(damage, bossRoot.transform.position);
 
                 CameraShake2D.Shake(cameraShakeDuration, cameraShakeStrength);
                 if (hitstopDuration > 0f)

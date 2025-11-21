@@ -17,6 +17,7 @@ MonoBehaviour:
   Damage: 15
   Speed: 8
   Life: 4
+  fireSFX: {fileID: 11400000, guid: b2414866ede22a44480bf552e28815fe, type: 2}
   ArrowPerRep: 1
   SpreadMultiplier: 3
   Homing: 1

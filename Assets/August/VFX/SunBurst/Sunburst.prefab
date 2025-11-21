@@ -158,3 +158,5 @@ MonoBehaviour:
   animator: {fileID: 6357325389833135983}
   layerIndex: 0
   destroyOnDisable: 1
+  spawnSfx: {fileID: 11400000, guid: 1fb84e62bb2d96449ad81a9063c08c0f, type: 2}
+  playSfxOnEnable: 1

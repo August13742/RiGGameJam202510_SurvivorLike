@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0917b4eae3eff234f99c0175d573b229, type: 3}
   m_Name: SoldierHazardMeteorChannelPattern 1
   m_EditorClassIdentifier: 
+  windupSFX: {fileID: 11400000, guid: 8c50595f72dd67642a4cfc87bb344318, type: 2}
+  channelLoopSFX: {fileID: 0}
+  waveFireSFX: {fileID: 11400000, guid: 2affaf652318e8147bdf89f75d518c19, type: 2}
+  releaseSFX: {fileID: 0}
   meteorPrefab: {fileID: 2951834514278044373, guid: 7ae375d94664dce458551874f2db1899, type: 3}
   minRadius: 5
   maxRadius: 20

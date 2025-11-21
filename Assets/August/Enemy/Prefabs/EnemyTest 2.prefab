@@ -131,6 +131,7 @@ MonoBehaviour:
   OverlapKeepFacingRadius: 0.6
   FlipDotThreshold: 0.35
   MinFlipUpdateInterval: 0.25
+  DespawnFadeTime: 0.3
   def: {fileID: 11400000, guid: fc951ea4fe8a15f449251edb7ee3aaa3, type: 2}
 --- !u!114 &4430005986827990580
 MonoBehaviour:
@@ -146,10 +147,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.System.HealthComponent
   maxHP: 100
   current: 0
-  triggerHitstopOnDamaged: 1
-  hitstopDurationSec: 0.1
+  godMode: 0
+  receptionState: 0
+  triggerHitstop: 1
+  hitstopDuration: 0.12
   useIframe: 0
   iframeDuration: 0.05
+  damageSfx: {fileID: 11400000, guid: d4a3bc24f429c2f459ad4a0e6c64f215, type: 2}
+  healSfx: {fileID: 0}
+  deathSfx: {fileID: 0}
 --- !u!114 &2650506820563219090
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -250,7 +256,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1560946809
-  m_SortingLayer: 4
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 5557466569650181421, guid: 8c0a9a5c68a44c74eabc87307dad42bc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

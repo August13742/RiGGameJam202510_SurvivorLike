@@ -8,6 +8,10 @@ namespace Survivor.Enemy.FSM
         menuName = "Defs/Boss Attacks/Flamethrower")]
     public sealed class AttackPattern_Flamethrower : AttackPattern
     {
+        [Header("SFX")]
+        [SerializeField] private SFXResource fireStartSFX;
+        [SerializeField] private SFXResource fireLoopSFX;
+
         [Header("Prefab")]
         [SerializeField] private GameObject flamethrowerPrefab;
 
@@ -69,47 +73,43 @@ namespace Survivor.Enemy.FSM
             if (controller == null || controller.PlayerTransform == null || flamethrowerPrefab == null)
                 yield break;
 
-            Transform firePoint = controller.FirePoint != null
-                ? controller.FirePoint
-                : controller.transform;
-
+            Transform firePoint = controller.FirePoint != null ? controller.FirePoint : controller.transform;
             bool enraged = controller.IsEnraged;
-
             float duration = Random.Range(minDuration, maxDuration);
             float dps = damagePerSecond * (enraged ? enragedDamageMultiplier : 1f);
             float beamRange = Random.Range(minRange, maxRange);
 
-            // --- 0. Prep movement/anim ---
+            // --- 0. Prep ---
             if (lockMovement)
             {
                 controller.Velocity = Vector2.zero;
                 controller.VelocityOverride = Vector2.zero;
-                controller.Direction = Vector2.zero;
             }
 
+            // Play Windup Anim
             if (controller.Animator != null && !string.IsNullOrEmpty(windupAnim))
             {
                 controller.Animator.Play(windupAnim);
-                controller.Animator.speed = 1f;
             }
 
-            if (windupTime > 0f)
-            {
-                yield return new WaitForSeconds(windupTime);
-            }
+            if (windupTime > 0f) yield return new WaitForSeconds(windupTime);
 
+            // Play Loop Anim
             if (controller.Animator != null && !string.IsNullOrEmpty(loopAnim))
             {
                 controller.Animator.Play(loopAnim);
-                controller.Animator.speed = 1f;
             }
 
-            // --- 1. Spawn beam prefab ---
-            GameObject go = Object.Instantiate(
-                flamethrowerPrefab,
-                firePoint.position,
-                Quaternion.identity);
+            // --- AUDIO START ---
+            // 1. Play the ignition (One Shot, follows boss)
+            AudioManager.Instance?.PlaySFX(fireStartSFX, controller.transform.position, controller.transform);
 
+            // 2. Start the Loop (Follows boss)
+            AudioHandle loopHandle = AudioManager.Instance?.PlaySFX(fireLoopSFX, controller.transform.position, controller.transform) ?? AudioHandle.Invalid;
+            // -------------------
+
+            // --- 1. Spawn beam prefab ---
+            GameObject go = Instantiate(flamethrowerPrefab, firePoint.position, Quaternion.identity);
             FlamethrowerBeam beam = go.GetComponentInChildren<FlamethrowerBeam>();
             if (beam == null)
             {
@@ -157,18 +157,23 @@ namespace Survivor.Enemy.FSM
             float elapsed = 0f;
             while (elapsed < duration)
             {
-                if (lockMovement)
+                // Safety: If the boss dies or object is destroyed mid-loop, stop audio immediately
+                if (controller == null || controller.IsDead)
                 {
-                    controller.Velocity = Vector2.zero;
-                    controller.VelocityOverride = Vector2.zero;
-                    controller.Direction = Vector2.zero;
+                    loopHandle.Stop();
+                    if (go != null) Destroy(go);
+                    yield break;
                 }
+
+                if (lockMovement) controller.Velocity = Vector2.zero;
 
                 elapsed += Time.deltaTime;
                 yield return null;
             }
 
             // --- 4. Cleanup ---
+            loopHandle.Stop();
+
             if (controller.Animator != null && !string.IsNullOrEmpty(endAnim))
             {
                 controller.Animator.Play(endAnim);

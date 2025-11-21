@@ -8,6 +8,9 @@ namespace Survivor.Enemy.FSM
     [CreateAssetMenu(fileName = "New RadialBarrageAlter", menuName = "Defs/Boss Attacks/Radial Barrage Alter")]
     public sealed class AttackPattern_RadialBarrageAlter : AttackPattern
     {
+        [Header("Audio")]
+        [SerializeField] private SFXResource fireSFX;
+
         [Header("Projectile & Damage")]
         [SerializeField] private GameObject projectilePrefab;
         [SerializeField] private float damage = 5f;
@@ -63,6 +66,7 @@ namespace Survivor.Enemy.FSM
                 int guard = 0;
                 while (Random.value <= p && guard++ < hardCap)
                 {
+                    AudioManager.Instance.PlaySFX(fireSFX, controller.transform.position);
                     FireOneWave(controller, bullets);
                     p = Mathf.Max(0f, p - decay);
                     yield return new WaitForSeconds(interWaveDelay / rateMul);
@@ -73,6 +77,7 @@ namespace Survivor.Enemy.FSM
                 int reps = Mathf.Max(0, repetitions);
                 for (int i = 0; i < reps; i++)
                 {
+                    AudioManager.Instance.PlaySFX(fireSFX, controller.transform.position);
                     FireOneWave(controller, bullets);
                     if (i < reps - 1)
                         yield return new WaitForSeconds(interWaveDelay / rateMul);

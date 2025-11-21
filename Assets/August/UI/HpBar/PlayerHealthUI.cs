@@ -20,6 +20,7 @@ namespace Survivor.UI {
         private HealthComponent playerHealthComponent;
         private ITween activeTween; // Store the active tween to kill it if interrupted
         private Coroutine delayCoroutine; // Store the delay coroutine to stop it if interrupted
+        private float _previousHealth; // Track previous health value
 
 
         private void Start()
@@ -28,6 +29,7 @@ namespace Survivor.UI {
             if (playerHealthComponent != null)
             {
                 playerHealthComponent.HealthChanged += OnPlayerHealthChanged;
+                _previousHealth = playerHealthComponent.Current;
                 Initialise(playerHealthComponent.GetCurrentPercent());
 
             }
@@ -64,7 +66,7 @@ namespace Survivor.UI {
             textField.text = $"{(int)playerHealthComponent.Current}/{(int)playerHealthComponent.Max}";
         }
 
-        private void OnPlayerHealthChanged(float current, float previous)
+        private void OnPlayerHealthChanged(float current, float max)
         {
             // Cancel any existing tween or delayed tween
             activeTween?.Kill();
@@ -73,43 +75,42 @@ namespace Survivor.UI {
                 StopCoroutine(delayCoroutine);
             }
 
-            bool tookDamage = current < previous;
+            bool tookDamage = current < _previousHealth;
+            float previousPercent = Mathf.Clamp01(_previousHealth / max);
+            float currentPercent = Mathf.Clamp01(current / max);
 
             if (tookDamage)
             {
                 // On damage: Green bar snaps immediately
-                float previousPercent = Mathf.Clamp01(previous / playerHealthComponent.Max);
-                healthFill.fillAmount = playerHealthComponent.GetCurrentPercent();
+                healthFill.fillAmount = currentPercent;
                 
                 // Start delayed tween for red bar
-                delayCoroutine = StartCoroutine(DelayedCatchupTween(previousPercent, false));
+                delayCoroutine = StartCoroutine(DelayedCatchupTween(previousPercent, currentPercent, false));
             }
-            else // Healed
+            else if (current > _previousHealth) // Healed
             {
                 // On heal: Red bar snaps immediately
-                float previousPercent = Mathf.Clamp01(previous / playerHealthComponent.Max);
-                damageFill.fillAmount = playerHealthComponent.GetCurrentPercent();
+                damageFill.fillAmount = currentPercent;
                 
                 // Start delayed tween for green bar
-                delayCoroutine = StartCoroutine(DelayedCatchupTween(previousPercent, true));
+                delayCoroutine = StartCoroutine(DelayedCatchupTween(previousPercent, currentPercent, true));
             }
+
+            _previousHealth = current;
             UpdateText();
         }
 
-        private IEnumerator DelayedCatchupTween(float previousPercent, bool isHealing)
+        private IEnumerator DelayedCatchupTween(float fromPercent, float toPercent, bool isHealing)
         {
             // Wait for the delay period
             yield return new WaitForSeconds(catchupDelay);
-            
-            // Get the CURRENT health after the delay (captures any changes during delay)
-            float currentPercent = playerHealthComponent.GetCurrentPercent();
 
             if (isHealing)
             {
                 // Tween green bar up
                 activeTween = Tween.TweenValue(
-                    previousPercent,
-                    currentPercent,
+                    fromPercent,
+                    toPercent,
                     fillDuration,
                     (v) => healthFill.fillAmount = v,
                     Lerp.Get<float>(),
@@ -120,8 +121,8 @@ namespace Survivor.UI {
             {
                 // Tween red bar down
                 activeTween = Tween.TweenValue(
-                    previousPercent,
-                    currentPercent,
+                    fromPercent,
+                    toPercent,
                     fillDuration,
                     (v) => damageFill.fillAmount = v,
                     Lerp.Get<float>(),

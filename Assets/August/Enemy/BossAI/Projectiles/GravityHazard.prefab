@@ -169,6 +169,9 @@ MonoBehaviour:
   spawnTelegraphOnActivate: 1
   hazardTelegraphColor: {r: 1, g: 0.3, b: 1, a: 0.8}
   telegraphRadiusMultiplier: 1
+  spawnSfx: {fileID: 11400000, guid: 083eb3b08c45e7a40b4485aeea3e7035, type: 2}
+  loopSfx: {fileID: 11400000, guid: 0d54236c96840074c8ecd63a4b8df49e, type: 2}
+  endSfx: {fileID: 0}
   _timeLeft: 0
   _lifetime: 0
   pullRadius: 1
@@ -184,16 +187,25 @@ MonoBehaviour:
       time: 0
       value: 1
       inSlope: 0
-      outSlope: -1
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
+      time: 0.7610507
+      value: 0.6388391
+      inSlope: -1.4474086
+      outSlope: -1.4474086
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.42207322
+    - serializedVersion: 3
       time: 1
       value: 0
       inSlope: -1
-      outSlope: 0
+      outSlope: -1
       tangentMode: 0
       weightedMode: 0
       inWeight: 0

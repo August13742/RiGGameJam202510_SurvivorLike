@@ -7,6 +7,7 @@ namespace Survivor.Drop
     [DisallowMultipleComponent]
     public abstract class DropItemBase : MonoBehaviour, IDrop, IPoolable
     {
+        [SerializeField] SFXResource pickupSFX;
         [Min(1)] public int amount = 1;
         protected PrefabStamp _stamp;
         protected Collider2D _collider;
@@ -47,6 +48,7 @@ namespace Survivor.Drop
             if (_picked) return;
             _picked = true;
             if (_collider) _collider.enabled = false;
+            AudioManager.Instance?.PlaySFX(pickupSFX, this.transform.position, transform);
             Apply(player);
             Despawn();
         }

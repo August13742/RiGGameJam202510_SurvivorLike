@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b10c7563eafbaa47a5f358b0417603a, type: 3}
   m_Name: HuntressBlinkTeleportPattern
   m_EditorClassIdentifier: 
+  blinkSFX: {fileID: 0}
+  appearSFX: {fileID: 11400000, guid: 53c7fb6abf00bf241871e7eeb0806c3c, type: 2}
   minBlinkDistance: 3
   maxBlinkDistance: 5
   fadeOutDuration: 0.4

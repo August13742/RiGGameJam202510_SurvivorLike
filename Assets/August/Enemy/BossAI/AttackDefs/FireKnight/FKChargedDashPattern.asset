@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c1b7ce9fbfac0542b9fa581815def44, type: 3}
   m_Name: FKChargedDashPattern
   m_EditorClassIdentifier: 
+  chargeSFX: {fileID: 11400000, guid: 337de6f33da6bc644a40b9d5568129a0, type: 2}
+  dashSFX: {fileID: 11400000, guid: 63bee4b8e5573a547905b6d9a905135d, type: 2}
   minDashDistance: 12
   maxDashDistance: 18
   dashWidth: 3

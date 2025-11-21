@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47c8ae95fe260a141bef538748187a78, type: 3}
   m_Name: FireKnightDashAttackPattern
   m_EditorClassIdentifier: 
+  prepSFX: {fileID: 11400000, guid: 63bee4b8e5573a547905b6d9a905135d, type: 2}
+  dashSFX: {fileID: 11400000, guid: 63bee4b8e5573a547905b6d9a905135d, type: 2}
   dashAnimationName: Spin
   telegraphAnimationName: Attack1
   animationSpeed: 2

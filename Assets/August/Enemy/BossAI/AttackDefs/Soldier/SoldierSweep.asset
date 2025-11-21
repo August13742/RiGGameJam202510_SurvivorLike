@@ -16,6 +16,7 @@ MonoBehaviour:
   damage: 10
   speed: 14
   projectileLife: 3
+  fireSFX: {fileID: 11400000, guid: b2414866ede22a44480bf552e28815fe, type: 2}
   sweepWidthDegrees: 60
   startOffsetDegrees: -30
   randomStartSide: 1
@@ -33,4 +34,5 @@ MonoBehaviour:
   repIsProbabilistic: 1
   probDecayPerSweep: 0.15
   enrageDecayReduction: 0.5
+  reaimBetweenSweeps: 1
   animName: Shoot

@@ -10,6 +10,9 @@ namespace Survivor.Enemy.FSM
         menuName = "Defs/Boss Attacks/Ring Sustain Pulse (FireAndForget)")]
     public sealed class AttackPattern_RingSustainPulse : AttackPattern
     {
+        [Header("Audio")]
+        [SerializeField] private SFXResource sfx;
+
         [Header("Normal Pulse Settings")]
         [Tooltip("Radius level to pulse to (see RotatingRingHazard.radiusLevels; 0 is usually 'base').")]
         [SerializeField] private int targetRadiusLevel = 1;
@@ -65,7 +68,6 @@ namespace Survivor.Enemy.FSM
 
             if (useEaseInOut)
             {
-                // expand = ease-out, return = ease-in, or vice versa; pick taste.
                 easeShrink = EasingFunctions.EaseInQuad;
                 easeExpand = EasingFunctions.EaseOutQuad;
             }
@@ -74,7 +76,8 @@ namespace Survivor.Enemy.FSM
                 easeShrink = null;
                 easeExpand = null;
             }
-
+            Transform bossTf = controller.transform;
+            AudioManager.Instance?.PlaySFX(sfx, bossTf.position, bossTf);
             // Fire-and-forget: ring handles expand -> sustain -> return asynchronously.
             ring.PlayPulseToLevelAndBack(
                 level,

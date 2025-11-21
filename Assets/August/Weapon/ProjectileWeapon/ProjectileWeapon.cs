@@ -6,11 +6,13 @@ namespace Survivor.Weapon
     public sealed class ProjectileWeapon : WeaponBase<ProjectileWeaponDef>
     {
         private ObjectPool<Projectile> _projPool;
+        
 
         protected override void OnEquipped()
         {
             base.OnEquipped();
             _projPool = new ObjectPool<Projectile>(def.ProjectilePrefab, prewarm: 64, ctx.PoolRoot);
+            
         }
 
         public override void Tick(float dt)
@@ -27,6 +29,8 @@ namespace Survivor.Weapon
 
             // Base damage roll is *not* crit yet; crit is per-hit inside Projectile.
             int baseDamage = ScaledDamage();
+
+            AudioManager.Instance?.PlaySFX(def.fireSFX);
 
             for (int i = 0; i < count; i++)
             {

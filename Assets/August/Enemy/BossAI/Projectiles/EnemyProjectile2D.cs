@@ -102,7 +102,7 @@ namespace Survivor.Weapon
             float dealt = damage;
 
 
-            target.Damage(dealt);
+            target.Damage(dealt,transform.position);
             Destroy(gameObject);
         }
 

@@ -11,6 +11,12 @@ namespace Survivor.Enemy.FSM
         menuName = "Defs/Boss Attacks/Hazard Channel")]
     public sealed class AttackPattern_HazardChannel : AttackPattern
     {
+        [Header("Audio")]
+        [SerializeField] private SFXResource windupSFX;      // Initial charge up
+        [SerializeField] private SFXResource channelLoopSFX; // While casting
+        [SerializeField] private SFXResource waveFireSFX;    // Per wave
+        [SerializeField] private SFXResource releaseSFX;     // End animation
+
         [Header("Hazard Prefab")]
         [Tooltip("Prefab that must contain HazardZone2D.")]
         [SerializeField] private GameObject hazardZonePrefab;
@@ -96,6 +102,9 @@ namespace Survivor.Enemy.FSM
 
             Transform bossTf = controller.transform;
 
+            AudioManager.Instance?.PlaySFX(windupSFX, bossTf.position);
+            AudioHandle channelHandle = AudioManager.Instance?.PlaySFX(channelLoopSFX, bossTf.position) ?? AudioHandle.Invalid;
+
             // Boss channels: no telegraphs yet.
             controller.VelocityOverride = Vector2.zero;
             if (controller.Animator != null && !string.IsNullOrEmpty(channelAnim))
@@ -103,7 +112,7 @@ namespace Survivor.Enemy.FSM
                 controller.Animator.Play(channelAnim);
                 controller.Animator.speed = rateMul;
             }
-
+            
             if (windup > 0f)
                 yield return new WaitForSeconds(windup);
 
@@ -114,6 +123,7 @@ namespace Survivor.Enemy.FSM
                 int guard = 0;
                 while (Random.value <= p && guard++ < hardCap)
                 {
+                    AudioManager.Instance.PlaySFX(waveFireSFX, bossTf.position, bossTf);
                     FireOneWave(
                         controller,
                         bossTf.position,
@@ -136,6 +146,7 @@ namespace Survivor.Enemy.FSM
                 int reps = Mathf.Max(0, repetitions + (_isEnraged ? enragedWaveCountBonus : 0));
                 for (int i = 0; i < reps; i++)
                 {
+                    AudioManager.Instance.PlaySFX(waveFireSFX, bossTf.position, bossTf);
                     FireOneWave(
                         controller,
                         bossTf.position,
@@ -162,6 +173,8 @@ namespace Survivor.Enemy.FSM
             if (controller.Animator != null)
                 controller.Animator.speed = 1f;
 
+            channelHandle.Stop();
+            AudioManager.Instance?.PlaySFX(releaseSFX, bossTf.position);
             controller.VelocityOverride = Vector2.zero;
         }
 

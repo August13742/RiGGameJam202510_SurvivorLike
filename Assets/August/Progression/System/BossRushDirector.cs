@@ -126,13 +126,13 @@ namespace Survivor.Game
                 if (scale < 0f) scale = 0f; // in case someone sets negative values for experiments
 
                 float newMax = baseMax * scale;
-                _currentBoss.HP.SetMaxHP(newMax, resetCurrent: true, raiseEvent: true);
+                _currentBoss.HP.SetMaxHP(newMax, true);
 
                 Debug.Log($"[BossRush] Boss {_currentIndex} '{def.name}' HP scaled: {baseMax} -> {newMax} (x{scale:0.00})");
             }
         }
 
-        private void OnBossDied()
+        private void OnBossDied(Vector3 killDir, float overkill)
         {
             StartCoroutine(BossDeathRoutine());
         }

@@ -32,16 +32,37 @@ namespace Survivor.Weapon
         [Tooltip("Multiplier applied to radius to get telegraph radius.")]
         [SerializeField] private float telegraphRadiusMultiplier = 1f;
 
+        [Header("Audio")]
+        [SerializeField] private SFXResource spawnSfx;
+        [SerializeField] private SFXResource loopSfx;
+        [SerializeField] private SFXResource endSfx;
+
         [SerializeField] private float _timeLeft;
         [SerializeField] private float _lifetime;   // purely runtime, comes from Activate(...)
         private static readonly Collider2D[] _hits = new Collider2D[8];
+        protected AudioHandle _loopHandle;
 
         private void Awake()
         {
             if (animator == null)
                 animator = GetComponentInChildren<Animator>();
         }
+        private void OnEnable()
+        {
 
+            AudioManager.Instance.PlaySFX(spawnSfx, transform.position);
+            _loopHandle = AudioManager.Instance.PlaySFX(loopSfx, transform.position, transform);
+
+        }
+
+        private void OnDisable()
+        {
+
+            _loopHandle.Stop();
+            _loopHandle = AudioHandle.Invalid;
+
+            AudioManager.Instance.PlaySFX(endSfx, transform.position);
+        }
         public void Activate(Vector2 pos, float r, float dps, float life)
         {
             transform.position = pos;
@@ -107,7 +128,7 @@ namespace Survivor.Weapon
                 if (!_hits[i].TryGetComponent<HealthComponent>(out var hp)) continue;
                 if (hp.IsDead) continue;
 
-                hp.Damage(damagePerSecond * dt);
+                hp.Damage(damagePerSecond * dt,transform.position);
             }
         }
 

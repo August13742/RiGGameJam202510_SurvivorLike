@@ -7,6 +7,7 @@ namespace Survivor.Enemy.FSM
     [CreateAssetMenu(fileName = "New SequencedAttackPattern", menuName = "Defs/Boss Attacks/Sequenced Attack Pattern")]
     public class AttackPattern_SequencedAttack : AttackPattern
     {
+        [SerializeField] SFXResource dashSFX;
         [Header("Attack Sequence")]
         [Tooltip("The series of attacks to perform in order. The last element is the potential finisher.")]
         [SerializeField] private List<AttackStep> attackSequence;
@@ -91,7 +92,8 @@ namespace Survivor.Enemy.FSM
         private IEnumerator DoGapClose(BossController controller, RangeBand targetBand, float rateMultiplier)
         {
             float currentDashSpeed = dashSpeedTarget * rateMultiplier;
-
+            Transform bossTf = controller.transform;
+            AudioManager.Instance?.PlaySFX(dashSFX, bossTf.position, bossTf);
             // Play gap-closing animation.
             if (controller.Animator != null && !string.IsNullOrEmpty(gapCloseAnimationName))
             {
@@ -122,16 +124,12 @@ namespace Survivor.Enemy.FSM
                 controller.Animator.Play(step.animationName);
                 controller.Animator.speed = step.animationSpeedScale * rateMultiplier;
             }
+
+            Transform bossTf = controller.transform;
+            AudioManager.Instance?.PlaySFX(step.attackSFX, bossTf.position, bossTf);
+
             yield return new WaitForSeconds(step.activeDuration / rateMultiplier);
 
-            // --- Recovery/Break Phase ---
-            //// Transition to Idle to prevent the last attack frame from sticking during the pause.
-            //if (controller.Animator != null)
-            //{
-            //    controller.Animator.Play("Idle");
-            //    controller.Animator.speed = 1f;
-            //}
-            yield return new WaitForSeconds(step.breakTimeAfter / rateMultiplier);
         }
     }
 
@@ -144,6 +142,8 @@ namespace Survivor.Enemy.FSM
 
         [Tooltip("The speed multiplier for this specific animation clip.")]
         public float animationSpeedScale = 1f;
+
+        public SFXResource attackSFX;
 
         [Tooltip("The duration of the active attack phase (e.g., when hitboxes are on).")]
         public float activeDuration = 0.5f;

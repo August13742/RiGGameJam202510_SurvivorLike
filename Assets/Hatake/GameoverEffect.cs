@@ -40,7 +40,7 @@ public class GameOverEffectController : MonoBehaviour
         if (healthComponent != null) healthComponent.Died -= OnDied;
     }
 
-    private void OnDied()
+    private void OnDied(Vector3 dir, float dmg)
     {
         if (effectCoroutine != null) return;
         effectCoroutine = StartCoroutine(PlayGameOverEffect());

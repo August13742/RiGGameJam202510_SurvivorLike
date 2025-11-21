@@ -1,6 +1,5 @@
 using Survivor.Control;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 
 namespace Survivor.Weapon
 {
@@ -21,8 +20,8 @@ namespace Survivor.Weapon
 
         // Optional: tweak how pull falls off with distance (0 = center, 1 = edge)
         [SerializeField] private AnimationCurve falloff = AnimationCurve.Linear(0f, 1f, 1f, 0f);
-
         private static readonly Collider2D[] _pullHits = new Collider2D[8];
+        
 
         protected override void FixedUpdate()
         {
@@ -36,6 +35,7 @@ namespace Survivor.Weapon
             DoPull(Time.fixedDeltaTime);
         }
 
+
         private void DoPull(float dt)
         {
             if (pullRadius <= 0f || edgePullSpeed <= 0f) return;
@@ -44,7 +44,6 @@ namespace Survivor.Weapon
             if (maskToUse == 0 && useDamageMaskForPull)
             {
                 // reuse whatever you assigned in HazardZone2D.hitMask in inspector
-                // this works because we inherit that serialized field
                 maskToUse = GetHitMask();
             }
 
@@ -84,11 +83,8 @@ namespace Survivor.Weapon
             }
         }
 
-        // Small helper to read the base's private serialized hitMask via inspector:
-        // Easiest solution is to change HazardZone2D.hitMask to 'protected' and expose this:
         private LayerMask GetHitMask()
         {
-            // AFTER you change 'hitMask' in HazardZone2D from 'private' to 'protected':
             return hitMask;
         }
 

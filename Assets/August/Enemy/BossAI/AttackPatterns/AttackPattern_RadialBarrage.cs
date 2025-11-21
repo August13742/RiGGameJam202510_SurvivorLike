@@ -1,3 +1,4 @@
+using Survivor.Game;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,11 @@ namespace Survivor.Enemy.FSM
     [CreateAssetMenu(fileName = "New RadialBarragePattern", menuName = "Defs/Boss Attacks/Radial Barrage")]
     public sealed class AttackPattern_RadialBarrage : AttackPattern
     {
+        [Header("Audio")]
+        [SerializeField] private SFXResource windupSFX;
+        [SerializeField] private SFXResource spinSFX;
+        [SerializeField] private SFXResource fireSFX;
+
         [Header("Projectile & Damage")]
         [SerializeField] private GameObject projectilePrefab;
         [SerializeField] private float damage = 5f;
@@ -112,6 +118,7 @@ namespace Survivor.Enemy.FSM
             var spawned = new List<Weapon.EnemyProjectile2D>(bullets);
             float step = 360f / bullets;
 
+            AudioManager.Instance.PlaySFX(windupSFX, controller.transform.position);
             for (int i = 0; i < bullets; i++)
             {
                 float ang = initialAngleDeg + step * i;
@@ -140,6 +147,7 @@ namespace Survivor.Enemy.FSM
             float impulseT = Mathf.Clamp01(spinImpulseAtFrac) * hold;
             float impulseEnd = impulseT + (spinImpulseDuration / rateMul);
 
+            AudioManager.Instance.PlaySFX(spinSFX, controller.transform.position);
             while (t < hold)
             {
                 float dt = Time.deltaTime;
@@ -160,6 +168,7 @@ namespace Survivor.Enemy.FSM
             yield return new WaitForSeconds(durationBeforeFire);
 
             // Release: Unparent, re-enable the script, and fire
+            AudioManager.Instance.PlaySFX(fireSFX, controller.transform.position);
             Transform player = controller.PlayerTransform;
             for (int i = 0; i < spawned.Count; i++)
             {

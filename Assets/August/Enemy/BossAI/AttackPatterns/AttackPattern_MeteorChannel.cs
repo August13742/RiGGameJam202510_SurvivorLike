@@ -9,6 +9,12 @@ namespace Survivor.Enemy.FSM
     [CreateAssetMenu(fileName = "New MeteorChannelPattern", menuName = "Defs/Boss Attacks/Meteor Channel")]
     public sealed class AttackPattern_MeteorChannel : AttackPattern
     {
+        [Header("Audio")]
+        [SerializeField] private SFXResource windupSFX;      // Initial charge up
+        [SerializeField] private SFXResource channelLoopSFX; // While casting
+        [SerializeField] private SFXResource waveFireSFX;    // Per wave
+        [SerializeField] private SFXResource releaseSFX;     // End animation
+
         [Header("Meteor Prefab")]
         [SerializeField] private GameObject meteorPrefab;
 
@@ -102,6 +108,8 @@ namespace Survivor.Enemy.FSM
 
             Transform bossTf = controller.transform;
 
+            AudioManager.Instance?.PlaySFX(windupSFX, bossTf.position);
+            AudioHandle channelHandle = AudioManager.Instance?.PlaySFX(channelLoopSFX, bossTf.position) ?? AudioHandle.Invalid;
             // Boss channels: no telegraphs yet.
             controller.VelocityOverride = Vector2.zero;
             if (controller.Animator != null && !string.IsNullOrEmpty(channelAnim))
@@ -120,6 +128,7 @@ namespace Survivor.Enemy.FSM
                 int guard = 0;
                 while (Random.value <= p && guard++ < hardCap)
                 {
+                    AudioManager.Instance?.PlaySFX(waveFireSFX, bossTf.position);
                     FireOneWave(
                         controller,
                         bossTf.position,
@@ -143,6 +152,7 @@ namespace Survivor.Enemy.FSM
                 int reps = Mathf.Max(0, repetitions + (isEnraged ? enragedWaveCountBonus : 0));
                 for (int i = 0; i < reps; i++)
                 {
+                    AudioManager.Instance?.PlaySFX(waveFireSFX, bossTf.position);
                     FireOneWave(
                         controller,
                         bossTf.position,
@@ -159,6 +169,9 @@ namespace Survivor.Enemy.FSM
                         yield return new WaitForSeconds(telegraphTime + waveGap);
                 }
             }
+
+            channelHandle.Stop();
+            AudioManager.Instance?.PlaySFX(releaseSFX, bossTf.position);
 
             // After final wave telegraph finishes, play release / exit channel
             if (controller.Animator != null && !string.IsNullOrEmpty(releaseAnim))

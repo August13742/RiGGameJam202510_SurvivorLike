@@ -129,7 +129,7 @@ namespace Survivor.Game
             _bossInstance.HP.Died += OnBossDied;
         }
 
-        private void OnBossDied()
+        private void OnBossDied(Vector3 killDir,float overkill)
         {
             if (_runFinished) return;
             _runFinished = true;

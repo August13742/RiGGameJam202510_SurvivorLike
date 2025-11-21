@@ -9,7 +9,7 @@ namespace Survivor.Progression
         // Store the last offered defs so Pick() can find them.
         public UpgradeDef[] LastDefs { get; private set; }
 
-        private readonly List<UpgradeDef> _choices = new ();
+        private readonly List<UpgradeDef> _choices = new();
 
         public UpgradeCardVM[] BuildOffer(ProgressionContext ctx, UpgradeDef[] pool, int count)
         {
@@ -41,8 +41,6 @@ namespace Survivor.Progression
                     {
                         var (def, weight) = weightedPool[j];
                         _choices.Add(def);
-
-                        //Debug.Log($"choice appended: {def.Id}");
                         totalWeight -= weight;
                         weightedPool.RemoveAt(j);
                         break;
@@ -53,14 +51,27 @@ namespace Survivor.Progression
             LastDefs = _choices.ToArray();
 
             // 3. Convert the chosen UpgradeDefs into ViewModels for UI
-            return LastDefs.Select(def => new UpgradeCardVM
+            return LastDefs.Select(def =>
             {
-                Id = def.Id,
-                Title = def.Title,
-                Description = def.Description,
-                Icon = def.Icon,
-                Rarity = def.Rarity,
-                PreviewLines = def.GetPreviewLines(ctx)
+                int currentCount = ctx.History.Count(def.Id);
+
+                // Determines formatting. 
+                // If count == 0: "Fireball" (New Unlock)
+                // If count > 0:  "Fireball +1", "Fireball +2", etc.
+                string displayTitle = currentCount == 0
+                    ? def.Title
+                    : $"{def.Title} +{currentCount+1}";
+
+
+                return new UpgradeCardVM
+                {
+                    Id = def.Id,
+                    Title = displayTitle, // Use the dynamic title
+                    Description = def.Description,
+                    Icon = def.Icon,
+                    Rarity = def.Rarity,
+                    PreviewLines = def.GetPreviewLines(ctx)
+                };
             }).ToArray();
         }
     }

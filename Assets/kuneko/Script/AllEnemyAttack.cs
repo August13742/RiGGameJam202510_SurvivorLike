@@ -39,7 +39,7 @@ public class AllEnemyAttack : MonoBehaviour
             if (visible)
             {
                 if (!col.TryGetComponent<HealthComponent>(out var target)) return;
-                target.Damage(damage);
+                target.Damage(damage,transform.position);
             } else
             {
                 continue;

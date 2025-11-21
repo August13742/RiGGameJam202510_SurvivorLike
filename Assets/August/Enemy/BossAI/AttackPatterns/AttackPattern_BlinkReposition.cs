@@ -1,5 +1,6 @@
 using System.Collections;
 using AugustsUtility.Tween;
+
 using UnityEngine;
 
 namespace Survivor.Enemy.FSM
@@ -9,6 +10,10 @@ namespace Survivor.Enemy.FSM
         menuName = "Defs/Boss Attacks/Blink Reposition")]
     public sealed class AttackPattern_BlinkReposition : AttackPattern
     {
+        [Header("SFX")]
+        [SerializeField] private SFXResource blinkSFX;
+        [SerializeField] private SFXResource appearSFX;
+
         [Header("Blink Distances (around player)")]
         [SerializeField] private float minBlinkDistance = 4f;
         [SerializeField] private float maxBlinkDistance = 8f;
@@ -90,6 +95,7 @@ namespace Survivor.Enemy.FSM
             }
 
             // --- 1. Fade-out (+ contract ring via tween, if present) ---
+            AudioManager.Instance?.PlaySFX(blinkSFX);
             if (hasRing && fadeOutTime > 0f)
             {
                 controller.StartCoroutine(
@@ -142,7 +148,7 @@ namespace Survivor.Enemy.FSM
 
             // --- 3. Teleport around player (via BehaviourPivotWorld) ---
             TeleportAroundPlayer(controller, distMul);
-
+            AudioManager.Instance?.PlaySFX(appearSFX);
             // --- 4. Fade-in (+ expand ring back to base level 0, if present) ---
             if (hasRing && fadeInTime > 0f)
             {

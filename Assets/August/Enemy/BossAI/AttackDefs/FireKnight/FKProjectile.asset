@@ -15,3 +15,4 @@ MonoBehaviour:
   animationName: AttackRanged
   animationDuration: 1
   CallbackTags: []
+  sfx: {fileID: 11400000, guid: 337de6f33da6bc644a40b9d5568129a0, type: 2}

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3a94225b1594ba4f8ea50e97f2825e4, type: 3}
+  m_Name: AppearSFX
+  m_EditorClassIdentifier: 
+  clips:
+  - {fileID: 8300000, guid: 558ff886d80b24a43890de96afa2b9ff, type: 3}
+  loop: 0
+  priority: 64
+  volume: 1
+  volumeVariance: 0.1
+  pitch: 1
+  pitchVariance: 0.1
+  spatialBlend: 0
+  minDistance: 1
+  maxDistance: 20
+  bypassSpatial: 1
+  useSpatialCoalescing: 0
+  minSpatialSeparation: 5
+  mixerGroup: {fileID: 0}

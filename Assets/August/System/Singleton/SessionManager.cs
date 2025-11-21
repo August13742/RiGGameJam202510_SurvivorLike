@@ -155,7 +155,7 @@ namespace Survivor.Game
             VFX.ScreenDamageOverlay.Instance?.Flash();
         }
 
-        private void OnPlayerDied()
+        private void OnPlayerDied(Vector3 dir,float dmg)
         {
             // Full red overlay
             Survivor.VFX.ScreenDamageOverlay.Instance?.ShowFull();
@@ -224,7 +224,7 @@ namespace Survivor.Game
             if (amount <= 0) return;
             experienceCollected = Mathf.Max(0, experienceCollected + amount);
             currentExp += amount;
-            ExpChanged.Invoke(amount);
+            ExpChanged?.Invoke(amount);
             CheckIfLevelUp();
         }
 

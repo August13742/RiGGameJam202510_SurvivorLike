@@ -43,7 +43,6 @@ namespace Survivor.Enemy
             _sr = GetComponent<SpriteRenderer>();
             if (_sr == null) _sr = GetComponentInChildren<SpriteRenderer>();
             _colliders = GetComponentsInChildren<Collider2D>(includeInactive:false);
-            _health.ResetFull();
         }
 
         protected virtual void OnEnable()
@@ -60,7 +59,7 @@ namespace Survivor.Enemy
                 _animator.speed = 1f;
             }
         }
-
+        public void SetTarget(Transform t) => _target = t;
         protected virtual void OnDisable()
         {
             if (_health != null)
@@ -86,7 +85,7 @@ namespace Survivor.Enemy
 
             if (!col.TryGetComponent<HealthComponent>(out var target)) return;
 
-            target.Damage(_def.ContactDamage);
+            target.Damage(_def.ContactDamage, this.transform.position);
 
         }
         bool IsFrozen = false;
@@ -199,7 +198,6 @@ namespace Survivor.Enemy
             if (LootManager.Instance != null)
                 LootManager.Instance.SpawnLoot(_def, transform.position);
 
-            _health.DisconnectAllSignals();
             SessionManager.Instance.IncrementEnemyDowned(1);
 
             Despawned?.Invoke(this);
@@ -226,16 +224,16 @@ namespace Survivor.Enemy
         {
             _def = def;
             // Drive HP from def; also reset to full for a fresh spawn.
-            _health.SetMaxHP(Mathf.Max(1, def.BaseHP), resetCurrent: true, raiseEvent: true);
+            _health.SetMaxHP(Mathf.Max(1, def.BaseHP), healToFull: true);
         }
 
-        public void Damage(float amount) => _health.Damage(amount);
-        public void Heal(float amount) => _health.Heal(amount);
+        public void Damage(float amount) => _health.Damage(amount, transform.position);
+        public void Heal(float amount) => _health.Heal(amount, transform.position);
         public float HealthPercent() => _health.GetCurrentPercent();
 
         // --- IPoolable ---
 
-        protected virtual void OnDied()
+        protected virtual void OnDied(Vector3 killingBlowDir, float overkill)
         {
 
             SetCollisionEnabled(false);
@@ -255,7 +253,6 @@ namespace Survivor.Enemy
         public virtual void OnDespawned()
         {
             // Clear vfx/sfx/trails
-            _health.DisconnectAllSignals();
             Despawned = null;
         }
 

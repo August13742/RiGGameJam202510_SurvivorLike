@@ -48,6 +48,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Survivor.Weapon.Projectile
   forwardAxis: 0
+  reselectTargetOnHit: 0
+  reselectSearchRadius: 8
+  reselectSearchMask:
+    serializedVersion: 2
+    m_Bits: 256
   _lifeTime: 0
   _isAlive: 0
 --- !u!114 &8326722640880561159

@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da181c49a37025e42a5c0c677f905556, type: 3}
   m_Name: FKSequencedAttackPattern 2
   m_EditorClassIdentifier: 
+  dashSFX: {fileID: 0}
   attackSequence:
   - animationName: Attack3
-    animationSpeedScale: 0.3
+    animationSpeedScale: 0.5
+    attackSFX: {fileID: 11400000, guid: 1625fbb908df173458d5bb95b7dff9e5, type: 2}
     activeDuration: 3
     breakTimeAfter: 0.2
     requiresRangeCheck: 1
