@@ -1,20 +1,21 @@
-# RiG++ 秋セメスター GameJam企画: Vampire-Survivor Like (最初はそのつもり) Snapshot 11月16日
-
+# RiG++ 秋セメスター GameJam企画: Survivor Like (最初はそのつもり) 2025年10月10日～11月21日
+---
 本プロジェクトのコード(Assets/August/)はOpen Sourceである
-
+---
 ## 主要制作者 August 13742
-### Boss4: Eleonore (開発中)
-https://github.com/user-attachments/assets/1cad27a7-2eea-4a42-8a98-31cd54d13bc1
+### Boss4: Eleonore
+https://github.com/user-attachments/assets/c71ff0f2-0ef3-456d-b0c4-9dbc54b3b1e5
 
 ### Boss3: Fire Knight
-https://github.com/user-attachments/assets/210fe5a7-d5e3-4eb8-8179-8ef7a0b37de2
+https://github.com/user-attachments/assets/2bccb03d-eb39-4178-a228-9114a63ffbba
 
 ### Boss2: Huntress
-https://github.com/user-attachments/assets/f0900a6f-9a4a-4a7f-b9fa-f24a31f4f257
+https://github.com/user-attachments/assets/74caddc8-0620-4aa8-b79a-58eb8cecc215
 
 ### Boss1: Soldier
-https://github.com/user-attachments/assets/2499db02-f374-4282-9ad3-88a6ecd5aff7
+https://github.com/user-attachments/assets/a453402b-aedd-44c7-899d-90638397cfa3
 
+---
 ## 技術的注目点(一部)
 ### 無限成長武器システム(`August/Weapon`) & (`August/Progression`)
 攻撃力, クールダウン, 範囲, Crit率などのステータスは, すべての武器に共通し, `Base * Bonus(1.0 + %)`で実現される.
