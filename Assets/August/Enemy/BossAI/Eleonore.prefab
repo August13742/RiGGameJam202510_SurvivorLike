@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 21239347347568363}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.77, y: -6.8803916, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -82,9 +82,9 @@ MonoBehaviour:
     MeleeDamage: 5
     ChaseSpeed: 2
     IdleWanderSpeed: 1
-    EngageRange: 20
-    AttackRange: 18
-    RangedAttackMinRange: 4.5
+    EngageRange: 60
+    AttackRange: 50
+    RangedAttackMinRange: 8
     GlobalAttackCooldown: 1
     MinFlipInterval: 0.5
     FacingDeadzone: 0.2
@@ -94,38 +94,68 @@ MonoBehaviour:
     - Category: 1
       Pattern: {fileID: 11400000, guid: 49fcbdd7bcdf1b943bb68f3e39cc43f3, type: 2}
       CooldownTag: blink
-      Cooldown: 9
-      Weight: 1
+      Cooldown: 8
+      Weight: 6
     - Category: 1
       Pattern: {fileID: 11400000, guid: c354c53a6327a9840976ed20d6f6216b, type: 2}
-      CooldownTag: ft
+      CooldownTag: flame
       Cooldown: 5
-      Weight: 1
+      Weight: 5
     - Category: 1
       Pattern: {fileID: 11400000, guid: 327c510365d13eb489d5c40ea4e6f7fa, type: 2}
       CooldownTag: ring
       Cooldown: 5
-      Weight: 1
+      Weight: 6
     - Category: 1
       Pattern: {fileID: 11400000, guid: 9f90f20008859404b85cfd3660db1b08, type: 2}
       CooldownTag: ring
       Cooldown: 5
-      Weight: 1
+      Weight: 6
     - Category: 1
       Pattern: {fileID: 11400000, guid: c2c2f0653d7f0a24bb3f7aeeff2bfc5c, type: 2}
-      CooldownTag: brp
+      CooldownTag: tele
       Cooldown: 5
-      Weight: 1
+      Weight: 5
     - Category: 1
       Pattern: {fileID: 11400000, guid: 9ea18c5d040a4eb4091cb4ebfd15c73d, type: 2}
       CooldownTag: summon
       Cooldown: 30
-      Weight: 1
-    EnrageAction:
-      Category: 1
-      Pattern: {fileID: 11400000, guid: 0fb1e4f90b98d684ab67b8e39fe75e50, type: 2}
-      CooldownTag: nuke
+      Weight: 5
+    - Category: 0
+      Pattern: {fileID: 11400000, guid: 91eb61c03c1b83e4a8b70442d4c9c3c7, type: 2}
+      CooldownTag: repulse
+      Cooldown: 5
+      Weight: 5
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: da308d3de8896364a99f5294d27d7234, type: 2}
+      CooldownTag: grav
       Cooldown: 10
+      Weight: 1
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: 0dac0a18857962341a48437e55ee5596, type: 2}
+      CooldownTag: shoot
+      Cooldown: 10
+      Weight: 3
+    - Category: 0
+      Pattern: {fileID: 11400000, guid: 3e57ea8277021104a82feb150e0f1d56, type: 2}
+      CooldownTag: nuke
+      Cooldown: 30
+      Weight: 1
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: 6b561cf6f96a24e44aedc56f89a446a8, type: 2}
+      CooldownTag: sweep
+      Cooldown: 12
+      Weight: 5
+    - Category: 0
+      Pattern: {fileID: 11400000, guid: d226aa58c1075444abb1ce031f03a910, type: 2}
+      CooldownTag: repulse_shoot
+      Cooldown: 10
+      Weight: 5
+    EnrageAction:
+      Category: 0
+      Pattern: {fileID: 11400000, guid: 3e57ea8277021104a82feb150e0f1d56, type: 2}
+      CooldownTag: nuke
+      Cooldown: 30
       Weight: 1
     EnrageWeightMultiplier: 9999
   AlwaysEnraged: 0
@@ -570,7 +600,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 2.25
+  m_Radius: 2
 --- !u!114 &8338276979044637145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -958,6 +988,9 @@ GameObject:
   m_Component:
   - component: {fileID: 482176215922264177}
   - component: {fileID: 1482117925757857046}
+  - component: {fileID: 2592804022186179946}
+  - component: {fileID: 3679578423808905989}
+  - component: {fileID: 3620059154669061279}
   m_Layer: 9
   m_Name: Stars
   m_TagString: Untagged
@@ -1035,6 +1068,90 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!58 &2592804022186179946
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4531743163113001323}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -1.73, y: 0}
+  m_Radius: 0.18
+--- !u!58 &3679578423808905989
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4531743163113001323}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 1.73, y: 0}
+  m_Radius: 0.18
+--- !u!114 &3620059154669061279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4531743163113001323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39acf49678ad02b4db25a56abcd2b7dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8391518908445253680
 GameObject:
   m_ObjectHideFlags: 0
@@ -1083,11 +1200,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   outerReporter: {fileID: 8338276979044637145}
   innerReporter: {fileID: 5496654731573295859}
+  starsReporter: {fileID: 3620059154669061279}
   baseDamagePerTick: 3
   tickInterval: 0.25
   targetMask:
     serializedVersion: 2
     m_Bits: 64
+  starsDamage: 10
+  starCameraShakeStrength: 1.5
+  starCameraShakeDuration: 0.3
   rings:
   - Transform: {fileID: 1660564357631360350}
     BaseSpinSpeed: -30

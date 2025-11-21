@@ -257,8 +257,8 @@ MonoBehaviour:
     MeleeDamage: 20
     ChaseSpeed: 5
     IdleWanderSpeed: 2
-    EngageRange: 15
-    AttackRange: 13
+    EngageRange: 20
+    AttackRange: 18
     RangedAttackMinRange: 5
     GlobalAttackCooldown: 1
     MinFlipInterval: 0.5
@@ -291,11 +291,16 @@ MonoBehaviour:
       CooldownTag: charge
       Cooldown: 5
       Weight: 10
+    - Category: 1
+      Pattern: {fileID: 11400000, guid: 20ba64855eea9814ead998329b4e1f62, type: 2}
+      CooldownTag: charge
+      Cooldown: 15
+      Weight: 2
     EnrageAction:
       Category: 0
-      Pattern: {fileID: 0}
+      Pattern: {fileID: 11400000, guid: 20ba64855eea9814ead998329b4e1f62, type: 2}
       CooldownTag: 
-      Cooldown: 3
+      Cooldown: 5
       Weight: 1
     EnrageWeightMultiplier: 9999
   AlwaysEnraged: 0
@@ -315,6 +320,9 @@ MonoBehaviour:
   projectileHomeWhenEnraged: 1
   projectileHomingDuration: 0.3
   behaviorPivotLocal: {x: 0, y: 0}
+  attackTelegraphRoot: {fileID: 0}
+  telegraphScaleInDuration: 0.25
+  telegraphScaleOutDuration: 0.2
   _currentStateLabel: 
   <IsDead>k__BackingField: 0
   _enrageActionPending: 0

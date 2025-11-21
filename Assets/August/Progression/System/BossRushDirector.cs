@@ -90,6 +90,7 @@ namespace Survivor.Game
 
             if (_currentIndex >= _sequence.Length)
             {
+                yield return new WaitForSeconds(3f);
                 OnBossRushCompleted();
                 yield break;
             }
@@ -140,7 +141,7 @@ namespace Survivor.Game
         {
             var sm = SessionManager.Instance;
 
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(3f);
 
             if (LootManager.Instance != null && fullHealDropDef != null && sm != null && bossSpawnPoint != null)
             {

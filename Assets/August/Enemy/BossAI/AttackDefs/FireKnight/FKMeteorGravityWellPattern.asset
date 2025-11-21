@@ -44,10 +44,10 @@ MonoBehaviour:
   explosionDamage: 150
   PullOnlyWhenEnraged: 1
   bigPullDelay: 0.75
-  bigPullRadius: 18
-  bigPullMaxTravel: 8
+  bigPullRadius: 24
+  bigPullMaxTravel: 10
   innerPullDelay: 0.3
-  pullInterval: 0.35
+  pullInterval: 0.4
   pullStepDistance: 1
   bigPullRingColor: {r: 0.5, g: 0.9, b: 1, a: 1}
   bigPullRingExtraLifetime: 0.15
