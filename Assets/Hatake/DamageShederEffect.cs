@@ -37,8 +37,6 @@ public class DamageShederEffect : MonoBehaviour
 
     private void OnDamaged(float amount, Vector3 worldPos, bool isCrit)
     {
-        Debug.Log("damage");
-
         flashCoroutine = StartCoroutine(ResetSpeedAfterDelay());
     }
 

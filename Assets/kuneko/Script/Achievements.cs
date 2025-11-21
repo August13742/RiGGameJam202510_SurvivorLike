@@ -38,7 +38,7 @@
 //    }
 
 //    /// <summary>
-//    /// “|‚µ‚½“G‚Ì”‚É‰‚¶‚½ƒAƒ`[ƒuƒƒ“ƒg‚ğ•\¦
+//    /// ï¿½|ï¿½ï¿½ï¿½ï¿½ï¿½Gï¿½Ìï¿½ï¿½É‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½`ï¿½[ï¿½uï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½\ï¿½ï¿½
 //    /// </summary>
 //    /// <param name="enemyDown"></param>
 //    public void AddEnemyCount(int enemyDown)
@@ -64,7 +64,7 @@
 //    }
 
 //    /// <summary>
-//    /// —^‚¦‚½ƒ_ƒ[ƒW‚É‰‚¶‚½ƒAƒ`[ƒuƒƒ“ƒg‚ğ•\¦
+//    /// ï¿½^ï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½[ï¿½Wï¿½É‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½`ï¿½[ï¿½uï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½\ï¿½ï¿½
 //    /// </summary>
 //    /// <param name="damage"></param>
 //    public void AddDamageCount(float damage)
@@ -90,7 +90,7 @@
 //    }
 
 //    /// <summary>
-//    /// ó‚¯‚½ƒ_ƒ[ƒW‚É‰‚¶‚½ƒAƒ`[ƒuƒƒ“ƒg‚ğ•\¦
+//    /// ï¿½ó‚¯‚ï¿½ï¿½_ï¿½ï¿½ï¿½[ï¿½Wï¿½É‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½`ï¿½[ï¿½uï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½\ï¿½ï¿½
 //    /// </summary>
 //    /// <param name="beDamaged"></param>
 //    public void AddBeDamageCount(float beDamaged)
@@ -112,7 +112,7 @@
 //    }
 
 //    /// <summary>
-//    /// ƒ|ƒbƒvƒAƒbƒv‚ğ•\¦
+//    /// ï¿½|ï¿½bï¿½vï¿½Aï¿½bï¿½vï¿½ï¿½\ï¿½ï¿½
 //    /// </summary>
 //    /// <returns></returns>
 //    IEnumerator ShowPopUp(int num, string str)
@@ -122,13 +122,13 @@
 //        TextMeshProUGUI TMPro = child.GetComponent<TextMeshProUGUI>();
 //        if (str == "enemyDown")
 //        {
-//            TMPro.text = num + "‘Ì‚Ì“G‚ğ“|‚µ‚½!";
+//            TMPro.text = num + "ï¿½Ì‚Ì“Gï¿½ï¿½|ï¿½ï¿½ï¿½ï¿½!";
 //        } else if (str == "damage")
 //        {
-//            TMPro.text = num + "ƒ_ƒ[ƒW‚ğ—^‚¦‚½!";
+//            TMPro.text = num + "ï¿½_ï¿½ï¿½ï¿½[ï¿½Wï¿½ï¿½^ï¿½ï¿½ï¿½ï¿½!";
 //        } else if (str == "beDamaged")
 //        {
-//            TMPro.text = num + "ƒ_ƒ[ƒW‚­‚ç‚Á‚½!";
+//            TMPro.text = num + "ï¿½_ï¿½ï¿½ï¿½[ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½!";
 //        }
 //        instance.transform.DOLocalMoveY(moveYPos, 1f);
 //        yield return new WaitForSeconds(3f);

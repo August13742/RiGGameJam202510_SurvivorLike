@@ -23,6 +23,11 @@ namespace Survivor.Progression
 
 
         public Action<UpgradeCardVM[]> OfferReady; // UI subscribes
+        public Action OfferSelected;
+
+        //add
+        [SerializeField] private WeaponList weaponList;
+
         private void Awake()
         {
             _history = new SelectionHistory();
@@ -94,6 +99,9 @@ namespace Survivor.Progression
                 Debug.LogWarning($"[Progression] Pick failed; unknown Id: {id}");
                 return;
             }
+
+            //add
+            weaponList.ShowInWeaponList(def.Icon);
 
             var changes = def.Apply(ctx);
             if (changes.PreviewLines != null && changes.PreviewLines.Count > 0)

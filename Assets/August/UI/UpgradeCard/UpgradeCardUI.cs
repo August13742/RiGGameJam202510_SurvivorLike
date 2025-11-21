@@ -27,12 +27,16 @@ namespace Survivor.Progression.UI
         private UpgradeCardVM _vm;
         private Action<string> _onPick;
 
+        //add
+        [SerializeField] private WeaponList weaponList;
+
         public void Configure(UpgradeCardVM vm, Action<string> onPick)
         {
             _vm = vm;
             _onPick = onPick;
 
             if (iconImage) iconImage.sprite = vm.Icon;
+
             if (titleText) titleText.text = vm.Title;
             if (descText) descText.text = vm.Description ?? string.Empty;
 
