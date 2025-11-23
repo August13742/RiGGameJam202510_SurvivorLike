@@ -13,6 +13,5 @@ MonoBehaviour:
   m_Name: NewMusicPlaylist
   m_EditorClassIdentifier: 
   tracks:
-  - {fileID: 11400000, guid: e30c820ae1a5b2142b45e60543c44ff1, type: 2}
   - {fileID: 11400000, guid: 70a734ca4dd0f5d43bbe54dc61600e97, type: 2}
   playbackMode: 1
