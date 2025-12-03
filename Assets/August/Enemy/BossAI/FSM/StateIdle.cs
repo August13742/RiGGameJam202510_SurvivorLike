@@ -36,6 +36,7 @@ namespace Survivor.Enemy.FSM
 			// Melee and still dry �� wander
 			Vector2 wander = new Vector2(_controller.GetPerlinWanderX(), _controller.GetPerlinWanderY()).normalized;
 			_controller.Velocity = wander * _controller.Config.IdleWanderSpeed;
+			_controller.Direction = new Vector2(Mathf.Sign(_controller.Velocity.x), Mathf.Sign(_controller.Velocity.y)).normalized;
 			return null;
 		}
 

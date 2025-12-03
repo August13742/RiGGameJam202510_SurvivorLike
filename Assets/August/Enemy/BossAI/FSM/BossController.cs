@@ -4,7 +4,6 @@ using Survivor.Game;
 using Survivor.UI;
 using Survivor.Weapon;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -77,7 +76,7 @@ namespace Survivor.Enemy.FSM
 
         // --- State Machine ---
         private IState _currentState;
-        [SerializeField] String _currentStateLabel = "";
+        [SerializeField] String _currentStateLabel = ""; //for inspector debug only
         private Dictionary<Type, IState> _states;
 
         // --- Cooldowns ---
@@ -460,7 +459,6 @@ namespace Survivor.Enemy.FSM
             {
                 for (int i = 0; i < attacks.Count; i++)
                 {
-                    // Match via Pattern so it also works with cloned ScriptableAttackDefinition
                     if (attacks[i].Pattern == config.EnrageAction.Pattern)
                     {
                         _enrageActionPending = false;
@@ -477,7 +475,7 @@ namespace Survivor.Enemy.FSM
             if (total <= 0f)
                 return attacks[attacks.Count - 1];
 
-            float r = Random.value * total;
+            float r = Random.value * total; // random returns 0...1
             for (int i = 0; i < attacks.Count; i++)
             {
                 float w = Mathf.Max(0f, attacks[i].Weight);
@@ -558,8 +556,8 @@ namespace Survivor.Enemy.FSM
         #endregion
 
         #region Helpers & Gizmos
-        public float GetPerlinWanderX() => (Mathf.PerlinNoise(Time.time * 0.2f + _perlinNoiseOffsetX, 0) * 2f) - 1f;
-        public float GetPerlinWanderY() => (Mathf.PerlinNoise(0, Time.time * 0.2f + _perlinNoiseOffsetY) * 2f) - 1f;
+        public float GetPerlinWanderX() => (Mathf.PerlinNoise(Time.time * 0.3f + _perlinNoiseOffsetX, 0) * 2f) - 1f;
+        public float GetPerlinWanderY() => (Mathf.PerlinNoise(0, Time.time * 0.3f + _perlinNoiseOffsetY) * 2f) - 1f;
 
         private void FindPlayerTransform()
         {
