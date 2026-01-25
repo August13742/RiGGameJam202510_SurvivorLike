@@ -1,7 +1,9 @@
 # RiG++ 秋セメスター GameJam企画: Survivor Like (最初はそのつもり) 2025年10月10日～11月21日
 
-### 本プロジェクトのコード(Assets/August/)はOpen Sourceである. (.cs総行数17157行)
+### 本プロジェクトのコード(Assets/August/)はOpen Sourceである.
 Unity自体の機能以外, 外部ライブラリー一切使っておらず, すべてのコードは自作 & LLMと制作方針を討論しながら作成したものである.
+
+[関連記事](https://rigpp.sakura.ne.jp/wp/%e3%82%a2%e3%82%af%e3%82%b7%e3%83%a7%e3%83%b3%e3%82%b2%e3%83%bc%e3%83%a0%e3%81%ae%e3%81%9f%e3%82%81%e3%81%ae%e5%ae%9f%e6%88%a6%e7%9a%84%e7%b0%a1%e6%98%93%e3%83%9c%e3%82%b9ai%e3%81%ae%e4%bd%9c%e3%82%8a/)
 
 #### 画像は一部AI・プログラム生成+Augustによる画像編集で作成しております. 
 
